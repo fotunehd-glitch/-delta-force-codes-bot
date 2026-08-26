@@ -1,0 +1,15 @@
+services:
+  door-codes-bot:
+    build: /volume1/docker/door-codes-bot
+    container_name: door-codes-bot
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - /volume1/docker/door-codes-bot/data:/app/data
+    environment:
+      - DISCORD_BOT_TOKEN=PASTE_YOUR_BOT_TOKEN_HERE
+      - DISCORD_CLIENT_ID=PASTE_YOUR_CLIENT_ID_HERE
+      - DISCORD_CLIENT_SECRET=PASTE_YOUR_CLIENT_SECRET_HERE
+      - PUBLIC_URL=http://localhost:3000
+      - SESSION_SECRET=PASTE_A_RANDOM_LONG_STRING_HERE

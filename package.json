@@ -1,0 +1,16 @@
+{
+  "name": "delta-force-codes-bot",
+  "version": "1.0.0",
+  "description": "Discord bot + web dashboard for auto-posting Delta Force door codes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "better-sqlite3": "^11.1.2",
+    "node-cron": "^3.0.3"
+  }
+}
