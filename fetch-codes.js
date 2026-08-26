@@ -38,16 +38,20 @@ function fetchCodes() {
 function buildEmbed(codes) {
   const fields = MAPS.map(m => ({
     name: m.name,
-    value: `\`${codes[m.key] || '----'}\``,
+    value: `# ${codes[m.key] || '----'}`,
     inline: true,
   }));
 
   return {
-    title: "Delta Force Door Codes",
+    title: "🔑 Delta Force — Door Codes",
+    description: "Today's live codes for every HQ map.",
     color: 0x0ff796,
+    thumbnail: {
+      url: "https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/logo.png",
+    },
     fields: fields,
     timestamp: new Date().toISOString(),
-    footer: { text: "Made by FortuneHD - auto-updated daily" },
+    footer: { text: "Made by FortuneHD · auto-updated daily" },
   };
 }
 
