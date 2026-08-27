@@ -6,7 +6,7 @@ const express = require('express');
 const session = require('express-session');
 const https = require('https');
 
-const { setGuildChannel, getGuildChannel } = require('./db.js');
+const { setGuildChannel, getGuildChannel, getAllConfiguredGuilds } = require('./db.js');
 
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
@@ -89,6 +89,20 @@ function page(title, body) {
 }
 
 // --- Routes ---
+
+// Public stats endpoint - no login required, safe to call from the
+// separate landing page's own JavaScript.
+app.get('/stats', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*');
+  try {
+    const activeServers = getAllConfiguredGuilds().length;
+    const botGuilds = await discordApi('/users/@me/guilds', { isBot: true });
+    const totalServers = (botGuilds || []).length;
+    res.json({ activeServers, totalServers });
+  } catch (err) {
+    res.status(500).json({ error: 'Could not load stats' });
+  }
+});
 
 app.get('/', (req, res) => {
   if (req.session.user) return res.redirect('/dashboard');
