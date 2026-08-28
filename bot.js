@@ -59,6 +59,16 @@ client.on('interactionCreate', async (interaction) => {
     content: `Done! Daily door codes will be posted in <#${channel.id}>.`,
     ephemeral: true,
   });
+
+  // Post today's codes right away too, so there's no waiting until
+  // tomorrow's scheduled run to see it working.
+  try {
+    const codes = await fetchCodes();
+    const embed = buildEmbed(codes);
+    await channel.send({ embeds: [embed] });
+  } catch (err) {
+    console.error('Failed to post immediate codes after setup:', err);
+  }
 });
 
 // --- Daily posting job ---
