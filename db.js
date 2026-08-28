@@ -1,46 +1,52 @@
 // db.js
-// Tiny SQLite-backed store: one row per Discord server (guild), recording
-// which channel it wants the daily door codes posted into.
-
-const Database = require('better-sqlite3');
-const path = require('path');
-
-const DB_PATH = path.join(__dirname, 'data', 'guilds.db');
+// Tiny JSON-file-backed store: one entry per Discord server (guild),
+// recording which channel it wants the daily door codes posted into.
+// Uses a plain JSON file instead of a database - no native compilation
+// needed, which keeps the Docker build simple and reliable.
 
 const fs = require('fs');
-if (!fs.existsSync(path.join(__dirname, 'data'))) {
-  fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_PATH = path.join(DATA_DIR, 'guilds.json');
+
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-const db = new Database(DB_PATH);
+function readData() {
+  if (!fs.existsSync(DB_PATH)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS guild_configs (
-    guild_id TEXT PRIMARY KEY,
-    channel_id TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-  )
-`);
+function writeData(data) {
+  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
 
 function setGuildChannel(guildId, channelId) {
-  db.prepare(`
-    INSERT INTO guild_configs (guild_id, channel_id, updated_at)
-    VALUES (?, ?, ?)
-    ON CONFLICT(guild_id) DO UPDATE SET channel_id = excluded.channel_id, updated_at = excluded.updated_at
-  `).run(guildId, channelId, new Date().toISOString());
+  const data = readData();
+  data[guildId] = { channel_id: channelId, updated_at: new Date().toISOString() };
+  writeData(data);
 }
 
 function getGuildChannel(guildId) {
-  const row = db.prepare('SELECT channel_id FROM guild_configs WHERE guild_id = ?').get(guildId);
-  return row ? row.channel_id : null;
+  const data = readData();
+  return data[guildId] ? data[guildId].channel_id : null;
 }
 
 function getAllConfiguredGuilds() {
-  return db.prepare('SELECT guild_id, channel_id FROM guild_configs').all();
+  const data = readData();
+  return Object.entries(data).map(([guild_id, v]) => ({ guild_id, channel_id: v.channel_id }));
 }
 
 function removeGuild(guildId) {
-  db.prepare('DELETE FROM guild_configs WHERE guild_id = ?').run(guildId);
+  const data = readData();
+  delete data[guildId];
+  writeData(data);
 }
 
 module.exports = { setGuildChannel, getGuildChannel, getAllConfiguredGuilds, removeGuild };
