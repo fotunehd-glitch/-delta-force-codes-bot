@@ -68,6 +68,17 @@ client.on('interactionCreate', async (interaction) => {
     await channel.send({ embeds: [embed] });
   } catch (err) {
     console.error('Failed to post immediate codes after setup:', err);
+
+    let helpMsg = "I saved your channel choice, but couldn't post today's codes there yet - I'll try again automatically tomorrow.";
+    if (err.code === 50001 || err.code === 50013) {
+      helpMsg = `I don't have permission to post in <#${channel.id}> yet. Could you check that my role has "View Channel" and "Send Messages" allowed in that channel's permission settings? Once that's fixed, just run /setcodeschannel again and I'll post right away.`;
+    }
+
+    try {
+      await interaction.followUp({ content: helpMsg, ephemeral: true });
+    } catch (followUpErr) {
+      console.error('Failed to send follow-up error message:', followUpErr);
+    }
   }
 });
 
