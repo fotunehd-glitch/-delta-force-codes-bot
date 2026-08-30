@@ -11,6 +11,8 @@ const {
   SlashCommandBuilder,
   PermissionFlagsBits,
   ChannelType,
+  ChannelSelectMenuBuilder,
+  ActionRowBuilder,
 } = require('discord.js');
 const cron = require('node-cron');
 
@@ -48,11 +50,10 @@ async function registerCommands() {
   console.log('Slash commands registered.');
 }
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-  if (interaction.commandName !== 'setcodeschannel') return;
-
-  const channel = interaction.options.getChannel('channel');
+// Shared logic: save the chosen channel, then try posting today's codes
+// right away. Used by both the slash command and the welcome-message
+// channel picker.
+async function handleChannelChosen(interaction, channel) {
   setGuildChannel(interaction.guildId, channel.id);
 
   await interaction.reply({
@@ -60,8 +61,6 @@ client.on('interactionCreate', async (interaction) => {
     ephemeral: true,
   });
 
-  // Post today's codes right away too, so there's no waiting until
-  // tomorrow's scheduled run to see it working.
   try {
     const codes = await fetchCodes();
     const embed = buildEmbed(codes);
@@ -79,6 +78,56 @@ client.on('interactionCreate', async (interaction) => {
     } catch (followUpErr) {
       console.error('Failed to send follow-up error message:', followUpErr);
     }
+  }
+}
+
+client.on('interactionCreate', async (interaction) => {
+  // Channel picker from the welcome message
+  if (interaction.isChannelSelectMenu() && interaction.customId === 'pick_codes_channel') {
+    const channel = interaction.channels.first();
+    await handleChannelChosen(interaction, channel);
+    return;
+  }
+
+  // /setcodeschannel slash command
+  if (interaction.isChatInputCommand() && interaction.commandName === 'setcodeschannel') {
+    const channel = interaction.options.getChannel('channel');
+    await handleChannelChosen(interaction, channel);
+  }
+});
+
+// Send a welcome message with a built-in channel picker the moment the
+// bot joins a new server - no command needed, just click and pick.
+client.on('guildCreate', async (guild) => {
+  try {
+    let targetChannel = guild.systemChannel;
+    const me = guild.members.me;
+
+    if (!targetChannel || !targetChannel.permissionsFor(me)?.has(['ViewChannel', 'SendMessages'])) {
+      targetChannel = guild.channels.cache.find(c =>
+        c.type === ChannelType.GuildText &&
+        c.permissionsFor(me)?.has(['ViewChannel', 'SendMessages'])
+      );
+    }
+
+    if (!targetChannel) {
+      console.log(`Joined guild ${guild.id} but couldn't find any channel to post a welcome message in.`);
+      return;
+    }
+
+    const row = new ActionRowBuilder().addComponents(
+      new ChannelSelectMenuBuilder()
+        .setCustomId('pick_codes_channel')
+        .setPlaceholder('Pick a channel for daily door codes')
+        .addChannelTypes(ChannelType.GuildText)
+    );
+
+    await targetChannel.send({
+      content: "Thanks for adding **Delta Force Door Codes**! Pick a channel below and I'll post today's codes there right away, then automatically every day after.",
+      components: [row],
+    });
+  } catch (err) {
+    console.error('Failed to send welcome message:', err);
   }
 });
 
