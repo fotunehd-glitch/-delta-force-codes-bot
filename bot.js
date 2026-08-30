@@ -13,6 +13,8 @@ const {
   ChannelType,
   ChannelSelectMenuBuilder,
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } = require('discord.js');
 const cron = require('node-cron');
 
@@ -82,6 +84,34 @@ async function handleChannelChosen(interaction, channel) {
 }
 
 client.on('interactionCreate', async (interaction) => {
+  // "Create a new channel for me" button from the welcome message
+  if (interaction.isButton() && interaction.customId === 'create_codes_channel') {
+    const me = interaction.guild.members.me;
+    if (!me.permissions.has(PermissionFlagsBits.ManageChannels)) {
+      await interaction.reply({
+        content: "I need the \"Manage Channels\" permission to create one for you. You'll need to remove and re-add me using the latest invite link on the website, then try again - or just pick an existing channel from the dropdown above instead.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    try {
+      const newChannel = await interaction.guild.channels.create({
+        name: 'door-codes',
+        type: ChannelType.GuildText,
+        reason: 'Created by Delta Force Door Codes bot for posting daily codes',
+      });
+      await handleChannelChosen(interaction, newChannel);
+    } catch (err) {
+      console.error('Failed to create channel:', err);
+      await interaction.reply({
+        content: "Something went wrong creating a channel - could you pick an existing one from the dropdown above instead?",
+        ephemeral: true,
+      });
+    }
+    return;
+  }
+
   // Channel picker from the welcome message
   if (interaction.isChannelSelectMenu() && interaction.customId === 'pick_codes_channel') {
     const channel = interaction.channels.first();
@@ -115,16 +145,23 @@ client.on('guildCreate', async (guild) => {
       return;
     }
 
-    const row = new ActionRowBuilder().addComponents(
+    const selectRow = new ActionRowBuilder().addComponents(
       new ChannelSelectMenuBuilder()
         .setCustomId('pick_codes_channel')
         .setPlaceholder('Pick a channel for daily door codes')
         .addChannelTypes(ChannelType.GuildText)
     );
 
+    const buttonRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('create_codes_channel')
+        .setLabel('Or create a new #door-codes channel for me')
+        .setStyle(ButtonStyle.Secondary)
+    );
+
     await targetChannel.send({
       content: "Thanks for adding **Delta Force Door Codes**! Pick a channel below and I'll post today's codes there right away, then automatically every day after.",
-      components: [row],
+      components: [selectRow, buttonRow],
     });
   } catch (err) {
     console.error('Failed to send welcome message:', err);
