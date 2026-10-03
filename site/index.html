@@ -350,7 +350,7 @@ function spin(k,delay=0){
   const st=state[k];if(st.held||st.spinning)return Promise.resolve();
   const p=pools[k]();
   if(!p.length){setStatic(k,null);return Promise.resolve();}
-  const result=S.unique?bagPick(k,p,st.cur):pick(p);
+  const result=(S.unique&&k!=="map")?bagPick(k,p,st.cur):pick(p); // maps stay fully random
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(S.instant||reduce){setStatic(k,result);tick(1100,.06,.06);return Promise.resolve();}
   st.spinning=true;
