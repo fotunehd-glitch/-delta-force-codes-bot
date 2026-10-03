@@ -117,6 +117,11 @@ label.ck input{accent-color:var(--green);width:14px;height:14px;margin:0}
 .track i{background:var(--line);border-radius:2px}
 .ops{grid-column:1/-1}
 .ops .list{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.intro{max-width:620px;margin:10px auto 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.about{width:min(100%,760px);display:grid;gap:8px;font-size:13px;line-height:1.6;color:var(--muted)}
+.about h2{margin:0;font:700 16px var(--display);color:var(--fg)}
+.about p{margin:0}
+.about b{color:var(--fg);font-weight:600}
 footer{font-size:12px;color:var(--muted);text-align:center;display:grid;gap:4px}
 footer b{color:var(--green);font-weight:600}
 footer a{color:var(--green);text-decoration:none}footer a:hover{text-decoration:underline}
@@ -144,6 +149,7 @@ footer a{color:var(--green);text-decoration:none}footer a:hover{text-decoration:
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
     <span class="tagline">Roll it. Run it. Extract.</span>
     <div class="data">Updated for Season 11 Reorientation · October 2026</div>
+    <p class="intro">Free Delta Force loadout randomiser for Operations. Roll a random operator, map, weapon, helmet, armour, chest rig and backpack, plus difficulty and weapon mod budget, with today's live door codes for every map.</p>
   </header>
 
   <section class="reels" id="reels" aria-live="polite"></section>
@@ -202,6 +208,13 @@ footer a{color:var(--green);text-decoration:none}footer a:hover{text-decoration:
       </div>
     </div>
   </details>
+
+  <section class="about" aria-labelledby="aboutH">
+    <h2 id="aboutH">About the Delta Force Random Kit</h2>
+    <p>Delta Force Random Kit is a loadout randomiser for Delta Force's Operations extraction mode. Hit <b>Spin all</b> to roll a full random kit: one of 17 operators, a map, a primary weapon or sidearm, and a helmet, armour vest, chest rig and backpack. Lock any slot with <b>Hold</b> and reroll the rest, set the tier range for each piece of gear, and turn off weapon classes, maps or operators you don't want.</p>
+    <p>Operators and weapons are shuffled so you see every option before anything repeats. Roll a difficulty (Easy, Normal or Hard) and a weapon mod budget to make each raid a challenge. The page also shows today's door codes for Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison and AZ3 Nuclear Plant, refreshed every few minutes.</p>
+    <p>Updated for Season 11 Reorientation, including N-Two, Rover, Vlinder and Morse, the AZ3 Nuclear Plant map, and new weapons such as the MDR, Thompson, RM277, AR-57, SVCH and M82.</p>
+  </section>
 
   <footer>
     <span>Fan-made tool. Not affiliated with Team Jade or TiMi Studio Group.</span>
