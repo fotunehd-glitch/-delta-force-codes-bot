@@ -479,10 +479,10 @@ function spin(k,delay=0){
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(S.instant){setStatic(k,result);SFX.clunk();landFx(k);return Promise.resolve();}
   st.spinning=true;
-  const n=40+Math.round(delay/30);
+  const n=60+Math.round(delay/22);
   const seq=[pick(p),st.cur||pick(p)];for(let i=0;i<n;i++)seq.push(pick(p));seq.push(result,pick(p));
   $("#s-"+k).innerHTML=seq.map(it=>cellHTML(k,it)).join("");
-  const from=1,to=seq.length-2,dur=1700+delay;
+  const from=1,to=seq.length-2,dur=2800+Math.round(delay*1.2);
   st.pos=from;layout(k);
   let last=Math.round(from),t0=null,prevPos=from,prevTs=null;
   const fr=$("#f-"+k),strip=$("#s-"+k);fr.classList.add("spinning");fr.classList.remove("land");
@@ -514,7 +514,7 @@ async function spinAll(){
   SFX.start();SFX.whirOn();document.body.classList.add("reels-spinning");
   whirTimer=setInterval(()=>{try{const sp=SLOTS.map(([k])=>state[k].spinning?(state[k].speed||0):0);
     SFX.whirLevel(Math.min(1,Math.max(...sp)/40))}catch(e){}},60);
-  const jobs=SLOTS.map(([k],i)=>spin(k,i*220));
+  const jobs=SLOTS.map(([k],i)=>spin(k,i*380));
   await Promise.all(jobs);
   clearInterval(whirTimer);SFX.whirOff();document.body.classList.remove("reels-spinning");
   // "big win": three or more gear slots landed on gold/red (tier 5-6)
