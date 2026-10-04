@@ -167,6 +167,56 @@ footer a{color:var(--green);text-decoration:none}footer a:hover{text-decoration:
 body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 @media (prefers-reduced-motion:reduce){.frame.land,.frame.land::before,.frame.land .cell img,.reels.win .frame,.reels.bigwin .frame,.reels.bigwin::after{animation:none}.strip{filter:none!important}}
 
+/* green frame round the reels, open at the bottom for Spin all */
+.cab{--bw:2px;--pad:18px;position:relative;width:100%;box-sizing:border-box;padding:var(--pad) var(--pad) 0;
+  border:var(--bw) solid var(--green);border-bottom:0;border-radius:10px 10px 0 0;
+  box-shadow:0 0 16px rgba(15,247,150,.18),inset 0 0 16px rgba(15,247,150,.08);margin-bottom:28px}
+.cab-foot{display:flex;align-items:center;gap:16px;margin:24px calc(-1*(var(--pad) + var(--bw))) 0;transform:translateY(50%)}
+.cab-line{flex:1;height:var(--bw);background:var(--green);box-shadow:0 0 10px rgba(15,247,150,.45)}
+.cab-foot #spinAll{flex:none;margin:0}
+@media (max-width:600px){.cab{--pad:10px}.cab-foot{gap:10px}}
+
+/* bigger reels + wider frame on computers */
+@media (min-width:901px){
+  :root{--reelH:340px;--rowH:236px}
+  .cab{--cw:min(1600px,calc(100vw - 40px));width:var(--cw);justify-self:stretch;margin-inline:calc((100% - var(--cw))/2);--pad:24px}
+  .reels{gap:18px}
+  .cell .nm{font-size:17px}
+  .cab-foot{margin-top:14px}
+  .cab-foot #spinAll{font-size:18px;padding:14px 34px}
+}
+
+/* glowing frame: glow follows only the drawn lines, so the gap stays clean */
+.cab{border-color:transparent;box-shadow:none}
+.cab::before{content:"";position:absolute;inset:calc(-1*var(--bw)) calc(-1*var(--bw)) 0;border:var(--bw) solid var(--green);border-bottom:0;border-radius:10px 10px 0 0;pointer-events:none;
+  filter:drop-shadow(0 0 2px rgba(15,247,150,.9)) drop-shadow(0 0 7px rgba(15,247,150,.55)) drop-shadow(0 0 16px rgba(15,247,150,.3));animation:frameGlow 2.6s ease-in-out infinite}
+.cab-line{background:var(--green);box-shadow:none;
+  filter:drop-shadow(0 0 2px rgba(15,247,150,.9)) drop-shadow(0 0 7px rgba(15,247,150,.55)) drop-shadow(0 0 16px rgba(15,247,150,.3));animation:frameGlow 2.6s ease-in-out infinite}
+@keyframes frameGlow{0%,100%{opacity:.9}50%{opacity:1;filter:drop-shadow(0 0 2px rgba(15,247,150,1)) drop-shadow(0 0 9px rgba(15,247,150,.7)) drop-shadow(0 0 22px rgba(15,247,150,.4))}}
+body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duration:.7s}
+@media (prefers-reduced-motion:reduce){.cab::before,.cab-line{animation:none}}
+
+/* roulette wheels */
+.wheel{position:relative;width:220px;height:220px;margin:2px 0 4px}
+.wheel svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.wheel-lab{font:800 18px var(--display);fill:#fff;letter-spacing:.03em;paint-order:stroke fill;stroke:#05070a;stroke-width:4.5px;stroke-linejoin:round}
+.wheel-lab.sm{font-size:15px}
+.wheel.landed .slice.win .wheel-lab{fill:#fff}
+.wheel-ptr{position:absolute;left:50%;top:-8px;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:22px solid var(--green);filter:drop-shadow(0 0 5px rgba(15,247,150,.8)) drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.wheel-hub{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2a2f36,#0b0d10);border:3px solid var(--green);box-shadow:0 0 8px rgba(15,247,150,.5)}
+.bulb{fill:#2b3a33;transition:fill .08s}
+.bulb.on{fill:#d8ffe9;filter:drop-shadow(0 0 3px #0ff796) drop-shadow(0 0 6px #0ff796)}
+.slice{transition:opacity .25s,filter .25s}
+.slice.off{opacity:.18}
+.wheel.landed .slice:not(.win){opacity:.28}
+.wheel.landed .slice.win{filter:brightness(1.35) drop-shadow(0 0 8px rgba(255,255,255,.55))}
+
+.die .res.ammo{color:var(--ac,var(--t3));text-shadow:0 0 14px color-mix(in srgb,var(--ac,var(--t3)) 45%,transparent)}
+.die .res.ammo.rolling{color:var(--muted);text-shadow:none}
+.dice{gap:24px 40px}
+
+.ammoopts{display:grid;grid-template-columns:repeat(3,auto);gap:6px 14px;justify-content:center}
+
 </style>
 </head>
 <body>
@@ -180,13 +230,15 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
     <p class="intro">Free Delta Force loadout randomiser for Operations. Roll a random operator, map, weapon, helmet, armour, chest rig and backpack, plus difficulty and weapon mod budget, with today's live door codes for every map.</p>
   </header>
 
-  <section class="reels" id="reels" aria-live="polite"></section>
-
-  <button class="big" id="spinAll" type="button">Spin all!</button>
+  <div class="cab">
+    <section class="reels" id="reels" aria-live="polite"></section>
+    <div class="cab-foot"><span class="cab-line"></span><button class="big" id="spinAll" type="button">Spin all!</button><span class="cab-line"></span></div>
+  </div>
 
   <section class="dice">
     <div class="die">
       <h2>Difficulty</h2>
+      <div class="wheel" id="diffWheel" aria-hidden="true"><div class="wheel-ptr"></div><svg viewBox="-120 -120 240 240"><g class="wheel-lights"></g><g class="wheel-disc"></g></svg><div class="wheel-hub"></div></div>
       <div class="res" id="diffRes">Easy</div>
       <button class="big" id="diffBtn" type="button">Roll for difficulty</button>
       <div class="diffopts" id="diffOpts">
@@ -198,8 +250,17 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
     </div>
     <div class="die">
       <h2>Weapon Mod Budget</h2>
+      <div class="wheel" id="budWheel" aria-hidden="true"><div class="wheel-ptr"></div><svg viewBox="-120 -120 240 240"><g class="wheel-lights"></g><g class="wheel-disc"></g></svg><div class="wheel-hub"></div></div>
       <div class="res" id="budRes">200k</div>
       <button class="big" id="budBtn" type="button">Roll for budget</button>
+    </div>
+    <div class="die">
+      <h2>Ammo Type</h2>
+      <div class="wheel" id="ammoWheel" aria-hidden="true"><div class="wheel-ptr"></div><svg viewBox="-120 -120 240 240"><g class="wheel-lights"></g><g class="wheel-disc"></g></svg><div class="wheel-hub"></div></div>
+      <div class="res ammo" id="ammoRes">Level 3</div>
+      <button class="big" id="ammoBtn" type="button">Roll for ammo</button>
+      <div class="diffopts ammoopts"><label class="ck"><input type="checkbox" data-a="Level 1" checked> LV 1</label><label class="ck"><input type="checkbox" data-a="Level 2" checked> LV 2</label><label class="ck"><input type="checkbox" data-a="Level 3" checked> LV 3</label><label class="ck"><input type="checkbox" data-a="Level 4" checked> LV 4</label><label class="ck"><input type="checkbox" data-a="Level 5" checked> LV 5</label><label class="ck"><input type="checkbox" data-a="Level 6" checked> LV 6</label></div>
+      <div class="diffmsg" id="ammoMsg" hidden>Tick at least one ammo level</div>
     </div>
   </section>
 
@@ -291,7 +352,7 @@ const ICON={
 };
 
 // ---------------- settings ----------------
-const DEFAULTS={sound:true,instant:false,unique:true,tiers:{helmets:[1,6],vests:[1,6],rigs:[1,5],backpacks:[1,6]},wtypes:Object.keys(WTYPES),maps:MAPS.slice(),opsOff:[],diffs:["Easy","Normal","Hard"]};
+const DEFAULTS={sound:true,instant:false,unique:true,tiers:{helmets:[1,6],vests:[1,6],rigs:[1,5],backpacks:[1,6]},wtypes:Object.keys(WTYPES),maps:MAPS.slice(),opsOff:[],diffs:["Easy","Normal","Hard"],ammo:["Level 1","Level 2","Level 3","Level 4","Level 5","Level 6"]};
 const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
@@ -542,6 +603,71 @@ async function rollDie(el,faces){
 const DIFF=["Easy","Easy","Normal","Normal","Hard","Hard"];
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
 
+
+// ---------------- roulette wheels (difficulty + budget) ----------------
+function makeWheel(id,labels,colors,resEl,opts={}){
+  const W={el:$("#"+id+"Wheel"),labels,colors,resEl,rot:0,busy:false,short:opts.short||{}};
+  const disc=W.el.querySelector(".wheel-disc"),lights=W.el.querySelector(".wheel-lights");
+  const n=labels.length,a=360/n,r=100,P=(deg,rad)=>{const t=(deg-90)*Math.PI/180;return [(rad*Math.cos(t)).toFixed(2),(rad*Math.sin(t)).toFixed(2)]};
+  let g="";
+  labels.forEach((lab,i)=>{const s0=i*a,e=s0+a,[x1,y1]=P(s0,r),[x2,y2]=P(e,r),mid=s0+a/2,[tx,ty]=P(mid,62),txt=W.short[lab]||lab;
+    g+=`<g class="slice" data-i="${i}"><path d="M0 0L${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}Z" fill="${colors[i]}" stroke="#0b0d10" stroke-width="2"/>`;
+    g+=`<text x="${tx}" y="${ty}" transform="rotate(${mid} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" class="wheel-lab${txt.length>5?" sm":""}">${txt}</text></g>`});
+  g+=`<circle r="${r}" fill="none" stroke="var(--green)" stroke-width="3"/>`;
+  disc.innerHTML=g;
+  // ring of lights (fixed, does not turn)
+  const NL=20;let l=`<circle r="111" fill="#0b0d10" stroke="#1d2a24" stroke-width="10"/>`;
+  for(let k=0;k<NL;k++){const [x,y]=P(k*360/NL,111);l+=`<circle class="bulb" cx="${x}" cy="${y}" r="3.6"/>`}
+  lights.innerHTML=l;W.bulbs=[...lights.querySelectorAll(".bulb")];
+  W.set=deg=>disc.setAttribute("transform",`rotate(${deg.toFixed(2)})`);
+  W.show=i=>{W.rot=-(i*a+a/2);W.set(W.rot)};
+  W.setEnabled=list=>disc.querySelectorAll(".slice").forEach(el=>el.classList.toggle("off",!list.includes(labels[+el.dataset.i])));
+  W.chase=on=>{clearInterval(W.ct);W.bulbs.forEach(b=>b.classList.remove("on"));
+    if(on){let k=0;W.ct=setInterval(()=>{W.bulbs.forEach((b,j)=>b.classList.toggle("on",((j-k)%4+4)%4===0));k=(k+1)%NL},70)}};
+  W.flash=()=>{let c=0;clearInterval(W.ct);W.ct=setInterval(()=>{W.bulbs.forEach(b=>b.classList.toggle("on",c%2===0));if(++c>7){clearInterval(W.ct);W.bulbs.forEach(b=>b.classList.add("on"));setTimeout(()=>W.bulbs.forEach(b=>b.classList.remove("on")),900)}},140)};
+  W.spin=(i,done)=>{
+    if(W.busy)return;
+    const target=-(i*a+a/2)+(Math.random()-.5)*a*.7;
+    const base=W.rot-(((W.rot-target)%360)+360)%360;
+    const end=base-360*(5+Math.floor(Math.random()*2));
+    W.el.classList.remove("landed");W.el.querySelectorAll(".slice.win").forEach(x=>x.classList.remove("win"));
+    const finish=()=>{W.rot=end;W.busy=false;
+      W.el.querySelector(`.slice[data-i="${i}"]`).classList.add("win");W.el.classList.add("landed");
+      clearTimeout(W.lt);W.lt=setTimeout(()=>W.el.classList.remove("landed"),2200);
+      W.flash();SFX.dieLand();done&&done()};
+    if(S.instant){W.set(end);finish();return}
+    W.busy=true;W.chase(true);
+    const from=W.rot,dur=4200;let t0=null,lastSeg=Math.floor(-from/a);
+    const ease=t=>1-Math.pow(1-t,4);
+    const step=ts=>{if(t0===null)t0=ts;const t=Math.min(1,(ts-t0)/dur),r2=from+(end-from)*ease(t);W.set(r2);
+      const seg=Math.floor(-r2/a);if(seg!==lastSeg){lastSeg=seg;SFX.dieTick()}
+      if(t<1)requestAnimationFrame(step);else finish()};
+    requestAnimationFrame(step);
+  };
+  return W;
+}
+const DIFFS=["Easy","Normal","Hard"];
+let budW,diffW,ammoW;
+const AMMO=["Level 1","Level 2","Level 3","Level 4","Level 5","Level 6"];
+function buildWheels(){
+  budW=makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#budRes"),{short:{Unlimited:"UNLTD"}});
+  diffW=makeWheel("diff",DIFFS,["#1fae6a","#7c4dd1","#cf3a3a"],$("#diffRes"));
+  budW.show(Math.max(0,BUDGET.indexOf($("#budRes").textContent)));
+  diffW.show(Math.max(0,DIFFS.indexOf($("#diffRes").textContent)));
+  diffW.setEnabled(S.diffs);
+  ammoW=makeWheel("ammo",AMMO,["#8b939b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#ammoRes"),{short:{"Level 1":"LV 1","Level 2":"LV 2","Level 3":"LV 3","Level 4":"LV 4","Level 5":"LV 5","Level 6":"LV 6"}});
+  ammoW.show(2);
+}
+function rollWheel(W,list,styled){
+  if(W.busy)return;
+  const pool=list.filter(x=>W.labels.includes(x));if(!pool.length)return;
+  const pickLab=pool[Math.floor(Math.random()*pool.length)],i=W.labels.indexOf(pickLab),res=W.resEl;
+  res.classList.remove("hard","normal");res.classList.add("rolling");res.textContent="…";
+  W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
+    if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
+    if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}});
+}
+
 // ---------------- settings UI ----------------
 function buildSettings(){
   $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;
@@ -580,10 +706,15 @@ document.addEventListener("click",e=>{
   if(pr){S.tiers=JSON.parse(JSON.stringify(PRESETS[pr.dataset.preset]));save();renderTiers();}
 });
 $("#spinAll").onclick=spinAll;
-$("#diffBtn").onclick=()=>{const f=DIFF.filter(x=>S.diffs.includes(x));if(!f.length){$("#diffMsg").hidden=false;return}rollDie($("#diffRes"),f)};
+$("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}rollWheel(diffW,S.diffs,true)};
 document.querySelectorAll("[data-d]").forEach(cb=>{cb.checked=S.diffs.includes(cb.dataset.d);cb.addEventListener("change",()=>{
-  S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save()})});
-$("#budBtn").onclick=()=>rollDie($("#budRes"),BUDGET);
+  S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(S.diffs)})});
+$("#budBtn").onclick=()=>rollWheel(budW,BUDGET,false);buildWheels();if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
+$("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}rollWheel(ammoW,S.ammo,false)};
+ammoW.setEnabled(S.ammo);
+if(S.ammo.length&&!S.ammo.includes("Level 3")){const f=S.ammo[0];ammoW.show(AMMO.indexOf(f));$("#ammoRes").textContent=f;$("#ammoRes").style.setProperty("--ac",`var(--t${AMMO.indexOf(f)+1})`)}
+document.querySelectorAll("[data-a]").forEach(cb=>{cb.checked=S.ammo.includes(cb.dataset.a);cb.addEventListener("change",()=>{
+  S.ammo=[...document.querySelectorAll("[data-a]")].filter(x=>x.checked).map(x=>x.dataset.a);$("#ammoMsg").hidden=S.ammo.length>0;save();ammoW.setEnabled(S.ammo)})});
 $("#settings").addEventListener("change",e=>{
   const t=e.target;
   if(t.id==="optSound")S.sound=t.checked;
