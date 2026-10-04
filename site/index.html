@@ -384,6 +384,18 @@ const SFX={
   dieLand(){const a=audio();if(!a)return;const t=a.currentTime;
     tone(t,"sine",220,90,.3,.12);tone(t+.02,"triangle",1320,1320,.08,.25)}
 };
+// ---- original Random Force sound: square tick per item, two-tone sine ding per reel stop ----
+let rfOut=null;
+function rfCtx(){const a=audio();if(!a)return null;if(!rfOut){rfOut=a.createGain();rfOut.gain.value=.05;rfOut.connect(a.destination)}return a}
+function rfTick(){const f=rfCtx();if(!f)return;const t=f.currentTime,h=f.createGain();
+  h.gain.setValueAtTime(1e-4,t);h.gain.exponentialRampToValueAtTime(1,t+.005);h.gain.exponentialRampToValueAtTime(1e-4,t+.08);h.connect(rfOut);
+  const d=f.createOscillator();d.type="square";d.frequency.value=1e3+Math.random()*300;d.connect(h);d.start(t);d.stop(t+.08)}
+function rfDing(){const f=rfCtx();if(!f)return;const t=f.currentTime,g=f.createGain();
+  g.gain.setValueAtTime(1e-4,t);g.gain.exponentialRampToValueAtTime(.8,t+.01);g.gain.exponentialRampToValueAtTime(1e-4,t+1.2);g.connect(rfOut);
+  [880,1320].forEach(fr=>{const o=f.createOscillator();o.type="sine";o.frequency.value=fr;o.connect(g);o.start(t);o.stop(t+1.1)})}
+const NOP=function(){};
+SFX.click=rfTick;SFX.dieTick=rfTick;SFX.clunk=rfDing;SFX.dieLand=rfDing;
+SFX.whirOn=NOP;SFX.whirLevel=NOP;SFX.whirOff=NOP;SFX.win=NOP;SFX.start=NOP;SFX.button=NOP;SFX.hold=NOP;
 Object.keys(SFX).forEach(n=>{const f=SFX[n];if(typeof f!=="function")return;SFX[n]=function(){try{return f.apply(SFX,arguments)}catch(e){}}});
 // kept for any older calls
 function tick(f=900,d=.03,v=.05){SFX.click(1)}
