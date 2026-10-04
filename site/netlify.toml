@@ -4,3 +4,17 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Send the old domain to the new one. Old links keep working; Google treats
+# deltaforcerandomkit.com as the one real site.
+[[redirects]]
+  from = "https://deltaforcedoorcodebot.online/*"
+  to = "https://deltaforcerandomkit.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.deltaforcedoorcodebot.online/*"
+  to = "https://deltaforcerandomkit.com/:splat"
+  status = 301
+  force = true
