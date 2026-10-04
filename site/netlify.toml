@@ -18,3 +18,9 @@
   to = "https://deltaforcerandomkit.com/:splat"
   status = 301
   force = true
+
+# Item pictures have their content hash in the filename, so browsers can keep them for a year.
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
