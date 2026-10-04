@@ -148,6 +148,34 @@ footer a{color:var(--green);text-decoration:none}footer a:hover{text-decoration:
   .tiers{grid-column:1/-1}
 }
 
+/* ===== reel motion + landing effects ===== */
+.strip{transition:filter .12s linear}
+.frame.spinning{box-shadow:inset 0 0 18px rgba(15,247,150,.12)}
+.frame::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.28) 48%,rgba(255,255,255,.05) 56%,transparent 70%);transform:translateX(-120%)}
+.frame.land{animation:reelLand .42s cubic-bezier(.3,1.6,.5,1)}
+.frame.land::before{animation:sheen .7s ease-out .05s}
+@keyframes reelLand{
+  0%{transform:translateY(0)}
+  25%{transform:translateY(5px);box-shadow:0 0 0 2px var(--glow,var(--green)),0 0 26px 4px var(--glow,var(--green))}
+  55%{transform:translateY(-2px)}
+  100%{transform:translateY(0)}}
+@keyframes sheen{0%{opacity:1;transform:translateX(-120%)}100%{opacity:0;transform:translateX(120%)}}
+.frame.land .cell:not(.dim) img{animation:popIn .45s cubic-bezier(.3,1.7,.5,1)}
+@keyframes popIn{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+.reels.win .frame{animation:winPulse .9s ease-out}
+.reels.bigwin .frame{animation:bigPulse 1.6s ease-in-out 2}
+@keyframes winPulse{30%{box-shadow:0 0 18px 2px rgba(15,247,150,.55)}}
+@keyframes bigPulse{25%,75%{box-shadow:0 0 28px 6px rgba(255,191,46,.85)}50%{box-shadow:0 0 10px 2px rgba(255,77,77,.7)}}
+.reels.bigwin::after{content:"BIG WIN!";position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;
+  font:700 clamp(34px,6vw,72px)/1 var(--display);letter-spacing:.06em;color:var(--t5);
+  text-shadow:0 0 12px rgba(255,191,46,.9),0 0 40px rgba(255,77,77,.7),0 4px 0 #6b3c00;animation:bigText 2.2s ease-out forwards}
+@keyframes bigText{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+.reels{position:relative}
+#spinAll{transition:transform .1s}
+body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
+@media (prefers-reduced-motion:reduce){.frame.land,.frame.land::before,.frame.land .cell img,.reels.win .frame,.reels.bigwin .frame,.reels.bigwin::after{animation:none}.strip{filter:none!important}}
+
 </style>
 </head>
 <body>
@@ -294,9 +322,80 @@ const SLOTS=[["op","Operators"],["map","Maps"],["weapon","Weapons"],["helmets","
 const state={}; // key -> {cur, held, spinning}
 
 // ---------------- sound ----------------
-let ac=null;
-function tick(f=900,d=.03,v=.05){if(!S.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type="square";o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
-function ding(){tick(1320,.12,.06);setTimeout(()=>tick(1760,.16,.05),90)}
+let ac=null,master=null,noiseBuf=null;
+function audio(){
+  if(!S.sound)return null;
+  try{
+    if(!ac){
+      ac=new (window.AudioContext||window.webkitAudioContext)();
+      const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
+      master=ac.createGain();master.gain.value=.9;master.connect(comp);comp.connect(ac.destination);
+      noiseBuf=ac.createBuffer(1,ac.sampleRate*1,ac.sampleRate);
+      const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    }
+    if(ac.state==="suspended")ac.resume();
+    return ac;
+  }catch(e){return null}
+}
+function env(g,t,a,peak,dec){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+dec)}
+function noise(t,dur,type,freq,q,peak,dec){
+  const a=audio();if(!a)return;
+  const src=a.createBufferSource();src.buffer=noiseBuf;
+  const f=a.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;
+  const g=a.createGain();env(g,t,.002,peak,dec);
+  src.connect(f).connect(g).connect(master);src.start(t,Math.random()*.5);src.stop(t+dur);
+}
+function tone(t,type,f0,f1,peak,dec,a0=.003){
+  const a=audio();if(!a)return;
+  const o=a.createOscillator(),g=a.createGain();o.type=type;
+  o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dec);
+  env(g,t,a0,peak,dec);o.connect(g).connect(master);o.start(t);o.stop(t+a0+dec+.05);
+}
+const SFX={
+  // reel notch passing the window: plastic click, brighter when fast
+  click(speed=1){const a=audio();if(!a)return;const t=a.currentTime;
+    noise(t,.05,"bandpass",2200+speed*900+Math.random()*400,6,.22,.025);
+    tone(t,"square",420+speed*160,300,.035,.02)},
+  // reel locks: heavy thunk + latch + a little metallic ring
+  clunk(){const a=audio();if(!a)return;const t=a.currentTime;
+    tone(t,"sine",150,48,.55,.16);
+    noise(t,.12,"lowpass",900,1,.35,.08);
+    tone(t+.012,"triangle",2600,2500,.05,.18);
+    noise(t+.006,.04,"highpass",5000,1,.12,.02)},
+  // motor/belt whir while reels spin
+  whirOn(){const a=audio();if(!a||this._w)return;const t=a.currentTime;
+    const src=a.createBufferSource();src.buffer=noiseBuf;src.loop=true;
+    const f=a.createBiquadFilter();f.type="bandpass";f.frequency.value=320;f.Q.value=.8;
+    const o=a.createOscillator();o.type="sawtooth";o.frequency.value=58;
+    const og=a.createGain();og.gain.value=.025;
+    const g=a.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.14,t+.25);
+    src.connect(f).connect(g);o.connect(og).connect(g);g.connect(master);src.start(t);o.start(t);
+    f.frequency.exponentialRampToValueAtTime(900,t+.35);
+    this._w={src,o,g,f}},
+  whirLevel(x){if(!this._w||!ac)return;const t=ac.currentTime;
+    this._w.g.gain.setTargetAtTime(Math.max(.0001,.02+.14*x),t,.05);
+    this._w.f.frequency.setTargetAtTime(260+700*x,t,.08)},
+  whirOff(){if(!this._w||!ac)return;const t=ac.currentTime,w=this._w;this._w=null;
+    w.g.gain.setTargetAtTime(.0001,t,.08);w.src.stop(t+.5);w.o.stop(t+.5)},
+  button(){const a=audio();if(!a)return;const t=a.currentTime;
+    tone(t,"square",1500,1100,.06,.03);noise(t,.03,"highpass",3000,1,.08,.015)},
+  hold(on){const a=audio();if(!a)return;const t=a.currentTime;
+    tone(t,"triangle",on?660:880,on?990:520,.12,.09);tone(t+.05,"sine",on?1320:660,on?1320:660,.06,.08)},
+  start(){const a=audio();if(!a)return;const t=a.currentTime;
+    for(let i=0;i<5;i++)noise(t+i*.035,.03,"bandpass",1800-i*180,8,.25,.02);
+    tone(t,"sine",90,180,.35,.22)},
+  // all reels stopped
+  win(big){const a=audio();if(!a)return;const t=a.currentTime+.05;
+    const notes=big?[523,659,784,1047,1319,1568]:[659,784,1047];
+    notes.forEach((f,i)=>{tone(t+i*.085,"triangle",f,f,.16,.28);tone(t+i*.085,"sine",f*2,f*2,.05,.2)});
+    if(big){for(let i=0;i<14;i++)tone(t+.5+i*.045,"sine",2000+Math.random()*2500,2000+Math.random()*2500,.04,.12)}},
+  dieTick(){this.click(1.4)},
+  dieLand(){const a=audio();if(!a)return;const t=a.currentTime;
+    tone(t,"sine",220,90,.3,.12);tone(t+.02,"triangle",1320,1320,.08,.25)}
+};
+// kept for any older calls
+function tick(f=900,d=.03,v=.05){SFX.click(1)}
+function ding(){SFX.win(false)}
 
 // ---------------- render ----------------
 const $=s=>document.querySelector(s);
@@ -374,32 +473,54 @@ function spin(k,delay=0){
   if(!p.length){setStatic(k,null);return Promise.resolve();}
   const result=(S.unique&&k!=="map")?bagPick(k,p,st.cur):pick(p); // maps stay fully random
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(S.instant||reduce){setStatic(k,result);tick(1100,.06,.06);return Promise.resolve();}
+  if(S.instant||reduce){setStatic(k,result);SFX.clunk();landFx(k);return Promise.resolve();}
   st.spinning=true;
   const n=26+Math.round(delay/45);
   const seq=[pick(p),st.cur||pick(p)];for(let i=0;i<n;i++)seq.push(pick(p));seq.push(result,pick(p));
   $("#s-"+k).innerHTML=seq.map(it=>cellHTML(k,it)).join("");
   const from=1,to=seq.length-2,dur=1900+delay;
   st.pos=from;layout(k);
-  let last=Math.round(from),t0=null;
+  let last=Math.round(from),t0=null,prevPos=from,prevTs=null;
+  const fr=$("#f-"+k),strip=$("#s-"+k);fr.classList.add("spinning");fr.classList.remove("land");
   return new Promise(res=>{
     const step=ts=>{
       if(t0===null)t0=ts;
       const t=Math.min(1,(ts-t0)/dur);
       st.pos=from+(to-from)*easeOut(t);layout(k);
-      const idx=Math.round(st.pos);if(idx!==last){last=idx;tick(650+Math.random()*250,.025,.045)}
+      // speed in items per second -> blur + click brightness
+      const dt=prevTs===null?16:Math.max(1,ts-prevTs);const v=Math.abs(st.pos-prevPos)/dt*1000;prevPos=st.pos;prevTs=ts;
+      st.speed=v;strip.style.filter=v>4?`blur(${Math.min(3.2,(v-4)*.12).toFixed(2)}px) brightness(${(1+Math.min(.25,v*.008)).toFixed(2)})`:"";
+      const idx=Math.round(st.pos);if(idx!==last){last=idx;SFX.click(Math.min(2,v/18))}
       if(t<1)requestAnimationFrame(step);
-      else{st.spinning=false;setStatic(k,result,seq[to-1],seq[to+1]);tick(1100,.06,.06);res()}
+      else{st.spinning=false;st.speed=0;strip.style.filter="";fr.classList.remove("spinning");
+        setStatic(k,result,seq[to-1],seq[to+1]);SFX.clunk();landFx(k);res()}
     };
     requestAnimationFrame(step);
   });
 }
+function landFx(k){
+  const fr=$("#f-"+k);if(!fr)return;
+  fr.classList.remove("land");void fr.offsetWidth;fr.classList.add("land");
+  const it=state[k].cur;fr.style.setProperty("--glow",it&&it.tier?`var(--t${it.tier})`:"var(--green)");
+}
+let whirTimer=null;
 async function spinAll(){
+  const active=SLOTS.filter(([k])=>!state[k].held);
+  if(!active.length){SFX.button();return}
+  SFX.start();SFX.whirOn();document.body.classList.add("reels-spinning");
+  whirTimer=setInterval(()=>{const sp=SLOTS.map(([k])=>state[k].spinning?(state[k].speed||0):0);
+    SFX.whirLevel(Math.min(1,Math.max(...sp)/40))},60);
   const jobs=SLOTS.map(([k],i)=>spin(k,i*220));
-  await Promise.all(jobs);ding();
+  await Promise.all(jobs);
+  clearInterval(whirTimer);SFX.whirOff();document.body.classList.remove("reels-spinning");
+  // "big win": three or more gear slots landed on gold/red (tier 5-6)
+  const gear=["helmets","vests","rigs","backpacks"].map(k=>state[k].cur&&state[k].cur.tier||0);
+  const big=gear.filter(t=>t>=5).length>=3;
+  SFX.win(big);
+  const reels=$("#reels");reels.classList.remove("win","bigwin");void reels.offsetWidth;reels.classList.add(big?"bigwin":"win");
 }
 function holdToggle(k){
-  const st=state[k];st.held=!st.held;
+  const st=state[k];st.held=!st.held;SFX.hold(st.held);
   $(`[data-hold="${k}"]`).setAttribute("aria-pressed",st.held);
   $("#f-"+k).classList.toggle("held",st.held);
 }
@@ -409,10 +530,10 @@ async function rollDie(el,faces){
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   const out=pick(faces);
   el.classList.remove("hard","normal");
-  if(S.instant||reduce){el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");tick(1100);return}
+  if(S.instant||reduce){el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();return}
   el.classList.add("rolling");
-  for(let i=0;i<14;i++){el.textContent=pick(faces);tick(800);await new Promise(r=>setTimeout(r,40+i*12))}
-  el.classList.remove("rolling");el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");ding();
+  for(let i=0;i<14;i++){el.textContent=pick(faces);SFX.dieTick();await new Promise(r=>setTimeout(r,40+i*12))}
+  el.classList.remove("rolling");el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();
 }
 const DIFF=["Easy","Easy","Normal","Normal","Hard","Hard"];
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
@@ -445,7 +566,7 @@ const PRESETS={
 
 // ---------------- events ----------------
 document.addEventListener("click",e=>{
-  const sp=e.target.closest("[data-spin]");if(sp)spin(sp.dataset.spin);
+  const sp=e.target.closest("[data-spin]");if(sp){const k=sp.dataset.spin;if(!state[k].held){SFX.start();spin(k)}else SFX.button()}
   const hd=e.target.closest("[data-hold]");if(hd)holdToggle(hd.dataset.hold);
   const tb=e.target.closest("[data-t]");
   if(tb){const[k,w,d]=tb.dataset.t.split(":");const r=S.tiers[k];const i=w==="min"?0:1;
