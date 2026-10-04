@@ -4,20 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Delta Force random loadout roller for Operations plus today's live door codes, updated for Season 11.">
-<title>Delta Force Random Loadout</title>
+<title>Delta Force Random Kit</title>
 <link rel="canonical" href="https://deltaforcerandomkit.com/">
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta property="og:image" content="https://deltaforcerandomkit.com/favicon-512.png">
-<meta property="og:title" content="Delta Force Random Loadout">
+<meta property="og:title" content="Delta Force Random Kit">
 <meta property="og:url" content="https://deltaforcerandomkit.com/">
 <meta property="og:description" content="Random Operations loadouts and today's live door codes for Delta Force, updated for Season 11.">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Delta Force Random Kit">
-<meta name="twitter:card" content="summary">
-<meta name="theme-color" content="#0ff796">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Delta Force Random Loadout", "url": "https://deltaforcerandomkit.com/", "applicationCategory": "GameApplication", "operatingSystem": "Any", "description": "Free Delta Force loadout randomiser for Operations mode, with today's live door codes for every map.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "author": {"@type": "Person", "name": "FortuneHD"}}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
 html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
@@ -247,8 +238,8 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
   </details>
 
   <section class="about" aria-labelledby="aboutH">
-    <h2 id="aboutH">About the Delta Force Random Loadout</h2>
-    <p>Delta Force Random Loadout is a loadout randomiser for Delta Force's Operations extraction mode. Hit <b>Spin all</b> to roll a full random kit: one of 17 operators, a map, a primary weapon or sidearm, and a helmet, armour vest, chest rig and backpack. Lock any slot with <b>Hold</b> and reroll the rest, set the tier range for each piece of gear, and turn off weapon classes, maps or operators you don't want.</p>
+    <h2 id="aboutH">About the Delta Force Random Kit</h2>
+    <p>Delta Force Random Kit is a loadout randomiser for Delta Force's Operations extraction mode. Hit <b>Spin all</b> to roll a full random kit: one of 17 operators, a map, a primary weapon or sidearm, and a helmet, armour vest, chest rig and backpack. Lock any slot with <b>Hold</b> and reroll the rest, set the tier range for each piece of gear, and turn off weapon classes, maps or operators you don't want.</p>
     <p>Operators and weapons are shuffled so you see every option before anything repeats. Roll a difficulty (Easy, Normal or Hard) and a weapon mod budget to make each raid a challenge. The page also shows today's door codes for Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison and AZ3 Nuclear Plant, refreshed every few minutes.</p>
     <p>Updated for Season 11 Reorientation, including N-Two, Rover, Vlinder and Morse, the AZ3 Nuclear Plant map, and new weapons such as the MDR, Thompson, RM277, AR-57, SVCH and M82.</p>
   </section>
@@ -302,7 +293,7 @@ const ICON={
 // ---------------- settings ----------------
 const DEFAULTS={sound:true,instant:false,unique:true,tiers:{helmets:[1,6],vests:[1,6],rigs:[1,5],backpacks:[1,6]},wtypes:Object.keys(WTYPES),maps:MAPS.slice(),opsOff:[],diffs:["Easy","Normal","Hard"]};
 const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
-let S=structuredClone(DEFAULTS);
+let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
 MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.push(m)});
 const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_seen:MAPS}))}catch(e){}};
@@ -343,13 +334,13 @@ function noise(t,dur,type,freq,q,peak,dec){
   const src=a.createBufferSource();src.buffer=noiseBuf;
   const f=a.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;
   const g=a.createGain();env(g,t,.002,peak,dec);
-  src.connect(f).connect(g).connect(master);src.start(t,Math.random()*.5);src.stop(t+dur);
+  src.connect(f);f.connect(g);g.connect(master);src.start(t,Math.random()*.5);src.stop(t+dur);
 }
 function tone(t,type,f0,f1,peak,dec,a0=.003){
   const a=audio();if(!a)return;
   const o=a.createOscillator(),g=a.createGain();o.type=type;
   o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dec);
-  env(g,t,a0,peak,dec);o.connect(g).connect(master);o.start(t);o.stop(t+a0+dec+.05);
+  env(g,t,a0,peak,dec);o.connect(g);g.connect(master);o.start(t);o.stop(t+a0+dec+.05);
 }
 const SFX={
   // reel notch passing the window: plastic click, brighter when fast
@@ -369,7 +360,7 @@ const SFX={
     const o=a.createOscillator();o.type="sawtooth";o.frequency.value=58;
     const og=a.createGain();og.gain.value=.025;
     const g=a.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.14,t+.25);
-    src.connect(f).connect(g);o.connect(og).connect(g);g.connect(master);src.start(t);o.start(t);
+    src.connect(f);f.connect(g);o.connect(og);og.connect(g);g.connect(master);src.start(t);o.start(t);
     f.frequency.exponentialRampToValueAtTime(900,t+.35);
     this._w={src,o,g,f}},
   whirLevel(x){if(!this._w||!ac)return;const t=ac.currentTime;
@@ -393,6 +384,7 @@ const SFX={
   dieLand(){const a=audio();if(!a)return;const t=a.currentTime;
     tone(t,"sine",220,90,.3,.12);tone(t+.02,"triangle",1320,1320,.08,.25)}
 };
+Object.keys(SFX).forEach(n=>{const f=SFX[n];if(typeof f!=="function")return;SFX[n]=function(){try{return f.apply(SFX,arguments)}catch(e){}}});
 // kept for any older calls
 function tick(f=900,d=.03,v=.05){SFX.click(1)}
 function ding(){SFX.win(false)}
@@ -473,7 +465,7 @@ function spin(k,delay=0){
   if(!p.length){setStatic(k,null);return Promise.resolve();}
   const result=(S.unique&&k!=="map")?bagPick(k,p,st.cur):pick(p); // maps stay fully random
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(S.instant||reduce){setStatic(k,result);SFX.clunk();landFx(k);return Promise.resolve();}
+  if(S.instant){setStatic(k,result);SFX.clunk();landFx(k);return Promise.resolve();}
   st.spinning=true;
   const n=26+Math.round(delay/45);
   const seq=[pick(p),st.cur||pick(p)];for(let i=0;i<n;i++)seq.push(pick(p));seq.push(result,pick(p));
@@ -508,8 +500,8 @@ async function spinAll(){
   const active=SLOTS.filter(([k])=>!state[k].held);
   if(!active.length){SFX.button();return}
   SFX.start();SFX.whirOn();document.body.classList.add("reels-spinning");
-  whirTimer=setInterval(()=>{const sp=SLOTS.map(([k])=>state[k].spinning?(state[k].speed||0):0);
-    SFX.whirLevel(Math.min(1,Math.max(...sp)/40))},60);
+  whirTimer=setInterval(()=>{try{const sp=SLOTS.map(([k])=>state[k].spinning?(state[k].speed||0):0);
+    SFX.whirLevel(Math.min(1,Math.max(...sp)/40))}catch(e){}},60);
   const jobs=SLOTS.map(([k],i)=>spin(k,i*220));
   await Promise.all(jobs);
   clearInterval(whirTimer);SFX.whirOff();document.body.classList.remove("reels-spinning");
@@ -530,7 +522,7 @@ async function rollDie(el,faces){
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   const out=pick(faces);
   el.classList.remove("hard","normal");
-  if(S.instant||reduce){el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();return}
+  if(S.instant){el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();return}
   el.classList.add("rolling");
   for(let i=0;i<14;i++){el.textContent=pick(faces);SFX.dieTick();await new Promise(r=>setTimeout(r,40+i*12))}
   el.classList.remove("rolling");el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();
@@ -573,7 +565,7 @@ document.addEventListener("click",e=>{
     r[i]=Math.min(MAXT[k],Math.max(1,r[i]+ +d));if(r[0]>r[1]){if(i===0)r[1]=r[0];else r[0]=r[1]}
     save();renderTiers();}
   const pr=e.target.closest("[data-preset]");
-  if(pr){S.tiers=structuredClone(PRESETS[pr.dataset.preset]);save();renderTiers();}
+  if(pr){S.tiers=JSON.parse(JSON.stringify(PRESETS[pr.dataset.preset]));save();renderTiers();}
 });
 $("#spinAll").onclick=spinAll;
 $("#diffBtn").onclick=()=>{const f=DIFF.filter(x=>S.diffs.includes(x));if(!f.length){$("#diffMsg").hidden=false;return}rollDie($("#diffRes"),f)};
