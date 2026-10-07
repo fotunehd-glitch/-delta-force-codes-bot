@@ -11,7 +11,7 @@ open('hawk-roll.html', 'w').write(full.replace('fetch("/api/codes"', 'fetch("htt
 i = full.index('</style>') + len('</style>')
 head, body = full[:i], full[i:]
 head = head.replace('<style>', '<style>\nhtml,body{margin:0}[hidden]{display:none!important}img{max-width:100%}', 1)
-desc = "Free Delta Force random loadout generator for Operations. Spin a random operator, map, weapon and gear, roll difficulty, mod budget and ammo, and get today's door codes. Updated for Season 11."
+desc = "Free Delta Force random loadout generator and randomizer for Operations. Spin a random operator, map, weapon and gear, spin the wheel for difficulty, mod budget and ammo, and get today's door codes. Season 11."
 out = (
     '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
