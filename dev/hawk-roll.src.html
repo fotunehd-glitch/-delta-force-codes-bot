@@ -486,7 +486,22 @@ function rotation(now=new Date()){
   return {prisonOpen,spaceHardOpen:!prisonOpen,next};
 }
 const hhmm=d=>d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-function effDiffs(){const r=rotation();return S.diffs.filter(d=>d!=="Hard"||r.spaceHardOpen)}
+// difficulties each map actually has right now
+function mapModes(m,r=rotation()){
+  if(m==="Space City")return r.spaceHardOpen?["Normal","Hard"]:["Normal"];   // no Easy on Space City
+  if(m==="Tide Prison")return ["Hard"];                                        // Tide Prison is Hard only
+  return r.spaceHardOpen?["Easy","Normal","Hard"]:["Easy","Normal"];
+}
+function curMap(){return typeof state!=="undefined"&&state.map&&state.map.cur?state.map.cur.nm:null}
+function effDiffs(){const allowed=mapModes(curMap());return S.diffs.filter(d=>allowed.includes(d))}
+function diffNote(){
+  const r=rotation(),m=curMap(),t=hhmm(r.next),notes=[];
+  if(m==="Space City"&&S.diffs.includes("Easy"))notes.push("Space City has no Easy mode");
+  if(m==="Tide Prison")notes.push("Tide Prison is Hard only");
+  else if(!r.spaceHardOpen&&S.diffs.includes("Hard"))notes.push(`Hard is closed right now · back at ${t}`);
+  if(S.diffs.length&&!effDiffs().length)notes.push("None of your ticked difficulties are on this map");
+  return notes.join(" · ");
+}
 const SLOTS=[["op","Operators"],["map","Maps"],["weapon","Weapons"],["helmets","Helmets"],["vests","Vests"],["rigs","Rigs"],["backpacks","Backpacks"]];
 const state={}; // key -> {cur, held, spinning}
 
@@ -838,7 +853,7 @@ document.addEventListener("click",e=>{
   if(pr){S.tiers=JSON.parse(JSON.stringify(PRESETS[pr.dataset.preset]));save();renderTiers();}
 });
 $("#spinAll").onclick=spinAll;
-$("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}const d=effDiffs();if(!d.length){SFX.button();return}rollWheel(diffW,d,true)};
+$("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}const d=effDiffs();if(!d.length){applyRotation(true);SFX.button();return}rollWheel(diffW,d,true)};
 document.querySelectorAll("[data-d]").forEach(cb=>{cb.checked=S.diffs.includes(cb.dataset.d);cb.addEventListener("change",()=>{
   S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(effDiffs());applyRotation(true)})});
 $("#budBtn").onclick=()=>rollWheel(budW,BUDGET,false);buildWheels();if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
@@ -896,7 +911,7 @@ function applyRotation(force){
   $("#rotBar").innerHTML=r.prisonOpen
     ?`<span class="rs on">Tide Prison Hard <b>open</b> until ${t}</span><span class="rs off">Space City Hard <b>closed</b> · opens ${t}</span>`
     :`<span class="rs on">Space City Hard <b>open</b> until ${t}</span><span class="rs off">Tide Prison <b>closed</b> · opens ${t}</span>`;
-  const n=$("#hardNote");n.hidden=r.spaceHardOpen||!S.diffs.includes("Hard");n.textContent=`Hard is closed right now · back at ${t}`;
+  const n=$("#hardNote"),nt=diffNote();n.hidden=!nt;n.textContent=nt;
   if(diffW&&!diffW.busy)diffW.setEnabled(effDiffs());
   document.querySelectorAll('.code[data-map="Tide Prison"]').forEach(c=>{c.classList.toggle("closed",!r.prisonOpen);c.dataset.opens=`Opens ${t}`});
   document.querySelectorAll('[data-m="Tide Prison"]').forEach(cb=>{const l=cb.closest("label");if(!l)return;let sp=l.querySelector(".closed-tag");if(!sp){sp=document.createElement("span");sp.className="closed-tag";l.appendChild(sp)}sp.textContent=r.prisonOpen?"":` (closed until ${t})`});
@@ -917,7 +932,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
     const was={instant:S.instant,sound:S.sound};S.instant=true;S.sound=false;
     try{
       SLOTS.forEach(([k])=>spin(k));
-      if(effDiffs().length)rollWheel(diffW,effDiffs(),true);
+      diffW.setEnabled(effDiffs());if(effDiffs().length)rollWheel(diffW,effDiffs(),true);
       rollWheel(budW,BUDGET,false);
       if(S.ammo.length)rollWheel(ammoW,S.ammo,false);
     }finally{S.instant=was.instant;S.sound=was.sound}
