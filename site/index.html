@@ -194,6 +194,7 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 .cab-foot{display:flex;align-items:center;gap:16px;margin:24px calc(-1*(var(--pad) + var(--bw))) 0;transform:translateY(50%)}
 .cab-line{flex:1;height:var(--bw);background:var(--green);box-shadow:0 0 10px rgba(15,247,150,.45)}
 .cab-foot #spinAll{flex:none;margin:0}
+.foot-btns{display:flex;gap:12px;flex:none}
 @media (max-width:600px){.cab{--pad:10px}.cab-foot{gap:10px}}
 
 /* bigger reels + wider frame on computers */
@@ -203,7 +204,7 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
   .reels{gap:18px}
   .cell .nm{font-size:17px}
   .cab-foot{margin-top:14px}
-  .cab-foot #spinAll{font-size:18px;padding:14px 34px}
+  .cab-foot #spinAll,.cab-foot #dipBtn{font-size:18px;padding:14px 34px}
 }
 
 /* glowing frame: glow follows only the drawn lines, so the gap stays clean */
@@ -217,20 +218,22 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (prefers-reduced-motion:reduce){.cab::before,.cab-line{animation:none}}
 
 /* roulette wheels */
-.wheel{position:relative;width:220px;height:220px;margin:2px 0 4px}
+.wheel{position:relative;width:min(290px,82vw);aspect-ratio:1;height:auto;margin:4px 0 6px}
 .wheel svg{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
-.wheel-lab{font:800 18px var(--display);fill:#fff;letter-spacing:.03em;paint-order:stroke fill;stroke:#05070a;stroke-width:4.5px;stroke-linejoin:round}
+.wheel-lab{font:800 18px var(--display);fill:#fff;letter-spacing:.03em;paint-order:stroke fill;stroke:#05070a;stroke-width:3px;stroke-linejoin:round}
 .wheel-lab.sm{font-size:15px}
 .wheel-lab.xs{font-size:12.5px}
 .wheel.landed .slice.win .wheel-lab{fill:#fff}
-.wheel-ptr{position:absolute;left:50%;top:-8px;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:22px solid var(--green);filter:drop-shadow(0 0 5px rgba(15,247,150,.8)) drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-.wheel-hub{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#2a2f36,#0b0d10);border:3px solid var(--green);box-shadow:0 0 8px rgba(15,247,150,.5)}
-.bulb{fill:#2b3a33;transition:fill .08s}
-.bulb.on{fill:#d8ffe9;filter:drop-shadow(0 0 3px #0ff796) drop-shadow(0 0 6px #0ff796)}
+.wheel-ptr{position:absolute;left:50%;top:-10px;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:28px solid var(--green);filter:drop-shadow(0 0 5px rgba(15,247,150,.8)) drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+.wheel-hub{position:absolute;left:50%;top:50%;width:13%;height:13%;transform:translate(-50%,-50%);border-radius:50%;background:#0b0d10;border:2px solid var(--green);box-shadow:0 0 6px rgba(15,247,150,.8),0 0 14px rgba(15,247,150,.4)}
+.bulb{fill:#123a2a;transition:fill .08s}
+.bulb.on{fill:#c9ffe6;filter:drop-shadow(0 0 3px #0ff796) drop-shadow(0 0 7px #0ff796)}
+.rim{filter:drop-shadow(0 0 4px var(--green)) drop-shadow(0 0 9px rgba(15,247,150,.55))}
 .slice{transition:opacity .25s,filter .25s}
 .slice.off{opacity:.18}
-.wheel.landed .slice:not(.win){opacity:.28}
-.wheel.landed .slice.win{filter:brightness(1.35) drop-shadow(0 0 8px rgba(255,255,255,.55))}
+.wheel.landed .slice:not(.win){opacity:.35}
+.wheel.landed .slice.win path{fill:var(--c);fill-opacity:.38}
+.wheel.landed .slice.win .wheel-lab{fill:#fff!important}
 
 .die .res.ammo{color:var(--ac,var(--t3));text-shadow:0 0 14px color-mix(in srgb,var(--ac,var(--t3)) 45%,transparent)}
 .die .res.ammo.rolling{color:var(--muted);text-shadow:none}
@@ -238,23 +241,96 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 
 .ammoopts{display:grid;grid-template-columns:repeat(3,auto);gap:6px 14px;justify-content:center}
 
+/* phones keep the original wheel size */
+@media (max-width:600px){.wheel{width:220px}.wheel-ptr{top:-8px;border-left-width:11px;border-right-width:11px;border-top-width:22px}}
+
+/* ===== lucky dip ===== */
+.big.dipbtn{background:#ffbf2e;color:#2a1a00;box-shadow:0 4px 0 #a8730a,0 0 14px rgba(255,191,46,.45)}
+.big.dipbtn:hover{filter:brightness(1.08)}
+.dip{position:fixed;inset:0;z-index:50;background:rgba(5,7,10,.94);display:flex;flex-direction:column;padding:16px;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;backdrop-filter:blur(3px)}
+.dip[hidden]{display:none}
+.dip-inner{margin:auto;width:min(100%,1120px);display:grid;justify-items:center;gap:16px}
+.dip h2{margin:0;font:700 clamp(22px,3vw,30px) var(--display);letter-spacing:.06em;color:#ffbf2e;text-shadow:0 0 14px rgba(255,191,46,.6)}
+.dip-box{width:min(250px,60vw);aspect-ratio:1;height:auto;border:4px solid #ffbf2e;border-radius:22px;display:grid;place-items:center;font:700 clamp(80px,16vw,124px) var(--display);color:#ffbf2e;
+  box-shadow:0 0 30px rgba(255,191,46,.65),inset 0 0 30px rgba(255,191,46,.28);background:#120d02}
+.dip-box.shake{animation:dipShake .14s linear infinite}
+.dip-box.pop{animation:dipPop .35s ease-in forwards}
+@keyframes dipShake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-6deg) scale(1.03)}75%{transform:rotate(6deg) scale(1.03)}}
+@keyframes dipPop{to{transform:scale(1.8);opacity:0}}
+.dip-cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;width:100%}
+.dcard{perspective:900px;min-height:210px}
+.dcard-in{position:relative;display:grid;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,1.4,.5,1);min-height:210px}
+.dcard.on .dcard-in{transform:rotateY(180deg)}
+.dcard-f,.dcard-b{grid-area:1/1;min-height:inherit;box-sizing:border-box;backface-visibility:hidden;border-radius:8px;display:grid;place-items:center;text-align:center}
+.dcard-f{background:#120d02;border:2px solid #ffbf2e;color:#ffbf2e;font:700 52px var(--display);box-shadow:inset 0 0 14px rgba(255,191,46,.25)}
+.dcard-b{transform:rotateY(180deg);background:var(--reel);border:2px solid var(--c,var(--green));box-shadow:0 0 12px color-mix(in srgb,var(--c,var(--green)) 45%,transparent);
+  grid-template-rows:auto 1fr auto;padding:12px 8px;gap:6px}
+.dcard-b .k{font:700 12px var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dcard-b img{max-width:100%;max-height:120px;object-fit:contain;margin:auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
+.dcard-b .v{font:700 16px/1.2 var(--display);color:var(--fg)}
+.dcard-b .big-v{font:700 36px var(--display);color:var(--c,var(--green));align-self:center}
+.dip-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.dip-btns .ghost{background:transparent;color:var(--fg);box-shadow:none;border:1px solid var(--line)}
+@media (max-width:760px){.dip-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dcard,.dcard-in{min-height:130px}.dcard-b{padding:8px 6px;gap:4px}.dcard-b .k{font-size:10px}.dcard-b img{max-height:70px}.dcard-b .v{font-size:13px}.dcard-b .big-v{font-size:24px}.dcard-f{font-size:34px}
+  .foot-btns{gap:8px}}
+@media (prefers-reduced-motion:reduce){.dip-box.shake{animation:none}}
+
+/* lucky dip cards scale with screen height, sized to match a 1440p screen; phones keep the standard size */
+@media (min-width:761px){
+  .dip-inner{width:min(100%,max(720px,78vh))}
+  .dcard,.dcard-in{min-height:clamp(150px,15.6vh,250px)}
+  .dcard-b img{max-height:clamp(60px,7.4vh,130px);min-height:0}
+  .dcard-b{grid-template-rows:auto minmax(0,1fr) auto}
+  .dcard-b .v{font-size:clamp(13px,1.11vh,18px)}
+  .dcard-b .k{font-size:clamp(10px,.83vh,13px)}
+  .dcard-b .big-v{font-size:clamp(24px,2.5vh,40px)}
+  .dcard-f{font-size:clamp(34px,3.6vh,58px)}
+  .dip h2{font-size:clamp(22px,2.1vh,34px)}
+}
+
+/* main page scales with the screen, matching how it looks on a 1440p monitor (desktop only) */
+@media (min-width:901px){
+  :root{--reelH:clamp(240px,23.6vh,480px);--rowH:clamp(168px,16.4vh,336px)}
+  .cab{--cw:min(calc(100vw - 40px),max(960px,62.5vw))}
+  .cell .nm{font-size:clamp(13px,1.18vh,22px)}
+  .cab-foot #spinAll,.cab-foot #dipBtn{font-size:clamp(14px,1.25vh,24px);padding:clamp(10px,.97vh,18px) clamp(24px,2.36vh,44px)}
+  .wheel{width:clamp(220px,20.1vh,400px)}
+}
+
+/* map rotation */
+.rotbar{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 10px;margin-top:10px}
+.rotbar .rs{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--reel)}
+.rotbar .rs b{font-weight:700}
+.rotbar .rs.on{border-color:rgba(15,247,150,.5);color:var(--fg)}
+.rotbar .rs.on b{color:var(--green)}
+.rotbar .rs.off b{color:var(--t6)}
+.rotbar .rs::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--t6)}
+.rotbar .rs.on::before{background:var(--green);box-shadow:0 0 6px var(--green)}
+.rotnote{font-size:11.5px;color:var(--t6)}
+.closed-tag{color:var(--t6);font-size:11px}
+.code.closed,.frame.closed{position:relative}
+.code.closed::after,.frame.closed::after{content:"CLOSED\A" attr(data-opens);white-space:pre;position:absolute;inset:0;z-index:4;display:grid;place-items:center;text-align:center;
+  background:rgba(8,10,13,.78);color:var(--t6);font:700 15px/1.5 var(--display);letter-spacing:.1em;text-shadow:0 0 10px rgba(255,77,77,.6);pointer-events:none}
+.frame.closed::after{font-size:clamp(11px,.95vw,15px);letter-spacing:.04em;line-height:1.4;padding:0 4px}
+
 </style>
 </head>
 <body>
 
-
 <a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
+
 <div class="wrap">
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
     <span class="tagline">Roll it. Run it. Extract.</span>
     <div class="data">Updated for Season 11 Reorientation · October 2026</div>
+    <div class="rotbar" id="rotBar" aria-live="polite"></div>
     <p class="intro">Free Delta Force random loadout generator and randomizer for Operations. Spin a random operator, map, weapon, helmet, armour, chest rig and backpack, then roll difficulty, weapon mod budget and ammo type, with today's live door codes for every map.</p>
   </header>
 
   <div class="cab">
     <section class="reels" id="reels" aria-live="polite"></section>
-    <div class="cab-foot"><span class="cab-line"></span><button class="big" id="spinAll" type="button">Spin all!</button><span class="cab-line"></span></div>
+    <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Lucky dip</button></span><span class="cab-line"></span></div>
   </div>
 
   <section class="dice">
@@ -269,6 +345,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
         <label class="ck"><input type="checkbox" id="d-Hard" data-d="Hard" checked> Hard</label>
       </div>
       <div class="diffmsg" id="diffMsg" hidden>Tick at least one difficulty</div>
+      <div class="rotnote" id="hardNote" hidden></div>
     </div>
     <div class="die">
       <h2>Weapon Mod Budget</h2>
@@ -403,7 +480,7 @@ const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_see
 // ---------------- pools ----------------
 const pools={
  op:()=>OPERATORS.filter(o=>!S.opsOff.includes(o[0])).map(([n,c])=>({nm:n,sub:c,tier:0})),
- map:()=>MAPS.filter(m=>S.maps.includes(m)).map(m=>({nm:m,sub:"Operations",tier:0})),
+ map:()=>MAPS.filter(m=>S.maps.includes(m)&&!(m==="Tide Prison"&&!rotation().prisonOpen)).map(m=>({nm:m,sub:"Operations",tier:0})),
  weapon:()=>S.wtypes.flatMap(t=>WEAPONS[t].map(n=>({nm:n,sub:WTYPES[t],tier:0}))),
 };
 ["helmets","vests","rigs","backpacks"].forEach(k=>pools[k]=()=>{
@@ -411,6 +488,15 @@ const pools={
   for(let t=a;t<=b;t++)(GEAR[k][t]||[]).forEach(n=>out.push({nm:n,sub:TIERNAME[t],tier:t}));
   return out;
 });
+// ---- Hard map rotation: Tide Prison Hard and Space City Hard swap every 2 hours on the even UTC hours ----
+// (checked in game 10 Oct 2026: Space City Hard 15:00-17:00 UK, Tide Prison Hard 17:00-19:00 UK)
+function rotation(now=new Date()){
+  const block=Math.floor(now.getUTCHours()/2),prisonOpen=block%2===0;
+  const next=new Date(now);next.setUTCHours(block*2+2,0,0,0);
+  return {prisonOpen,spaceHardOpen:!prisonOpen,next};
+}
+const hhmm=d=>d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+function effDiffs(){const r=rotation();return S.diffs.filter(d=>d!=="Hard"||r.spaceHardOpen)}
 const SLOTS=[["op","Operators"],["map","Maps"],["weapon","Weapons"],["helmets","Helmets"],["vests","Vests"],["rigs","Rigs"],["backpacks","Backpacks"]];
 const state={}; // key -> {cur, held, spinning}
 
@@ -605,6 +691,7 @@ function spin(k,delay=0){
   });
 }
 function landFx(k){
+  if(k==="map"&&typeof applyRotation==="function")setTimeout(()=>applyRotation(true),0);
   const fr=$("#f-"+k);if(!fr)return;
   fr.classList.remove("land");void fr.offsetWidth;fr.classList.add("land");
   const it=state[k].cur;fr.style.setProperty("--glow",it&&it.tier?`var(--t${it.tier})`:"var(--green)");
@@ -655,16 +742,16 @@ function makeWheel(id,labels,colors,resEl,opts={}){
   W.draw=(slices,offList)=>{
     W.labels=slices;const n=slices.length,a=W.a=360/n;let g="";
     slices.forEach((lab,i)=>{const s0=i*a,e=s0+a,mid=s0+a/2,[tx,ty]=P(mid,62),txt=W.short[lab]||lab;
-      const shape=n===1?`<circle r="${r}" fill="${W.col[lab]}"/>`:(()=>{const [x1,y1]=P(s0,r),[x2,y2]=P(e,r);return `<path d="M0 0L${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}Z" fill="${W.col[lab]}" stroke="#0b0d10" stroke-width="2"/>`})();
+      const c=W.col[lab],r0=22,sty=`style="--c:${c};filter:drop-shadow(0 0 4px ${c})"`;
+      const shape=n===1?`<circle r="${(r+r0)/2}" fill="none" stroke-width="${r-r0}" stroke="#0f1317"/><circle class="edge" r="${r}" fill="none" stroke="${c}" stroke-width="3" ${sty}/><circle r="${r0}" fill="none" stroke="${c}" stroke-width="3" ${sty}/>`:(()=>{const [x1,y1]=P(s0,r),[x2,y2]=P(e,r),[x3,y3]=P(e,r0),[x4,y4]=P(s0,r0);return `<path d="M${x4} ${y4}L${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 0 0 ${x4} ${y4}Z" fill="#0f1317" stroke="${c}" stroke-width="3" ${sty}/>`})();
       const sz=n>=10?" xs":(n>=8||txt.length>5?" sm":"");
-      g+=`<g class="slice${offList&&offList.includes(lab)?" off":""}" data-i="${i}">${shape}<text x="${tx}" y="${ty}" transform="rotate(${mid} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" class="wheel-lab${sz}">${txt}</text></g>`});
-    g+=`<circle r="${r}" fill="none" stroke="var(--green)" stroke-width="3"/>`;
+      g+=`<g class="slice${offList&&offList.includes(lab)?" off":""}" data-i="${i}">${shape}<text x="${tx}" y="${ty}" transform="rotate(${mid} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" class="wheel-lab${sz}" style="fill:${c}">${txt}</text></g>`});
     disc.innerHTML=g;
   };
   W.draw(W.labels);
   // ring of lights (fixed, does not turn)
-  const NL=20;let l=`<circle r="111" fill="#0b0d10" stroke="#1d2a24" stroke-width="10"/>`;
-  for(let k=0;k<NL;k++){const [x,y]=P(k*360/NL,111);l+=`<circle class="bulb" cx="${x}" cy="${y}" r="3.6"/>`}
+  const NL=24;let l=`<circle r="104" fill="#0b0d10"/><circle class="rim" r="106" fill="none" stroke="var(--green)" stroke-width="2"/>`;
+  for(let k=0;k<NL;k++){const [x,y]=P(k*360/NL,115);l+=`<circle class="bulb" cx="${x}" cy="${y}" r="3.4"/>`}
   lights.innerHTML=l;W.bulbs=[...lights.querySelectorAll(".bulb")];
   W.set=deg=>disc.setAttribute("transform",`rotate(${deg.toFixed(2)})`);
   W.show=i=>{W.rot=-(i*W.a+W.a/2);W.set(W.rot)};
@@ -708,7 +795,7 @@ function buildWheels(){
   budW=makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#budRes"),{short:{Unlimited:"UNLTD"}});
   diffW=makeWheel("diff",DIFFS,["#1fae6a","#7c4dd1","#cf3a3a"],$("#diffRes"));
   budW.showLabel($("#budRes").textContent);
-  diffW.setEnabled(S.diffs);
+  diffW.setEnabled(effDiffs());
   ammoW=makeWheel("ammo",AMMO,["#8b939b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#ammoRes"),{short:{"Level 1":"LV 1","Level 2":"LV 2","Level 3":"LV 3","Level 4":"LV 4","Level 5":"LV 5","Level 6":"LV 6"}});
   ammoW.showLabel("Level 3");
 }
@@ -761,9 +848,9 @@ document.addEventListener("click",e=>{
   if(pr){S.tiers=JSON.parse(JSON.stringify(PRESETS[pr.dataset.preset]));save();renderTiers();}
 });
 $("#spinAll").onclick=spinAll;
-$("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}rollWheel(diffW,S.diffs,true)};
+$("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}const d=effDiffs();if(!d.length){SFX.button();return}rollWheel(diffW,d,true)};
 document.querySelectorAll("[data-d]").forEach(cb=>{cb.checked=S.diffs.includes(cb.dataset.d);cb.addEventListener("change",()=>{
-  S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(S.diffs)})});
+  S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(effDiffs());applyRotation(true)})});
 $("#budBtn").onclick=()=>rollWheel(budW,BUDGET,false);buildWheels();if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
 $("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}rollWheel(ammoW,S.ammo,false)};
 ammoW.setEnabled(S.ammo);
@@ -780,13 +867,13 @@ $("#settings").addEventListener("change",e=>{
   if(t.dataset.o){S.opsOff=t.checked?S.opsOff.filter(x=>x!==t.dataset.o):[...S.opsOff,t.dataset.o]}
   save();
 });
-document.addEventListener("keydown",e=>{if(e.code==="Space"&&!e.target.closest("button,input,summary")){e.preventDefault();spinAll()}});
+document.addEventListener("keydown",e=>{if(e.code==="Space"&&!e.target.closest("button,input,summary")){const d=document.querySelector(".dip");if(d&&!d.hidden)return;e.preventDefault();spinAll()}});
 let rT;window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>SLOTS.forEach(([k])=>layout(k)),150)});
 
 buildReels();buildSettings();setTimeout(()=>{const q=Object.values(IMG);let i=0;const nx=()=>{if(i>=q.length)return;const im=new Image();im.decoding="async";im.onload=im.onerror=nx;im.src=q[i++]};for(let k=0;k<6;k++)nx()},800);
 // ---------------- door codes ----------------
 function renderCodes(list){
-  $("#codesGrid").innerHTML=list.map(c=>`<div class="code">
+  $("#codesGrid").innerHTML=list.map(c=>`<div class="code" data-map="${c.name}">
     ${IMG[c.name]?`<img src="${IMG[c.name]}" alt="${c.name} door code">`:""}
     <div class="num${c.code?"":" none"}">${c.code||"----"}</div>
     ${c.code?`<button class="cp" type="button" data-code="${c.code}" aria-label="Copy ${c.name} code">COPY</button>`:`<div class="mapn">No code today</div>`}
@@ -797,7 +884,7 @@ async function loadCodes(){
     const r=await fetch("/api/codes",{cache:"no-store"});
     if(!r.ok)throw new Error(r.status);
     const j=await r.json();if(!j.codes)throw new Error("bad");
-    renderCodes(j.codes);
+    renderCodes(j.codes);applyRotation(true);
     const t=new Date(j.updated);
     $("#codesUpd").textContent="Updated "+t.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+" · refreshes every 5 min";
   }catch(e){
@@ -811,6 +898,68 @@ document.addEventListener("click",e=>{
   if(navigator.clipboard)navigator.clipboard.writeText(b.dataset.code).then(done,()=>{});
 });
 loadCodes();setInterval(loadCodes,5*60*1000);
+// ---------------- map rotation on the page ----------------
+let lastRot=null;
+function applyRotation(force){
+  const r=rotation(),key=r.prisonOpen+"|"+r.next.getTime(),t=hhmm(r.next);
+  if(!force&&key===lastRot)return;lastRot=key;
+  $("#rotBar").innerHTML=r.prisonOpen
+    ?`<span class="rs on">Tide Prison Hard <b>open</b> until ${t}</span><span class="rs off">Space City Hard <b>closed</b> · opens ${t}</span>`
+    :`<span class="rs on">Space City Hard <b>open</b> until ${t}</span><span class="rs off">Tide Prison <b>closed</b> · opens ${t}</span>`;
+  const n=$("#hardNote");n.hidden=r.spaceHardOpen||!S.diffs.includes("Hard");n.textContent=`Hard is closed right now · back at ${t}`;
+  if(diffW&&!diffW.busy)diffW.setEnabled(effDiffs());
+  document.querySelectorAll('.code[data-map="Tide Prison"]').forEach(c=>{c.classList.toggle("closed",!r.prisonOpen);c.dataset.opens=`Opens ${t}`});
+  document.querySelectorAll('[data-m="Tide Prison"]').forEach(cb=>{const l=cb.closest("label");if(!l)return;let sp=l.querySelector(".closed-tag");if(!sp){sp=document.createElement("span");sp.className="closed-tag";l.appendChild(sp)}sp.textContent=r.prisonOpen?"":` (closed until ${t})`});
+  const fr=$("#f-map");if(fr){const cur=state.map.cur;fr.classList.toggle("closed",!!cur&&cur.nm==="Tide Prison"&&!r.prisonOpen);fr.dataset.opens=`Opens ${t}`}
+}
+applyRotation(true);setInterval(()=>applyRotation(false),15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotation(false)});
+
+// ---------------- lucky dip ----------------
+(function(){
+  const ov=document.createElement("div");ov.className="dip";ov.hidden=true;ov.setAttribute("role","dialog");ov.setAttribute("aria-label","Lucky dip loadout");
+  ov.innerHTML=`<div class="dip-inner"><h2 id="dipTitle">Lucky dip</h2><div class="dip-box" id="dipBox">?</div><div class="dip-cards" id="dipCards" hidden></div>
+    <div class="dip-btns" id="dipBtns" hidden><button class="big dipbtn" type="button" id="dipAgain">Reroll</button><button class="big ghost" type="button" id="dipClose">Close</button></div></div>`;
+  document.body.appendChild(ov);
+  const LBL={op:"Operator",map:"Map",weapon:"Weapon",helmets:"Helmet",vests:"Vest",rigs:"Rig",backpacks:"Backpack"};
+  let busy=false;
+  function rollEverything(){
+    const was={instant:S.instant,sound:S.sound};S.instant=true;S.sound=false;
+    try{
+      SLOTS.forEach(([k])=>spin(k));
+      if(effDiffs().length)rollWheel(diffW,effDiffs(),true);
+      rollWheel(budW,BUDGET,false);
+      if(S.ammo.length)rollWheel(ammoW,S.ammo,false);
+    }finally{S.instant=was.instant;S.sound=was.sound}
+    const cards=SLOTS.map(([k])=>{const it=state[k].cur;return {k:LBL[k],v:it?it.nm:"Nothing in pool",img:it&&IMG[it.nm],c:it&&it.tier?`var(--t${it.tier})`:"var(--green)"}});
+    const d=$("#diffRes").textContent;cards.push({k:"Difficulty",big:d,c:d==="Hard"?"var(--t6)":d==="Normal"?"var(--t4)":"var(--green)"});
+    cards.push({k:"Mod budget",big:$("#budRes").textContent,c:"var(--green)"});
+    const a=$("#ammoRes").textContent,ai=AMMO.indexOf(a);cards.push({k:"Ammo",big:a.replace("Level ","LV "),c:ai>=0?`var(--t${ai+1})`:"var(--green)"});
+    return cards;
+  }
+  async function dip(){
+    if(busy)return;busy=true;
+    const box=$("#dipBox"),wrap=$("#dipCards"),btns=$("#dipBtns");
+    ov.hidden=false;document.body.style.overflow="hidden";
+    wrap.hidden=true;btns.hidden=true;box.hidden=false;box.className="dip-box shake";$("#dipTitle").textContent="Lucky dip…";
+    const cards=rollEverything();
+    const wait=ms=>new Promise(r=>setTimeout(r,ms));
+    for(let i=0;i<16;i++){SFX.dieTick();await wait(60+i*9)}
+    box.className="dip-box pop";SFX.dieLand();await wait(350);box.hidden=true;
+    $("#dipTitle").textContent="Your loadout";
+    wrap.innerHTML=cards.map(c=>`<div class="dcard"><div class="dcard-in"><div class="dcard-f">?</div><div class="dcard-b" style="--c:${c.c}">
+      <span class="k">${c.k}</span>${c.big?`<span class="big-v">${c.big}</span>`:(c.img?`<img src="${c.img}" alt="${c.v}">`:"<span></span>")}${c.big?"<span></span>":`<span class="v">${c.v}</span>`}</div></div></div>`).join("");
+    wrap.hidden=false;ov.scrollTop=0;
+    const els=[...wrap.querySelectorAll(".dcard")];
+    for(const el of els){await wait(190);el.classList.add("on");SFX.dieTick()}
+    await wait(300);SFX.dieLand();btns.hidden=false;busy=false;$("#dipAgain").focus();
+  }
+  function close(){if(busy)return;ov.hidden=true;document.body.style.overflow="";$("#dipBtn").focus()}
+  $("#dipBtn").onclick=dip;$("#dipAgain").onclick=dip;$("#dipClose").onclick=close;
+  ov.addEventListener("click",e=>{if(e.target===ov)close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)close()});
+})();
+
 
 </script>
 
