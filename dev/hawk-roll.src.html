@@ -486,19 +486,28 @@ function rotation(now=new Date()){
   return {prisonOpen,spaceHardOpen:!prisonOpen,next};
 }
 const hhmm=d=>d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-// difficulties each map actually has right now
+// difficulties each map actually has right now (from Andy, 10 Oct 2026)
+function isWeekend(now=new Date()){const d=new Intl.DateTimeFormat("en-GB",{timeZone:"Europe/London",weekday:"short"}).format(now);return d==="Sat"||d==="Sun"}
 function mapModes(m,r=rotation()){
-  if(m==="Space City")return r.spaceHardOpen?["Normal","Hard"]:["Normal"];   // no Easy on Space City
-  if(m==="Tide Prison")return ["Hard"];                                        // Tide Prison is Hard only
-  return r.spaceHardOpen?["Easy","Normal","Hard"]:["Easy","Normal"];
+  switch(m){
+    case "Zero Dam":case "AZ3 Nuclear Plant":return ["Easy","Normal"];
+    case "Space City":return r.spaceHardOpen?["Normal","Hard"]:["Normal"];
+    case "Tide Prison":return ["Hard"];
+    case "Layali Grove":return isWeekend()?["Easy","Normal"]:["Easy"];
+    case "Brakkesh":return ["Normal"];
+    default:return ["Easy","Normal","Hard"];
+  }
 }
 function curMap(){return typeof state!=="undefined"&&state.map&&state.map.cur?state.map.cur.nm:null}
 function effDiffs(){const allowed=mapModes(curMap());return S.diffs.filter(d=>allowed.includes(d))}
 function diffNote(){
-  const r=rotation(),m=curMap(),t=hhmm(r.next),notes=[];
-  if(m==="Space City"&&S.diffs.includes("Easy"))notes.push("Space City has no Easy mode");
+  const r=rotation(),m=curMap(),t=hhmm(r.next),allowed=mapModes(m),notes=[];
+  if(!m)return "";
+  if(m==="Space City"&&S.diffs.includes("Hard")&&!r.spaceHardOpen)notes.push(`Space City Hard is closed · back at ${t}`);
+  else if(m==="Layali Grove"&&S.diffs.includes("Normal")&&!isWeekend())notes.push("Layali Grove Normal is weekends only");
+  const missing=S.diffs.filter(d=>!allowed.includes(d)&&!(m==="Space City"&&d==="Hard")&&!(m==="Layali Grove"&&d==="Normal"));
   if(m==="Tide Prison")notes.push("Tide Prison is Hard only");
-  else if(!r.spaceHardOpen&&S.diffs.includes("Hard"))notes.push(`Hard is closed right now · back at ${t}`);
+  else if(missing.length)notes.push(`${m.replace(" Nuclear Plant","")} has no ${missing.join(" or ")} mode`);
   if(S.diffs.length&&!effDiffs().length)notes.push("None of your ticked difficulties are on this map");
   return notes.join(" · ");
 }
