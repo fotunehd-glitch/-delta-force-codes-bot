@@ -40,6 +40,10 @@ html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 body{background:var(--bg);color:var(--fg);font:14px/1.45 var(--body);padding:0 16px}
 .wrap{max-width:1120px;margin:0 auto;padding-block:18px 64px;display:grid;gap:26px;justify-items:center}
 header{text-align:center;position:relative}
+.joindc{position:absolute;top:14px;left:16px;z-index:20;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font:700 13px/1 var(--body);letter-spacing:.03em;text-transform:uppercase;color:#fff;background:#5865f2;padding:10px 14px;border-radius:3px;border:1px solid #3c45a5;box-shadow:0 3px 0 #3c45a5}
+.joindc:hover{background:#4752c4}.joindc:active{transform:translateY(2px);box-shadow:0 1px 0 #3c45a5}
+.joindc svg{width:16px;height:16px;flex:none}
+@media (max-width:1100px){.joindc{position:static;margin:12px auto 0;display:flex;width:max-content}}
 h1{margin:0;font:700 clamp(22px,3.4vw,30px)/1.1 var(--display);letter-spacing:.01em}
 h1 .h{color:var(--green)}
 .tagline{display:block;margin-top:6px;font:700 13px var(--display);color:var(--green);letter-spacing:.18em;text-transform:uppercase}
@@ -239,6 +243,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 <body>
 
 
+<a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
 <div class="wrap">
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
