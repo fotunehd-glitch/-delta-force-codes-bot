@@ -320,7 +320,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 
   <div class="cab">
     <section class="reels" id="reels" aria-live="polite"></section>
-    <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Lucky dip</button></span><span class="cab-line"></span></div>
+    <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Mystery crate</button></span><span class="cab-line"></span></div>
   </div>
 
   <section class="dice">
@@ -922,8 +922,8 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
 
 // ---------------- lucky dip ----------------
 (function(){
-  const ov=document.createElement("div");ov.className="dip";ov.hidden=true;ov.setAttribute("role","dialog");ov.setAttribute("aria-label","Lucky dip loadout");
-  ov.innerHTML=`<div class="dip-inner"><h2 id="dipTitle">Lucky dip</h2><div class="dip-box" id="dipBox">?</div><div class="dip-cards" id="dipCards" hidden></div>
+  const ov=document.createElement("div");ov.className="dip";ov.hidden=true;ov.setAttribute("role","dialog");ov.setAttribute("aria-label","Mystery crate loadout");
+  ov.innerHTML=`<div class="dip-inner"><h2 id="dipTitle">Mystery crate</h2><div class="dip-box" id="dipBox">?</div><div class="dip-cards" id="dipCards" hidden></div>
     <div class="dip-btns" id="dipBtns" hidden><button class="big dipbtn" type="button" id="dipAgain">Reroll</button><button class="big ghost" type="button" id="dipClose">Close</button></div></div>`;
   document.body.appendChild(ov);
   const LBL={op:"Operator",map:"Map",weapon:"Weapon",helmets:"Helmet",vests:"Vest",rigs:"Rig",backpacks:"Backpack"};
@@ -946,7 +946,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
     if(busy)return;busy=true;
     const box=$("#dipBox"),wrap=$("#dipCards"),btns=$("#dipBtns");
     ov.hidden=false;document.body.style.overflow="hidden";
-    wrap.hidden=true;btns.hidden=true;box.hidden=false;box.className="dip-box shake";$("#dipTitle").textContent="Lucky dip…";
+    wrap.hidden=true;btns.hidden=true;box.hidden=false;box.className="dip-box shake";$("#dipTitle").textContent="Opening mystery crate…";
     const cards=rollEverything();
     const wait=ms=>new Promise(r=>setTimeout(r,ms));
     for(let i=0;i<16;i++){SFX.dieTick();await wait(60+i*9)}
