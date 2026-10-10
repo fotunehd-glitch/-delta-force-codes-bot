@@ -77,6 +77,7 @@ h1 .h{color:var(--green)}
 .die h2{margin:0;font:700 16px var(--body)}
 .die .res{font:700 24px/28px var(--display);height:28px;color:var(--green)}
 .die .res.rolling{color:var(--muted)}
+.die .res.stale{color:var(--muted);font-size:20px}
 .diffopts{display:flex;gap:14px;justify-content:center;margin-top:4px}
 .diffmsg{font-size:11px;color:var(--t6)}
 .die .res.normal{color:var(--t4);text-shadow:0 0 14px rgba(176,113,255,.4)}
@@ -818,7 +819,7 @@ function rollWheel(W,list,styled){
   const pool=list.filter(x=>W.labels.includes(x));if(!pool.length)return;
   const pickLab=pool[Math.floor(Math.random()*pool.length)],res=W.resEl;
   const spots=W.labels.map((l,i)=>l===pickLab?i:-1).filter(i=>i>=0),i=spots[Math.floor(Math.random()*spots.length)];
-  res.classList.remove("hard","normal");res.classList.add("rolling");res.textContent="…";
+  res.classList.remove("hard","normal","stale");res.classList.add("rolling");res.textContent="…";
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
     if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
     if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}});
@@ -921,7 +922,12 @@ function applyRotation(force){
     ?`<span class="rs on">Tide Prison Hard <b>open</b> until ${t}</span><span class="rs off">Space City Hard <b>closed</b> · opens ${t}</span>`
     :`<span class="rs on">Space City Hard <b>open</b> until ${t}</span><span class="rs off">Tide Prison <b>closed</b> · opens ${t}</span>`;
   const n=$("#hardNote"),nt=diffNote();n.hidden=!nt;n.textContent=nt;
-  if(diffW&&!diffW.busy)diffW.setEnabled(effDiffs());
+  if(diffW&&!diffW.busy){
+    diffW.setEnabled(effDiffs());
+    // a difficulty rolled for the old map that this map doesn't have gets cleared
+    const dr=$("#diffRes"),cur=dr.textContent;
+    if(["Easy","Normal","Hard"].includes(cur)&&!effDiffs().includes(cur)){dr.textContent="Roll again";dr.classList.remove("hard","normal");dr.classList.add("stale")}
+  }
   document.querySelectorAll('.code[data-map="Tide Prison"]').forEach(c=>{c.classList.toggle("closed",!r.prisonOpen);c.dataset.opens=`Opens ${t}`});
   document.querySelectorAll('[data-m="Tide Prison"]').forEach(cb=>{const l=cb.closest("label");if(!l)return;let sp=l.querySelector(".closed-tag");if(!sp){sp=document.createElement("span");sp.className="closed-tag";l.appendChild(sp)}sp.textContent=r.prisonOpen?"":` (closed until ${t})`});
   const fr=$("#f-map");if(fr){const cur=state.map.cur;fr.classList.toggle("closed",!!cur&&cur.nm==="Tide Prison"&&!r.prisonOpen);fr.dataset.opens=`Opens ${t}`}
