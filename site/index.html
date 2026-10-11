@@ -668,6 +668,17 @@ function frameColor(k){
 const easeOut=t=>{const c=.18;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)}; // slight overshoot then settle
 // Shuffle-bag: each reel deals every allowed item once, in random order, before any repeats.
 const BAGS={},RECENT={};
+// gear reels: pick a colour first with loot-style odds, then an item of that colour
+const TIER_W={1:21,2:21,3:20,4:18,5:12,6:8};
+const GEAR_SLOTS=["helmets","vests","rigs","backpacks"];
+function gearPick(k,p,cur){
+  if(!GEAR_SLOTS.includes(k)||!p.length)return null;
+  const tiers=[...new Set(p.map(x=>x.tier))],tot=tiers.reduce((a,t)=>a+(TIER_W[t]||0),0);
+  let r=Math.random()*tot,t=tiers[0];
+  for(const x of tiers){r-=TIER_W[x]||0;if(r<0){t=x;break}}
+  const sub=p.filter(x=>x.tier===t);
+  return S.unique?bagPick(k+"_t"+t,sub,cur):pick(sub);
+}
 function bagPick(k,p,cur){
   const names=p.map(x=>x.nm);
   let bag=(BAGS[k]||[]).filter(n=>names.includes(n));
@@ -688,7 +699,7 @@ function spin(k,delay=0){
   const st=state[k];if(st.held||st.spinning)return Promise.resolve();
   const p=pools[k]();
   if(!p.length){setStatic(k,null);return Promise.resolve();}
-  const result=(S.unique&&k!=="map")?bagPick(k,p,st.cur):pick(p); // maps stay fully random
+  const result=gearPick(k,p,st.cur)||((S.unique&&k!=="map")?bagPick(k,p,st.cur):pick(p)); // maps stay fully random
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   if(S.instant){setStatic(k,result);SFX.clunk();landFx(k);return Promise.resolve();}
   st.spinning=true;
