@@ -956,6 +956,8 @@ function applyRotation(force){
   document.querySelectorAll('[data-m="Tide Prison"]').forEach(cb=>{const l=cb.closest("label");if(!l)return;let sp=l.querySelector(".closed-tag");if(!sp){sp=document.createElement("span");sp.className="closed-tag";l.appendChild(sp)}sp.textContent=r.prisonOpen?"":` (closed until ${t})`});
   const fr=$("#f-map");if(fr){const cur=state.map.cur;fr.classList.toggle("closed",!!cur&&cur.nm==="Tide Prison"&&!r.prisonOpen);fr.dataset.opens=`Opens ${t}`}
 }
+// on first load, start on a difficulty the starting map actually has (so nobody sees "Roll again" before rolling)
+(function(){const d=effDiffs(),r=$("#diffRes");if(d.length&&!d.includes(r.textContent)){const v=d[Math.floor(Math.random()*d.length)];r.textContent=v;r.classList.remove("stale");r.classList.toggle("hard",v==="Hard");r.classList.toggle("normal",v==="Normal");diffW.setEnabled(d);diffW.showLabel(v)}})();
 applyRotation(true);setInterval(()=>applyRotation(false),15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotation(false)});
 
