@@ -201,7 +201,7 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 /* bigger reels + wider frame on computers */
 @media (min-width:901px){
   :root{--reelH:340px;--rowH:236px}
-  .cab{--cw:min(1600px,calc(100vw - 40px));width:var(--cw);justify-self:stretch;margin-inline:calc((100% - var(--cw))/2);--pad:24px}
+  .cab{--cw:min(1600px,calc(100vw / var(--z,1) - 40px));width:var(--cw);justify-self:stretch;margin-inline:calc((100% - var(--cw))/2);--pad:24px}
   .reels{gap:18px}
   .cell .nm{font-size:17px}
   .cab-foot{margin-top:14px}
@@ -292,7 +292,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 /* main page scales with the screen, matching how it looks on a 1440p monitor (desktop only) */
 @media (min-width:901px){
   :root{--reelH:clamp(240px,23.6vh,480px);--rowH:clamp(168px,16.4vh,336px)}
-  .cab{--cw:min(calc(100vw - 40px),max(960px,62.5vw))}
+  .cab{--cw:min(calc(100vw / var(--z,1) - 40px),max(960px,62.5vw))}
   .cell .nm{font-size:clamp(13px,1.18vh,22px)}
   .cab-foot #spinAll,.cab-foot #dipBtn{font-size:clamp(14px,1.25vh,24px);padding:clamp(10px,.97vh,18px) clamp(24px,2.36vh,44px)}
   .wheel{width:clamp(220px,20.1vh,400px)}
@@ -328,6 +328,16 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 
+
+/* zoom slider */
+.wrap{zoom:var(--z,1)}
+.zoomer{position:fixed;right:16px;bottom:16px;z-index:30;display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(18,21,25,.92);border:1px solid rgba(15,247,150,.45);border-radius:999px;box-shadow:0 0 14px rgba(15,247,150,.18);font:700 12px var(--display);color:var(--fg);backdrop-filter:blur(4px)}
+.zoomer svg{width:16px;height:16px;color:var(--green);flex:none}
+.zoomer button{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);color:var(--fg);font:700 15px/1 var(--display)}
+.zoomer button:hover{border-color:var(--green);color:var(--green)}
+.zoomer input{width:120px;accent-color:var(--green);cursor:pointer;margin:0}
+.zoomer output{min-width:40px;text-align:center;cursor:pointer;color:var(--green)}
+@media (max-width:600px){.zoomer{display:none}}
 </style>
 </head>
 <body>
@@ -335,6 +345,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 <a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
 <a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
 
+<div class="zoomer" role="group" aria-label="Page zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><button type="button" id="zOut" aria-label="Zoom out">&minus;</button><input type="range" id="zRange" min="70" max="150" step="5" value="100" aria-label="Zoom"><button type="button" id="zIn" aria-label="Zoom in">+</button><output id="zVal" title="Reset to 100%">100%</output></div>
 <div class="wrap">
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
@@ -1068,6 +1079,10 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
 })();
 
 
+// zoom slider (remembered on this browser)
+(function(){const r=$("#zRange"),v=$("#zVal");const set=(n,keep)=>{n=Math.max(70,Math.min(150,Math.round(n/5)*5));r.value=n;v.textContent=n+"%";document.documentElement.style.setProperty("--z",n/100);if(!keep)try{localStorage.setItem("hawkroll.zoom",n)}catch(e){}};
+let z=100;try{z=+localStorage.getItem("hawkroll.zoom")||100}catch(e){}set(z,true);
+r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value+5);$("#zOut").onclick=()=>set(+r.value-5);v.onclick=()=>set(100);})();
 </script>
 
 </body>
