@@ -331,12 +331,16 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 
 /* zoom slider */
 .wrap{zoom:var(--z,1)}
-.zoomer{position:fixed;right:16px;bottom:16px;z-index:30;display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(18,21,25,.92);border:1px solid rgba(15,247,150,.45);border-radius:999px;box-shadow:0 0 14px rgba(15,247,150,.18);font:700 12px var(--display);color:var(--fg);backdrop-filter:blur(4px)}
-.zoomer svg{width:16px;height:16px;color:var(--green);flex:none}
+.zoomer{position:absolute;top:66px;left:16px;z-index:20;display:grid;gap:6px;padding:10px 12px;background:var(--reel);border:2px solid var(--green);border-radius:6px;box-shadow:0 0 14px rgba(15,247,150,.2);color:var(--fg)}
+.zoomer .zt{display:flex;align-items:center;gap:6px;font:700 13px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--green)}
+.zoomer .zt svg{width:15px;height:15px;flex:none}
+.zoomer .zs{font-size:11.5px;color:var(--muted);line-height:1.3}
+.zoomer .zr{display:flex;align-items:center;gap:8px;font:700 12px var(--display)}
 .zoomer button{all:unset;cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);color:var(--fg);font:700 15px/1 var(--display)}
 .zoomer button:hover{border-color:var(--green);color:var(--green)}
-.zoomer input{width:120px;accent-color:var(--green);cursor:pointer;margin:0}
+.zoomer input{width:110px;accent-color:var(--green);cursor:pointer;margin:0}
 .zoomer output{min-width:40px;text-align:center;cursor:pointer;color:var(--green)}
+@media (max-width:1100px){.zoomer{position:static;margin:10px auto 0;width:max-content}}
 @media (max-width:600px){.zoomer{display:none}}
 </style>
 </head>
@@ -345,7 +349,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 <a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
 <a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
 
-<div class="zoomer" role="group" aria-label="Page zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><button type="button" id="zOut" aria-label="Zoom out">&minus;</button><input type="range" id="zRange" min="70" max="150" step="5" value="100" aria-label="Zoom"><button type="button" id="zIn" aria-label="Zoom in">+</button><output id="zVal" title="Reset to 100%">100%</output></div>
+<div class="zoomer" role="group" aria-labelledby="zT"><div class="zt" id="zT"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Page zoom</div><div class="zs">Make the site bigger or smaller</div><div class="zr"><button type="button" id="zOut" aria-label="Zoom out">&minus;</button><input type="range" id="zRange" min="70" max="150" step="5" value="100" aria-label="Zoom"><button type="button" id="zIn" aria-label="Zoom in">+</button><output id="zVal" title="Reset to 100%">100%</output></div></div>
 <div class="wrap">
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
