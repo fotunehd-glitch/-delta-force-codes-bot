@@ -307,7 +307,20 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
   background:rgba(8,10,13,.78);color:var(--t6);font:700 15px/1.5 var(--display);letter-spacing:.1em;text-shadow:0 0 10px rgba(255,77,77,.6);pointer-events:none}
 .frame.closed::after{font-size:clamp(11px,.95vw,15px);letter-spacing:.04em;line-height:1.4;padding:0 4px}
 
+/* angled corner ribbon, top right */
+.ribbon{position:fixed;top:0;right:0;width:170px;height:170px;overflow:hidden;z-index:30;pointer-events:none;text-decoration:none}
+.ribbon span{position:absolute;top:42px;right:-48px;width:240px;transform:rotate(45deg);text-align:center;pointer-events:auto;cursor:pointer;overflow:hidden;
+  display:grid;gap:3px;color:#062014;background:var(--green);padding:7px 0 6px;box-shadow:0 0 14px rgba(15,247,150,.55),0 3px 6px rgba(0,0,0,.5);transition:filter .15s}
+.ribbon b{font:700 14px/1 var(--display);letter-spacing:.22em;text-transform:uppercase}
+.ribbon i{font:700 9px/1 var(--body);font-style:normal;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.ribbon span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.75) 50%,transparent 70%);transform:translateX(-120%);animation:ribShine 4s ease-in-out infinite}
+@keyframes ribShine{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.ribbon:hover span{filter:brightness(1.15)}
+.ribbon:focus-visible span{outline:2px solid #fff;outline-offset:2px}
+@media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
+@media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 </style>
+<a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
 <a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
 
 <div class="wrap">
