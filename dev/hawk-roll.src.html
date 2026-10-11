@@ -530,9 +530,8 @@ function diffNote(){
 }
 // ---- which ammo levels each calibre has (from Andy's ammo table, Oct 2026) ----
 const CAL_LEVELS={"9x19mm":[1,2,3,4],".45 ACP":[1,2,3,4,5],"4.6x30mm":[3,4,5],"5.7x28mm":[1,2,3,4,5],"9x39mm":[3,4,5],
-  "5.8x42mm":[2,3,4,5],"5.56x45mm":[1,2,3,4,5],"7.62x39mm":[1,2,3,4,5],"7.62x51mm":[3,4,5,6],"7.62x54R":[3,4,5,6],
-  "5.45x39mm":[1,2,3,4,5],"6.8x51mm":[4,5,6],"12.7x55mm":[3,4,5],".338 Lapua":[6],".50 BMG":[6],".300 BLK":[3,4,5],".45-70 Govt":[3,4,5],"Arrows":[3,4,5],
-  // guns where sources disagree on calibre: every level either calibre has, until checked in game
+  "5.8x42mm":[2,3,4,5],"5.56x45mm":[1,2,3,4,5],"7.62x39mm":[1,2,3,4,5],"7.62x51mm":[2,3,4,5,6],"7.62x54R":[3,4,5],
+  "5.45x39mm":[1,2,3,4,5],"6.8x51mm":[4,5],".50 AE":[2,3,4],".357 Magnum":[2,3,4],"12.7x55mm":[3,4,5],".338 Lapua":[6],".50 BMG":[6],".300 BLK":[3,4,5],".45-70 Govt":[3,4,5],"Arrows":[3,4,5],
   "12 Gauge":[1,2,3,4]};
 // calibre each gun uses; guns not listed (or calibres not in the table) keep every level
 const WEAPON_CAL={
@@ -552,7 +551,7 @@ const WEAPON_CAL={
   "M249 Light Machine Gun":"5.56x45mm","Mini-14 Marksman Rifle":"5.56x45mm","SKS Marksman Rifle":"7.62x39mm","AWM Sniper Rifle":".338 Lapua","M82 Sniper Rifle":".50 BMG",
   "CI-19 Assault Rifle":"5.8x42mm","K437 Assault Rifle":".300 BLK","Marlin Lever-action Rifle":".45-70 Govt","Compound Bow":"Arrows","KC17 Assault Rifle":"5.56x45mm","SR9 Marksman Rifle":"7.62x51mm",
   "R93 Sniper Rifle":"7.62x51mm","QCQ171 Submachine Gun":"9x19mm","MK4 Submachine Gun":"4.6x30mm","MCX LT Assault Rifle":".300 BLK",
-  // calibres not in the ammo table yet, so these keep every level: Desert Eagle (.50 AE), .357 Revolver
+  "Desert Eagle":".50 AE",".357 Revolver":".357 Magnum",
   "M1014 Shotgun":"12 Gauge","S12K Shotgun":"12 Gauge","M870 Shotgun":"12 Gauge","725 Double-Barrel Shotgun":"12 Gauge","FS-12 Shotgun":"12 Gauge"
 };
 function curWeapon(){return typeof state!=="undefined"&&state.weapon&&state.weapon.cur?state.weapon.cur.nm:null}
