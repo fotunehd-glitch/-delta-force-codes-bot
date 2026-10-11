@@ -230,7 +230,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .wheel.landed .slice.win .wheel-lab{fill:#fff!important}
 
 .die .res.ammo{color:var(--ac,var(--t3));text-shadow:0 0 14px color-mix(in srgb,var(--ac,var(--t3)) 45%,transparent)}
-.die .res.ammo.rolling{color:var(--muted);text-shadow:none}
+.die .res.ammo.rolling,.die .res.ammo.stale{color:var(--muted);text-shadow:none}
 .dice{gap:24px 40px}
 
 .ammoopts{display:grid;grid-template-columns:repeat(3,auto);gap:6px 14px;justify-content:center}
@@ -307,6 +307,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
   background:rgba(8,10,13,.78);color:var(--t6);font:700 15px/1.5 var(--display);letter-spacing:.1em;text-shadow:0 0 10px rgba(255,77,77,.6);pointer-events:none}
 .frame.closed::after{font-size:clamp(11px,.95vw,15px);letter-spacing:.04em;line-height:1.4;padding:0 4px}
 
+.ammonote{color:var(--muted)}
 /* angled corner ribbon, top right */
 .ribbon{position:fixed;top:0;right:0;width:170px;height:170px;overflow:hidden;z-index:30;pointer-events:none;text-decoration:none}
 .ribbon span{position:absolute;top:42px;right:-48px;width:240px;transform:rotate(45deg);text-align:center;pointer-events:auto;cursor:pointer;overflow:hidden;
@@ -319,6 +320,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .ribbon:focus-visible span{outline:2px solid #fff;outline-offset:2px}
 @media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
+
 </style>
 <a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
 <a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a>
@@ -364,6 +366,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
       <button class="big" id="ammoBtn" type="button">Roll for ammo</button>
       <div class="diffopts ammoopts"><label class="ck"><input type="checkbox" data-a="Level 1" checked> LV 1</label><label class="ck"><input type="checkbox" data-a="Level 2" checked> LV 2</label><label class="ck"><input type="checkbox" data-a="Level 3" checked> LV 3</label><label class="ck"><input type="checkbox" data-a="Level 4" checked> LV 4</label><label class="ck"><input type="checkbox" data-a="Level 5" checked> LV 5</label><label class="ck"><input type="checkbox" data-a="Level 6" checked> LV 6</label></div>
       <div class="diffmsg" id="ammoMsg" hidden>Tick at least one ammo level</div>
+      <div class="rotnote ammonote" id="ammoNote" hidden></div>
     </div>
   </section>
 
@@ -524,6 +527,52 @@ function diffNote(){
   else if(missing.length)notes.push(`${m.replace(" Nuclear Plant","")} has no ${missing.join(" or ")} mode`);
   if(S.diffs.length&&!effDiffs().length)notes.push("None of your ticked difficulties are on this map");
   return notes.join(" · ");
+}
+// ---- which ammo levels each calibre has (from Andy's ammo table, Oct 2026) ----
+const CAL_LEVELS={"9x19mm":[1,2,3,4],".45 ACP":[1,2,3,4,5],"4.6x30mm":[3,4,5],"5.7x28mm":[1,2,3,4,5],"9x39mm":[3,4,5],
+  "5.8x42mm":[2,3,4,5],"5.56x45mm":[1,2,3,4,5],"7.62x39mm":[1,2,3,4,5],"7.62x51mm":[3,4,5,6],"7.62x54R":[3,4,5,6],
+  "5.45x39mm":[1,2,3,4,5],"6.8x51mm":[4,5,6],"12.7x55mm":[3,4,5],".338 Lapua":[6],".50 BMG":[6],".300 BLK":[3,4,5],".45-70 Govt":[3,4,5],"Arrows":[3,4,5],
+  // guns where sources disagree on calibre: every level either calibre has, until checked in game
+  "12 Gauge":[1,2,3,4]};
+// calibre each gun uses; guns not listed (or calibres not in the table) keep every level
+const WEAPON_CAL={
+  "M4A1 Assault Rifle":"5.56x45mm","K416 Assault Rifle":"5.56x45mm","M16A4 Assault Rifle":"5.56x45mm","AUG Assault Rifle":"5.56x45mm","SG552 Assault Rifle":"5.56x45mm","CAR-15 Assault Rifle":"5.56x45mm","MDR Assault Rifle":"5.56x45mm",
+  "AKM Assault Rifle":"7.62x39mm","PTR-32 Assault Rifle":"7.62x39mm","MK47 Assault Rifle":"7.62x39mm",
+  "AKS-74 Assault Rifle":"5.45x39mm","AK-12 Assault Rifle":"5.45x39mm",
+  "QBZ95-1 Assault Rifle":"5.8x42mm","QJB201 Light Machine Gun":"5.8x42mm",
+  "ASh-12 Assault Rifle":"12.7x55mm",
+  "M7 Battle Rifle":"6.8x51mm","RM277 Assault Rifle":"6.8x51mm","M250 General Machine Gun":"6.8x51mm",
+  "SCAR-H Battle Rifle":"7.62x51mm","G3 Battle Rifle":"7.62x51mm","M14 Marksman Rifle":"7.62x51mm","SR-25 Marksman Rifle":"7.62x51mm","PSG-1 Marksman Rifle":"7.62x51mm","M700 Sniper Rifle":"7.62x51mm",
+  "SVD Sniper Rifle":"7.62x54R","SV-98 Sniper Rifle":"7.62x54R","PKM General Machine Gun":"7.62x54R","SVCH Marksman Rifle":"7.62x54R",
+  "AS Val Assault Rifle":"9x39mm","VSS Marksman Rifle":"9x39mm","SR-3M Compact Assault Rifle":"9x39mm",
+  "AR-57 Assault Rifle":"5.7x28mm","P90 Submachine Gun":"5.7x28mm","MP7":"4.6x30mm",
+  "MP5 Submachine Gun":"9x19mm","UZI Submachine Gun":"9x19mm","Bizon Submachine Gun":"9x19mm","Vityaz Submachine Gun":"9x19mm",
+  "QSZ-92G":"9x19mm","G17":"9x19mm","G18":"9x19mm","93R":"9x19mm",
+  "Vector Submachine Gun":".45 ACP","SMG-45 Submachine Gun":".45 ACP","Thompson Submachine Gun":".45 ACP","M1911":".45 ACP",
+  "M249 Light Machine Gun":"5.56x45mm","Mini-14 Marksman Rifle":"5.56x45mm","SKS Marksman Rifle":"7.62x39mm","AWM Sniper Rifle":".338 Lapua","M82 Sniper Rifle":".50 BMG",
+  "CI-19 Assault Rifle":"5.8x42mm","K437 Assault Rifle":".300 BLK","Marlin Lever-action Rifle":".45-70 Govt","Compound Bow":"Arrows","KC17 Assault Rifle":"5.56x45mm","SR9 Marksman Rifle":"7.62x51mm",
+  "R93 Sniper Rifle":"7.62x51mm","QCQ171 Submachine Gun":"9x19mm","MK4 Submachine Gun":"4.6x30mm","MCX LT Assault Rifle":".300 BLK",
+  // calibres not in the ammo table yet, so these keep every level: Desert Eagle (.50 AE), .357 Revolver
+  "M1014 Shotgun":"12 Gauge","S12K Shotgun":"12 Gauge","M870 Shotgun":"12 Gauge","725 Double-Barrel Shotgun":"12 Gauge","FS-12 Shotgun":"12 Gauge"
+};
+function curWeapon(){return typeof state!=="undefined"&&state.weapon&&state.weapon.cur?state.weapon.cur.nm:null}
+function weaponLevels(w=curWeapon()){const c=WEAPON_CAL[w];return c&&CAL_LEVELS[c]?CAL_LEVELS[c]:[1,2,3,4,5,6]}
+function effAmmo(){const lv=weaponLevels();return S.ammo.filter(a=>lv.includes(+a.split(" ")[1]))}
+function ammoNote(){
+  const w=curWeapon(),c=WEAPON_CAL[w];if(!w||!c||!CAL_LEVELS[c])return "";
+  const lv=CAL_LEVELS[c],lo=Math.min(...lv),hi=Math.max(...lv);
+  const range=lo===hi?`LV ${lo} only`:`LV ${lo}–${hi} only`;
+  const cname=c.includes("unconfirmed")?"calibre unconfirmed":c;
+  let t=`${w.replace(/ (Assault|Battle|Marksman|Sniper|Compact Assault|Light Machine|General Machine|Submachine) ?(Rifle|Gun)?$/,"").replace(/ Shotgun$/,"").replace(/ Lever-action Rifle$/,"")} · ${cname} · ${range}`;
+  if(S.ammo.length&&!effAmmo().length)t+=" · none of your ticked levels fit this gun";
+  return t;
+}
+function refreshAmmo(){
+  if(typeof ammoW==="undefined"||!ammoW||ammoW.busy)return;
+  ammoW.setEnabled(effAmmo());
+  const r=$("#ammoRes"),cur=r.textContent;
+  if(AMMO.includes(cur)&&!effAmmo().includes(cur)){r.textContent="Roll again";r.classList.add("stale")}
+  const n=$("#ammoNote"),t=ammoNote();if(n){n.hidden=!t;n.textContent=t}
 }
 const SLOTS=[["op","Operators"],["map","Maps"],["weapon","Weapons"],["helmets","Helmets"],["vests","Vests"],["rigs","Rigs"],["backpacks","Backpacks"]];
 const state={}; // key -> {cur, held, spinning}
@@ -731,6 +780,7 @@ function spin(k,delay=0){
 }
 function landFx(k){
   if(k==="map"&&typeof applyRotation==="function")setTimeout(()=>applyRotation(true),0);
+  if(k==="weapon")setTimeout(refreshAmmo,0);
   const fr=$("#f-"+k);if(!fr)return;
   fr.classList.remove("land");void fr.offsetWidth;fr.classList.add("land");
   const it=state[k].cur;fr.style.setProperty("--glow",it&&it.tier?`var(--t${it.tier})`:"var(--green)");
@@ -891,11 +941,11 @@ $("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return
 document.querySelectorAll("[data-d]").forEach(cb=>{cb.checked=S.diffs.includes(cb.dataset.d);cb.addEventListener("change",()=>{
   S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(effDiffs());applyRotation(true)})});
 $("#budBtn").onclick=()=>rollWheel(budW,BUDGET,false);buildWheels();if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
-$("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}rollWheel(ammoW,S.ammo,false)};
-ammoW.setEnabled(S.ammo);
+$("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}const a=effAmmo();if(!a.length){refreshAmmo();SFX.button();return}rollWheel(ammoW,a,false)};
+refreshAmmo();
 if(S.ammo.length&&!S.ammo.includes("Level 3")){const f=S.ammo[0];$("#ammoRes").textContent=f;ammoW.showLabel(f);$("#ammoRes").style.setProperty("--ac",`var(--t${AMMO.indexOf(f)+1})`)}
 document.querySelectorAll("[data-a]").forEach(cb=>{cb.checked=S.ammo.includes(cb.dataset.a);cb.addEventListener("change",()=>{
-  S.ammo=[...document.querySelectorAll("[data-a]")].filter(x=>x.checked).map(x=>x.dataset.a);$("#ammoMsg").hidden=S.ammo.length>0;save();ammoW.setEnabled(S.ammo)})});
+  S.ammo=[...document.querySelectorAll("[data-a]")].filter(x=>x.checked).map(x=>x.dataset.a);$("#ammoMsg").hidden=S.ammo.length>0;save();refreshAmmo()})});
 $("#settings").addEventListener("change",e=>{
   const t=e.target;
   if(t.id==="optSound")S.sound=t.checked;
@@ -958,6 +1008,8 @@ function applyRotation(force){
 }
 // on first load, start on a difficulty the starting map actually has (so nobody sees "Roll again" before rolling)
 (function(){const d=effDiffs(),r=$("#diffRes");if(d.length&&!d.includes(r.textContent)){const v=d[Math.floor(Math.random()*d.length)];r.textContent=v;r.classList.remove("stale");r.classList.toggle("hard",v==="Hard");r.classList.toggle("normal",v==="Normal");diffW.setEnabled(d);diffW.showLabel(v)}})();
+// same for ammo: start on a level the starting gun can use
+(function(){const a=effAmmo(),r=$("#ammoRes");if(a.length&&!a.includes(r.textContent)){const v=a[Math.floor(Math.random()*a.length)];r.textContent=v;r.classList.remove("stale");r.style.setProperty("--ac",`var(--t${AMMO.indexOf(v)+1})`);ammoW.setEnabled(a);ammoW.showLabel(v);const n=$("#ammoNote"),t=ammoNote();if(n){n.hidden=!t;n.textContent=t}}})();
 applyRotation(true);setInterval(()=>applyRotation(false),15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotation(false)});
 
@@ -975,7 +1027,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
       SLOTS.forEach(([k])=>spin(k));
       diffW.setEnabled(effDiffs());if(effDiffs().length)rollWheel(diffW,effDiffs(),true);
       rollWheel(budW,BUDGET,false);
-      if(S.ammo.length)rollWheel(ammoW,S.ammo,false);
+      ammoW.setEnabled(effAmmo());if(effAmmo().length)rollWheel(ammoW,effAmmo(),false);
     }finally{S.instant=was.instant;S.sound=was.sound}
     const cards=SLOTS.map(([k])=>{const it=state[k].cur;return {k:LBL[k],v:it?it.nm:"Nothing in pool",img:it&&IMG[it.nm],c:it&&it.tier?`var(--t${it.tier})`:"var(--green)"}});
     const d=$("#diffRes").textContent;cards.push({k:"Difficulty",big:d,c:d==="Hard"?"var(--t6)":d==="Normal"?"var(--t4)":"var(--green)"});
