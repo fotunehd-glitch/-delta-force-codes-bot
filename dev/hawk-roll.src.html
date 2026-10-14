@@ -322,6 +322,18 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 
 
+
+/* budget / build switch */
+.modesw{display:inline-flex;align-items:center;gap:8px;margin-top:4px;cursor:pointer;user-select:none;font:700 12px var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.modesw input{position:absolute;opacity:0;width:1px;height:1px}
+.modesw i{position:relative;width:42px;height:22px;border-radius:999px;background:#1a1f25;border:1px solid var(--green);box-shadow:0 0 8px rgba(15,247,150,.25);transition:background .2s}
+.modesw i::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);transition:transform .2s}
+.modesw input:checked+i::after{transform:translateX(20px)}
+.modesw input:focus-visible+i{outline:2px solid var(--fg);outline-offset:2px}
+.modesw .ml{color:var(--green)}
+.modesw input:checked~.mr{color:var(--green)}
+.modesw:has(input:checked) .ml{color:var(--muted)}
+#budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
 /* zoom slider */
 .wrap{zoom:var(--z,1)}
 .zoomer{position:fixed;left:16px;bottom:16px;z-index:30;display:grid;gap:5px;padding:9px 12px;background:rgba(18,21,25,.94);backdrop-filter:blur(4px);border:2px solid var(--green);border-radius:6px;box-shadow:0 0 14px rgba(15,247,150,.2);color:var(--fg)}
@@ -368,10 +380,11 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
       <div class="rotnote" id="hardNote" hidden></div>
     </div>
     <div class="die">
-      <h2>Weapon Mod Budget</h2>
+      <h2 id="budH">Weapon Mod Budget</h2>
       <div class="wheel" id="budWheel" aria-hidden="true"><div class="wheel-ptr"></div><svg viewBox="-120 -120 240 240"><g class="wheel-lights"></g><g class="wheel-disc"></g></svg><div class="wheel-hub"></div></div>
       <div class="res" id="budRes">200k</div>
       <button class="big" id="budBtn" type="button">Roll for budget</button>
+      <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
     </div>
     <div class="die">
       <h2>Ammo Type</h2>
@@ -832,6 +845,9 @@ async function rollDie(el,faces){
 }
 const DIFF=["Easy","Easy","Normal","Normal","Hard","Hard"];
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
+const BUILDS=["No Attachments","Budget Build","Mid Tier Build","Max Build"];
+const BUILD_COL=["#8b939b","#2f9e55","#7c4dd1","#d49a1c"];
+const budList=()=>S.budMode==="build"?BUILDS:BUDGET;
 
 
 // ---------------- roulette wheels (difficulty + budget) ----------------
@@ -894,12 +910,24 @@ const DIFFS=["Easy","Normal","Hard"];
 let budW,diffW,ammoW;
 const AMMO=["Level 1","Level 2","Level 3","Level 4","Level 5","Level 6"];
 function buildWheels(){
-  budW=makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#budRes"),{short:{Unlimited:"UNLTD"}});
+  makeBudWheel();
   diffW=makeWheel("diff",DIFFS,["#1fae6a","#7c4dd1","#cf3a3a"],$("#diffRes"));
-  budW.showLabel($("#budRes").textContent);
   diffW.setEnabled(effDiffs());
   ammoW=makeWheel("ammo",AMMO,["#8b939b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#ammoRes"),{short:{"Level 1":"LV 1","Level 2":"LV 2","Level 3":"LV 3","Level 4":"LV 4","Level 5":"LV 5","Level 6":"LV 6"}});
   ammoW.showLabel("Level 3");
+}
+const budLast={budget:"200k",build:"Mid Tier Build"};
+function makeBudWheel(){
+  const build=S.budMode==="build";
+  budW=build?makeWheel("bud",BUILDS,BUILD_COL,$("#budRes"),{short:{"No Attachments":"NONE","Budget Build":"BUDGET","Mid Tier Build":"MID","Max Build":"MAX"}})
+            :makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#budRes"),{short:{Unlimited:"UNLTD"}});
+  if(build)budW.setEnabled(BUILDS);
+  const r=$("#budRes"),v=budLast[build?"build":"budget"];r.textContent=v;r.classList.toggle("build",build);
+  r.style.setProperty("--bc",build?BUILD_COL[BUILDS.indexOf(v)]:"");
+  budW.showLabel(v);
+  $("#budH").textContent=build?"Weapon Build":"Weapon Mod Budget";
+  $("#budBtn").textContent=build?"Roll for build":"Roll for budget";
+  $("#budMode").checked=build;$("#budWheel").closest(".die").classList.toggle("buildmode",build);
 }
 function rollWheel(W,list,styled){
   if(W.busy)return;
@@ -909,7 +937,8 @@ function rollWheel(W,list,styled){
   res.classList.remove("hard","normal","stale");res.classList.add("rolling");res.textContent="…";
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
     if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
-    if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}});
+    if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}
+    if(W===budW){const b=S.budMode==="build";budLast[b?"build":"budget"]=pickLab;res.style.setProperty("--bc",b?BUILD_COL[BUILDS.indexOf(pickLab)]:"")}});
 }
 
 // ---------------- settings UI ----------------
@@ -953,7 +982,8 @@ $("#spinAll").onclick=spinAll;
 $("#diffBtn").onclick=()=>{if(!S.diffs.length){$("#diffMsg").hidden=false;return}const d=effDiffs();if(!d.length){applyRotation(true);SFX.button();return}rollWheel(diffW,d,true)};
 document.querySelectorAll("[data-d]").forEach(cb=>{cb.checked=S.diffs.includes(cb.dataset.d);cb.addEventListener("change",()=>{
   S.diffs=[...document.querySelectorAll("[data-d]")].filter(x=>x.checked).map(x=>x.dataset.d);$("#diffMsg").hidden=S.diffs.length>0;save();diffW&&diffW.setEnabled(effDiffs());applyRotation(true)})});
-$("#budBtn").onclick=()=>rollWheel(budW,BUDGET,false);buildWheels();if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
+$("#budBtn").onclick=()=>rollWheel(budW,budList(),false);buildWheels();
+$("#budMode").addEventListener("change",e=>{if(budW.busy){e.target.checked=S.budMode==="build";return}S.budMode=e.target.checked?"build":"budget";save();try{SFX.button()}catch(_){}makeBudWheel()});if(!Array.isArray(S.ammo))S.ammo=AMMO.slice();
 $("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}const a=effAmmo();if(!a.length){refreshAmmo();SFX.button();return}rollWheel(ammoW,a,false)};
 refreshAmmo();
 if(S.ammo.length&&!S.ammo.includes("Level 3")){const f=S.ammo[0];$("#ammoRes").textContent=f;ammoW.showLabel(f);$("#ammoRes").style.setProperty("--ac",`var(--t${AMMO.indexOf(f)+1})`)}
@@ -1039,12 +1069,12 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
     try{
       SLOTS.forEach(([k])=>spin(k));
       diffW.setEnabled(effDiffs());if(effDiffs().length)rollWheel(diffW,effDiffs(),true);
-      rollWheel(budW,BUDGET,false);
+      rollWheel(budW,budList(),false);
       ammoW.setEnabled(effAmmo());if(effAmmo().length)rollWheel(ammoW,effAmmo(),false);
     }finally{S.instant=was.instant;S.sound=was.sound}
     const cards=SLOTS.map(([k])=>{const it=state[k].cur;return {k:LBL[k],v:it?it.nm:"Nothing in pool",img:it&&IMG[it.nm],c:it&&it.tier?`var(--t${it.tier})`:"var(--green)"}});
     const d=$("#diffRes").textContent;cards.push({k:"Difficulty",big:d,c:d==="Hard"?"var(--t6)":d==="Normal"?"var(--t4)":"var(--green)"});
-    cards.push({k:"Mod budget",big:$("#budRes").textContent,c:"var(--green)"});
+    {const v=$("#budRes").textContent,bi=BUILDS.indexOf(v);cards.push({k:bi>=0?"Weapon build":"Mod budget",big:v,c:bi>=0?BUILD_COL[bi]:"var(--green)"});}
     const a=$("#ammoRes").textContent,ai=AMMO.indexOf(a);cards.push({k:"Ammo",big:a.replace("Level ","LV "),c:ai>=0?`var(--t${ai+1})`:"var(--green)"});
     return cards;
   }
