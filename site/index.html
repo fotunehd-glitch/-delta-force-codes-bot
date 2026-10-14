@@ -860,6 +860,7 @@ const DIFF=["Easy","Easy","Normal","Normal","Hard","Hard"];
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
 const BUILDS=["No Attachments","Budget Build","Mid Tier Build","Max Build"];
 const BUILD_COL=["#8b939b","#2f9e55","#7c4dd1","#d49a1c"];
+const BUILD_W={"No Attachments":25,"Budget Build":30,"Mid Tier Build":30,"Max Build":15};
 const budList=()=>S.budMode==="build"?BUILDS:BUDGET;
 
 
@@ -944,7 +945,8 @@ function makeBudWheel(){
 function rollWheel(W,list,styled){
   if(W.busy)return;
   const pool=list.filter(x=>W.labels.includes(x));if(!pool.length)return;
-  const pickLab=pool[Math.floor(Math.random()*pool.length)],res=W.resEl;
+  let pickLab=pool[Math.floor(Math.random()*pool.length)];const res=W.resEl;
+  if(W===budW&&S.budMode==="build"){const tot=pool.reduce((t,x)=>t+(BUILD_W[x]||0),0);let r=Math.random()*tot;for(const x of pool){r-=BUILD_W[x]||0;if(r<0){pickLab=x;break}}}
   const spots=W.labels.map((l,i)=>l===pickLab?i:-1).filter(i=>i>=0),i=spots[Math.floor(Math.random()*spots.length)];
   res.classList.remove("hard","normal","stale");res.classList.add("rolling");res.textContent="…";
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
