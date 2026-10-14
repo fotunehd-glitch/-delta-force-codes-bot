@@ -919,9 +919,8 @@ function buildWheels(){
 const budLast={budget:"200k",build:"Mid Tier Build"};
 function makeBudWheel(){
   const build=S.budMode==="build";
-  budW=build?makeWheel("bud",BUILDS,BUILD_COL,$("#budRes"),{short:{"No Attachments":"NONE","Budget Build":"BUDGET","Mid Tier Build":"MID","Max Build":"MAX"}})
+  budW=build?makeWheel("bud",BUILDS,BUILD_COL,$("#budRes"),{short:{"No Attachments":"NO MODS","Budget Build":"BUDGET","Mid Tier Build":"MID TIER","Max Build":"MAX"}})
             :makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],$("#budRes"),{short:{Unlimited:"UNLTD"}});
-  if(build)budW.setEnabled(BUILDS);
   const r=$("#budRes"),v=budLast[build?"build":"budget"];r.textContent=v;r.classList.toggle("build",build);
   r.style.setProperty("--bc",build?BUILD_COL[BUILDS.indexOf(v)]:"");
   budW.showLabel(v);
