@@ -322,7 +322,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 
 .ammonote{color:var(--muted)}
 /* angled corner ribbon, top right */
-.ribbon{position:fixed;top:0;right:0;width:170px;height:170px;overflow:hidden;z-index:30;pointer-events:none;text-decoration:none}
+.ribbon{position:absolute;top:0;right:0;width:170px;height:170px;overflow:hidden;z-index:30;pointer-events:none;text-decoration:none}
 .ribbon span{position:absolute;top:42px;right:-48px;width:240px;transform:rotate(45deg);text-align:center;pointer-events:auto;cursor:pointer;overflow:hidden;
   display:grid;gap:3px;color:#062014;background:var(--green);padding:7px 0 6px;box-shadow:0 0 14px rgba(15,247,150,.55),0 3px 6px rgba(0,0,0,.5);transition:filter .15s}
 .ribbon b{font:700 14px/1 var(--display);letter-spacing:.22em;text-transform:uppercase}
@@ -338,21 +338,23 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (min-width:1101px){.ribbon:not(.r2) span{box-shadow:0 0 10px rgba(15,247,150,.35)}.ribbon.r2 span{border-top:1px solid rgba(0,0,0,.35)}}
 .ribbon.r2 span::after{animation-delay:2s}
 @media (max-width:1100px){
-  /* smaller screens: one corner, the two ribbons take turns */
-  .ribbon.r2{width:170px;height:170px}.ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(45deg);border-top:0}
-  .ribbon span{animation:ribSwapA 10s infinite}.ribbon.r2 span{animation-name:ribSwapB}
+  /* smaller screens: both ribbons, smaller, still side by side */
+  .ribbon{width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}
+  .ribbon.r2{width:180px;height:180px}.ribbon.r2 span{top:28px;right:-74px;width:250px;transform:rotate(45deg) translateY(100%)}
 }
-@media (max-width:600px){.ribbon.r2{width:120px;height:120px}.ribbon.r2 span{top:28px;right:-44px;width:190px}}
-@keyframes ribSwapA{0%,45%{opacity:1;visibility:visible}50%,95%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
-@keyframes ribSwapB{0%,45%{opacity:0;visibility:hidden}50%,95%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
+@media (max-width:600px){
+  .ribbon{width:92px;height:92px}.ribbon span{top:20px;right:-42px;width:150px;padding:4px 0 3px;gap:2px}.ribbon b{font-size:9.5px;letter-spacing:.16em}.ribbon i{font-size:6px}
+  .ribbon.r2{width:140px;height:140px}.ribbon.r2 span{top:20px;right:-66px;width:200px}
+  html.no-tera .ribbon.r2{width:92px;height:92px}html.no-tera .ribbon.r2 span{top:20px;right:-42px;width:150px}
+  .wrap>header{padding-right:0}
+}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 #settings .ck.sub{margin-left:24px}#settings .ck.dim{opacity:.45}
 html.no-tera .ribbon:not(.r2),html.no-leis .ribbon.r2{display:none}
 /* only one ribbon left: it takes the corner and stops taking turns */
-html.no-tera .ribbon span,html.no-leis .ribbon span{animation:none}
 html.no-tera .ribbon.r2{width:170px;height:170px}
 html.no-tera .ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(45deg);border-top:0}
-@media (max-width:600px){html.no-tera .ribbon.r2{width:120px;height:120px}html.no-tera .ribbon.r2 span{top:28px;right:-44px;width:190px}}
+@media (max-width:1100px){html.no-tera .ribbon.r2{width:120px;height:120px}html.no-tera .ribbon.r2 span{top:28px;right:-44px;width:190px}}
 @media (max-width:600px){html.noribbon .toplinks{padding-right:0}}
 
 
