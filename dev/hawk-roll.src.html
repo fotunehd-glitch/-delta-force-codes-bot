@@ -325,6 +325,18 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .ribbon:hover span{filter:brightness(1.15)}
 .ribbon:focus-visible span{outline:2px solid #fff;outline-offset:2px}
 @media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
+/* second ribbon (Leissik), sits just inside the first */
+.ribbon.r2{width:330px;height:330px;z-index:29}
+.ribbon.r2 span{top:86px;right:-80px;width:460px;color:#fff;background:#9146ff;box-shadow:0 0 14px rgba(145,70,255,.6),0 3px 6px rgba(0,0,0,.5)}
+.ribbon.r2 span::after{animation-delay:2s}
+@media (max-width:1100px){
+  /* smaller screens: one corner, the two ribbons take turns */
+  .ribbon.r2{width:170px;height:170px}.ribbon.r2 span{top:42px;right:-48px;width:240px}
+  .ribbon span{animation:ribSwapA 10s infinite}.ribbon.r2 span{animation-name:ribSwapB}
+}
+@media (max-width:600px){.ribbon.r2{width:120px;height:120px}.ribbon.r2 span{top:28px;right:-44px;width:190px}}
+@keyframes ribSwapA{0%,45%{opacity:1;visibility:visible}50%,95%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
+@keyframes ribSwapB{0%,45%{opacity:0;visibility:hidden}50%,95%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 
 
@@ -356,6 +368,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (max-width:600px){.zoomer{display:none}}
 </style>
 <a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
+<a class="ribbon r2" href="https://www.twitch.tv/leissik" target="_blank" rel="noopener" aria-label="Watch Leissik on Twitch" title="Watch Leissik on Twitch"><span><b>Leissik</b><i>&#9654; Watch on Twitch</i></span></a>
 <div class="toplinks"><a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a><a class="kofi" href="https://ko-fi.com/fortunehd" target="_blank" rel="noopener" title="Support the site on Ko-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/></svg><span class="kt">Buy me a coffee</span></a></div>
 
 <div class="zoomer" role="group" aria-labelledby="zT"><div class="zt" id="zT"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>Page zoom</div><div class="zs">Make the site bigger or smaller</div><div class="zr"><button type="button" id="zOut" aria-label="Zoom out">&minus;</button><input type="range" id="zRange" min="80" max="150" step="5" value="100" aria-label="Zoom"><button type="button" id="zIn" aria-label="Zoom in">+</button><output id="zVal" title="Reset to 100%">100%</output></div></div>
