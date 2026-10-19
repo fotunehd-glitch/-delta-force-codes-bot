@@ -346,6 +346,8 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @keyframes ribSwapA{0%,45%{opacity:1;visibility:visible}50%,95%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
 @keyframes ribSwapB{0%,45%{opacity:0;visibility:hidden}50%,95%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
+html.noribbon .ribbon{display:none}
+@media (max-width:600px){html.noribbon .toplinks{padding-right:0}}
 
 
 
@@ -447,6 +449,7 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
         <label class="ck"><input type="checkbox" id="optSound" checked> Enable sounds</label>
         <label class="ck"><input type="checkbox" id="optInstant"> Instant spin</label>
         <label class="ck"><input type="checkbox" id="optUnique" checked> No repeats until everything's shown</label>
+        <label class="ck"><input type="checkbox" id="optRibbons" checked> Show streamer ribbons (top right)</label>
       </div>
       <div class="cols">
         <div class="col presets">
@@ -543,7 +546,11 @@ const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
 MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.push(m)});
+// streamer ribbons can be hidden: Settings tick box, or ?noribbon in the link (handy for other streamers)
+const RIB_URL_OFF=/[?&](noribbon|clean)\b/i.test(location.search);
+function applyRibbons(){document.documentElement.classList.toggle("noribbon",RIB_URL_OFF||S.ribbons===false)}
 const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_seen:MAPS}))}catch(e){}};
+applyRibbons();
 
 // ---------------- pools ----------------
 const pools={
@@ -978,7 +985,7 @@ function rollWheel(W,list,styled){
 
 // ---------------- settings UI ----------------
 function buildSettings(){
-  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;
+  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;
   $("#wtypes").innerHTML=Object.entries(WTYPES).map(([k,l])=>`<label class="ck"><input type="checkbox" id="w-${k}" data-w="${k}" ${S.wtypes.includes(k)?"checked":""}> ${l}</label>`).join("");
   $("#maps").innerHTML=MAPS.map((m,i)=>`<label class="ck"><input type="checkbox" id="m-${i}" data-m="${m}" ${S.maps.includes(m)?"checked":""}> ${m}</label>`).join("");
   $("#opsList").innerHTML=OPERATORS.map(([n])=>`<label class="ck"><input type="checkbox" id="o-${n}" data-o="${n}" ${S.opsOff.includes(n)?"":"checked"}> ${n}</label>`).join("");
@@ -1029,6 +1036,7 @@ $("#settings").addEventListener("change",e=>{
   if(t.id==="optSound")S.sound=t.checked;
   if(t.id==="optInstant")S.instant=t.checked;
   if(t.id==="optUnique")S.unique=t.checked;
+  if(t.id==="optRibbons"){S.ribbons=t.checked;applyRibbons()}
   if(t.dataset.w){S.wtypes=t.checked?[...new Set([...S.wtypes,t.dataset.w])]:S.wtypes.filter(x=>x!==t.dataset.w)}
   if(t.dataset.m){S.maps=t.checked?[...new Set([...S.maps,t.dataset.m])]:S.maps.filter(x=>x!==t.dataset.m)}
   if(t.dataset.o){S.opsOff=t.checked?S.opsOff.filter(x=>x!==t.dataset.o):[...S.opsOff,t.dataset.o]}
