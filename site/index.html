@@ -333,12 +333,13 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .ribbon:focus-visible span{outline:2px solid #fff;outline-offset:2px}
 @media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
 /* second ribbon (Leissik), sits just inside the first */
-.ribbon.r2{width:330px;height:330px;z-index:29}
-.ribbon.r2 span{top:86px;right:-80px;width:460px;color:#fff;background:#9146ff;box-shadow:0 0 14px rgba(145,70,255,.6),0 3px 6px rgba(0,0,0,.5)}
+.ribbon.r2{width:250px;height:250px;z-index:29}
+.ribbon.r2 span{right:-108px;width:360px;transform:rotate(45deg) translateY(100%);color:#fff;background:#9146ff;box-shadow:0 3px 6px rgba(0,0,0,.45)}
+@media (min-width:1101px){.ribbon:not(.r2) span{box-shadow:0 0 10px rgba(15,247,150,.35)}.ribbon.r2 span{border-top:1px solid rgba(0,0,0,.35)}}
 .ribbon.r2 span::after{animation-delay:2s}
 @media (max-width:1100px){
   /* smaller screens: one corner, the two ribbons take turns */
-  .ribbon.r2{width:170px;height:170px}.ribbon.r2 span{top:42px;right:-48px;width:240px}
+  .ribbon.r2{width:170px;height:170px}.ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(45deg);border-top:0}
   .ribbon span{animation:ribSwapA 10s infinite}.ribbon.r2 span{animation-name:ribSwapB}
 }
 @media (max-width:600px){.ribbon.r2{width:120px;height:120px}.ribbon.r2 span{top:28px;right:-44px;width:190px}}
