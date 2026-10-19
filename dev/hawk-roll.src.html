@@ -314,49 +314,38 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .frame.closed::after{font-size:clamp(11px,.95vw,15px);letter-spacing:.04em;line-height:1.4;padding:0 4px}
 
 .ammonote{color:var(--muted)}
-/* angled corner ribbon, top right */
-.ribbon{position:absolute;top:0;right:0;width:170px;height:170px;overflow:hidden;z-index:30;pointer-events:none;text-decoration:none}
-.ribbon span{position:absolute;top:42px;right:-48px;width:240px;transform:rotate(45deg);text-align:center;pointer-events:auto;cursor:pointer;overflow:hidden;
-  display:grid;gap:3px;color:#062014;background:var(--green);padding:7px 0 6px;box-shadow:0 0 14px rgba(15,247,150,.55),0 3px 6px rgba(0,0,0,.5);transition:filter .15s}
+/* streamer ribbons, top right. --i is the ribbon's place: 0 = in the corner, 1 = just inside it */
+.ribbon{--i:0;position:absolute;top:0;right:0;width:calc(170px + var(--i)*80px);height:calc(170px + var(--i)*80px);overflow:hidden;z-index:calc(30 - var(--i));pointer-events:none;text-decoration:none}
+.ribbon span{position:absolute;top:42px;right:calc(-48px - var(--i)*60px);width:calc(240px + var(--i)*120px);transform:rotate(45deg) translateY(calc(var(--i)*100%));text-align:center;pointer-events:auto;cursor:pointer;overflow:hidden;
+  display:grid;gap:3px;color:var(--rf,#062014);background:var(--rb,var(--green));padding:7px 0 6px;box-shadow:0 3px 6px rgba(0,0,0,.45);transition:filter .15s}
+.ribbon.first span{box-shadow:0 0 10px color-mix(in srgb,var(--rb,var(--green)) 45%,transparent),0 3px 6px rgba(0,0,0,.45)}
+.ribbon:not(.first) span{border-top:1px solid rgba(0,0,0,.35)}
 .ribbon b{font:700 14px/1 var(--display);letter-spacing:.22em;text-transform:uppercase}
 .ribbon i{font:700 9px/1 var(--body);font-style:normal;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-.ribbon span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.75) 50%,transparent 70%);transform:translateX(-120%);animation:ribShine 4s ease-in-out infinite}
+.ribbon span::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.75) 50%,transparent 70%);transform:translateX(-120%);animation:ribShine 4s ease-in-out infinite;animation-delay:calc(var(--i)*2s)}
 @keyframes ribShine{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes ribIn{from{opacity:0}to{opacity:1}}
+.ribbon.swap span{animation:ribIn .5s ease-out}
 .ribbon:hover span{filter:brightness(1.15)}
 .ribbon:focus-visible span{outline:2px solid #fff;outline-offset:2px}
-@media (max-width:600px){.ribbon{position:absolute;width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}}
-/* second ribbon (Leissik), sits just inside the first */
-.ribbon.r2{width:250px;height:250px;z-index:29}
-.ribbon.r2 span{right:-108px;width:360px;transform:rotate(45deg) translateY(100%);color:#fff;background:#9146ff;box-shadow:0 3px 6px rgba(0,0,0,.45)}
-@media (min-width:1101px){.ribbon:not(.r2) span{box-shadow:0 0 10px rgba(15,247,150,.35)}.ribbon.r2 span{border-top:1px solid rgba(0,0,0,.35)}}
-.ribbon.r2 span::after{animation-delay:2s}
 @media (max-width:1100px){
-  /* smaller screens: both ribbons, smaller, still side by side */
-  .ribbon{width:120px;height:120px}.ribbon span{top:28px;right:-44px;width:190px;padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}
-  .ribbon.r2{width:180px;height:180px}.ribbon.r2 span{top:28px;right:-74px;width:250px;transform:rotate(45deg) translateY(100%)}
+  .ribbon{width:calc(120px + var(--i)*60px);height:calc(120px + var(--i)*60px)}
+  .ribbon span{top:28px;right:calc(-44px - var(--i)*30px);width:calc(190px + var(--i)*60px);padding:5px 0 4px}.ribbon b{font-size:11px}.ribbon i{font-size:7.5px}
 }
 @media (max-width:600px){
-  .ribbon{width:92px;height:92px}.ribbon span{top:20px;right:-42px;width:150px;padding:4px 0 3px;gap:2px}.ribbon b{font-size:9.5px;letter-spacing:.16em}.ribbon i{font-size:6px}
-  .ribbon.r2{width:140px;height:140px}.ribbon.r2 span{top:20px;right:-66px;width:200px}
-  html.no-tera .ribbon.r2{width:92px;height:92px}html.no-tera .ribbon.r2 span{top:20px;right:-42px;width:150px}
+  .ribbon{width:calc(92px + var(--i)*48px);height:calc(92px + var(--i)*48px)}
+  .ribbon span{top:20px;right:calc(-42px - var(--i)*24px);width:calc(150px + var(--i)*50px);padding:4px 0 3px;gap:2px}.ribbon b{font-size:9.5px;letter-spacing:.16em}.ribbon i{font-size:6px}
   .wrap>header{padding-right:0}
 }
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
-/* note that runs along the ribbons, just inside them */
-.ribnote{position:absolute;top:0;right:0;width:300px;height:300px;overflow:hidden;z-index:28;pointer-events:none}
-.ribnote button{all:unset;position:absolute;top:42px;right:-150px;width:440px;text-align:center;transform:rotate(45deg) translate(8px,94px);pointer-events:auto;cursor:pointer;font:600 10px/1.2 var(--body);letter-spacing:.06em;color:var(--muted);opacity:.85}
+/* note that runs along the ribbons, centred under them. --n = how many ribbons are showing */
+.ribnote{--n:2;position:absolute;top:0;right:0;width:calc(130px + var(--n)*85px);height:calc(130px + var(--n)*85px);overflow:hidden;z-index:28;pointer-events:none}
+.ribnote button{all:unset;position:absolute;top:42px;right:-150px;width:440px;text-align:center;transform:rotate(45deg) translate(8px,calc(var(--n)*43px + 8px));pointer-events:auto;cursor:pointer;font:600 10px/1.2 var(--body);letter-spacing:.06em;color:var(--muted);opacity:.85}
 .ribnote button:hover,.ribnote button:focus-visible{color:var(--fg);text-decoration:underline}
 html.noribbon .ribnote{display:none}
-html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translate(8px,51px)}
-@media (max-width:1100px){.ribnote{width:220px;height:220px}.ribnote button{top:28px;right:-104px;width:320px;font-size:9px;transform:rotate(45deg) translate(11px,72px)}
-  html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translate(11px,39px)}}
+@media (max-width:1100px){.ribnote{width:calc(100px + var(--n)*60px);height:calc(100px + var(--n)*60px)}.ribnote button{top:28px;right:-104px;width:320px;font-size:9px;transform:rotate(45deg) translate(11px,calc(var(--n)*33px + 6px))}}
 @media (max-width:900px){.ribnote{display:none}}
 #settings .ck.sub{margin-left:24px}#settings .ck.dim{opacity:.45}
-html.no-tera .ribbon:not(.r2),html.no-leis .ribbon.r2{display:none}
-/* only one ribbon left: it takes the corner and stops taking turns */
-html.no-tera .ribbon.r2{width:170px;height:170px}
-html.no-tera .ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(45deg);border-top:0}
-@media (max-width:1100px){html.no-tera .ribbon.r2{width:120px;height:120px}html.no-tera .ribbon.r2 span{top:28px;right:-44px;width:190px}}
 @media (max-width:600px){html.noribbon .toplinks{padding-right:0}}
 
 
@@ -387,8 +376,7 @@ html.no-tera .ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(4
 .zoomer output{min-width:40px;text-align:center;cursor:pointer;color:var(--green)}
 @media (max-width:600px){.zoomer{display:none}}
 </style>
-<a class="ribbon" id="ribbon" href="https://www.twitch.tv/terasite" target="_blank" rel="noopener" aria-label="Watch Terasite on Twitch" title="Watch Terasite on Twitch"><span><b>Terasite</b><i>&#9654; Watch on Twitch</i></span></a>
-<a class="ribbon r2" href="https://www.twitch.tv/leissik" target="_blank" rel="noopener" aria-label="Watch Leissik on Twitch" title="Watch Leissik on Twitch"><span><b>Leissik</b><i>&#9654; Watch on Twitch</i></span></a>
+<div id="ribbons"></div>
 <div class="ribnote"><button type="button" id="ribNote" title="Turn the streamer ribbons on or off">Hide these ribbons in Settings &#9662;</button></div>
 <div class="toplinks"><a class="joindc" href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Join Discord</a><a class="kofi" href="https://ko-fi.com/fortunehd" target="_blank" rel="noopener" title="Support the site on Ko-fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/></svg><span class="kt">Buy me a coffee</span></a></div>
 
@@ -458,8 +446,7 @@ html.no-tera .ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(4
         <label class="ck"><input type="checkbox" id="optInstant"> Instant spin</label>
         <label class="ck"><input type="checkbox" id="optUnique" checked> No repeats until everything's shown</label>
         <label class="ck"><input type="checkbox" id="optRibbons" checked> Show streamer ribbons (top right)</label>
-        <label class="ck sub"><input type="checkbox" id="optRibT" checked> Terasite</label>
-        <label class="ck sub"><input type="checkbox" id="optRibL" checked> Leissik</label>
+        <span id="ribList" style="display:contents"></span>
       </div>
       <div class="cols">
         <div class="col presets">
@@ -556,13 +543,40 @@ const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
 MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.push(m)});
-// streamer ribbons can be hidden one by one: Settings tick boxes, or the link
-//   ?noribbon        hides both     ?hide=terasite   hides just Terasite     ?hide=leissik   hides just Leissik
-const RIB_Q=new URLSearchParams(location.search),RIB_ALL_OFF=RIB_Q.has("noribbon")||RIB_Q.has("clean"),RIB_HIDE=(RIB_Q.get("hide")||"").toLowerCase();
-function applyRibbons(){const h=document.documentElement,all=S.ribbons===false;
-  ["#optRibT","#optRibL"].forEach(id=>{const c=document.querySelector(id);if(c){c.disabled=all;c.closest("label").classList.toggle("dim",all)}});
-  const t=all||RIB_ALL_OFF||RIB_HIDE.includes("terasite")||S.ribT===false,l=all||RIB_ALL_OFF||RIB_HIDE.includes("leissik")||S.ribL===false;
-  h.classList.toggle("no-tera",t);h.classList.toggle("no-leis",l);h.classList.toggle("noribbon",t&&l)}
+// ---------------- streamer ribbons ----------------
+// To add a streamer, add one line here. bg = ribbon colour, fg = text colour.
+const STREAMERS=[
+  {id:"terasite",name:"Terasite",url:"https://www.twitch.tv/terasite",bg:"#0ff796",fg:"#062014"},
+  {id:"leissik", name:"Leissik", url:"https://www.twitch.tv/leissik", bg:"#9146ff",fg:"#ffffff"},
+];
+const RIB_MAX=2;            // ribbons shown at once; with more turned on, they take turns in pairs
+const RIB_SWAP_MS=8000;
+// Links:  ?noribbon = hide all    ?hide=terasite,leissik = hide those    ?only=terasite = show just those
+const RIB_Q=new URLSearchParams(location.search),RIB_ALL_OFF=RIB_Q.has("noribbon")||RIB_Q.has("clean");
+const ribIds=k=>(RIB_Q.get(k)||"").toLowerCase().split(/[\s,]+/).filter(Boolean);
+const RIB_HIDE=ribIds("hide"),RIB_ONLY=ribIds("only");
+let ribPage=0,ribTimer=null;
+function ribOn(){
+  if(RIB_ALL_OFF||S.ribbons===false)return [];
+  const off=new Set(S.ribOff||[]);
+  return STREAMERS.filter(x=>!off.has(x.id)&&!RIB_HIDE.includes(x.id)&&(!RIB_ONLY.length||RIB_ONLY.includes(x.id)));
+}
+function drawRibbons(swap){
+  const on=ribOn(),pages=Math.max(1,Math.ceil(on.length/RIB_MAX));ribPage%=pages;
+  const shown=on.slice(ribPage*RIB_MAX,ribPage*RIB_MAX+RIB_MAX);
+  document.getElementById("ribbons").innerHTML=shown.map((x,i)=>`<a class="ribbon${i?"":" first"}${swap?" swap":""}" data-rib="${x.id}" style="--i:${i};--rb:${x.bg};--rf:${x.fg}" href="${x.url}" target="_blank" rel="noopener" aria-label="Watch ${x.name} on Twitch" title="Watch ${x.name} on Twitch"><span><b>${x.name}</b><i>&#9654; Watch on Twitch</i></span></a>`).join("");
+  const n=document.querySelector(".ribnote");if(n)n.style.setProperty("--n",Math.max(1,shown.length));
+  document.documentElement.classList.toggle("noribbon",!shown.length);
+  clearInterval(ribTimer);if(pages>1)ribTimer=setInterval(()=>{ribPage++;drawRibbons(true)},RIB_SWAP_MS);
+}
+function ribSettings(){
+  const box=document.getElementById("ribList");if(!box)return;const all=S.ribbons===false,off=S.ribOff||[];
+  box.innerHTML=STREAMERS.map(x=>`<label class="ck sub${all?" dim":""}"><input type="checkbox" data-ribopt="${x.id}" ${off.includes(x.id)?"":"checked"} ${all?"disabled":""}> ${x.name}</label>`).join("");
+}
+function applyRibbons(){ribSettings();drawRibbons()}
+// older saved choices
+if(S.ribT===false||S.ribL===false){S.ribOff=[...new Set([...(S.ribOff||[]),...(S.ribT===false?["terasite"]:[]),...(S.ribL===false?["leissik"]:[])])]}
+delete S.ribT;delete S.ribL;
 const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_seen:MAPS}))}catch(e){}};
 applyRibbons();
 document.getElementById("ribNote").onclick=()=>{const d=document.getElementById("settings");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});const c=document.getElementById("optRibbons");c&&setTimeout(()=>c.focus({preventScroll:true}),400)};
@@ -1000,7 +1014,7 @@ function rollWheel(W,list,styled){
 
 // ---------------- settings UI ----------------
 function buildSettings(){
-  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;$("#optRibT").checked=S.ribT!==false;$("#optRibL").checked=S.ribL!==false;
+  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;ribSettings();
   $("#wtypes").innerHTML=Object.entries(WTYPES).map(([k,l])=>`<label class="ck"><input type="checkbox" id="w-${k}" data-w="${k}" ${S.wtypes.includes(k)?"checked":""}> ${l}</label>`).join("");
   $("#maps").innerHTML=MAPS.map((m,i)=>`<label class="ck"><input type="checkbox" id="m-${i}" data-m="${m}" ${S.maps.includes(m)?"checked":""}> ${m}</label>`).join("");
   $("#opsList").innerHTML=OPERATORS.map(([n])=>`<label class="ck"><input type="checkbox" id="o-${n}" data-o="${n}" ${S.opsOff.includes(n)?"":"checked"}> ${n}</label>`).join("");
@@ -1052,8 +1066,7 @@ $("#settings").addEventListener("change",e=>{
   if(t.id==="optInstant")S.instant=t.checked;
   if(t.id==="optUnique")S.unique=t.checked;
   if(t.id==="optRibbons"){S.ribbons=t.checked;applyRibbons()}
-  if(t.id==="optRibT"){S.ribT=t.checked;applyRibbons()}
-  if(t.id==="optRibL"){S.ribL=t.checked;applyRibbons()}
+  if(t.dataset.ribopt){const id=t.dataset.ribopt,o=new Set(S.ribOff||[]);t.checked?o.delete(id):o.add(id);S.ribOff=[...o];ribPage=0;applyRibbons()}
   if(t.dataset.w){S.wtypes=t.checked?[...new Set([...S.wtypes,t.dataset.w])]:S.wtypes.filter(x=>x!==t.dataset.w)}
   if(t.dataset.m){S.maps=t.checked?[...new Set([...S.maps,t.dataset.m])]:S.maps.filter(x=>x!==t.dataset.m)}
   if(t.dataset.o){S.opsOff=t.checked?S.opsOff.filter(x=>x!==t.dataset.o):[...S.opsOff,t.dataset.o]}
