@@ -351,12 +351,12 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
 /* note that runs along the ribbons, just inside them */
 .ribnote{position:absolute;top:0;right:0;width:300px;height:300px;overflow:hidden;z-index:28;pointer-events:none}
-.ribnote button{all:unset;position:absolute;top:42px;right:-150px;width:440px;text-align:center;transform:rotate(45deg) translateY(104px);pointer-events:auto;cursor:pointer;font:600 10.5px/1.2 var(--body);letter-spacing:.04em;color:var(--muted)}
+.ribnote button{all:unset;position:absolute;top:42px;right:-150px;width:440px;text-align:center;transform:rotate(45deg) translate(46px,100px);pointer-events:auto;cursor:pointer;font:600 10px/1.2 var(--body);letter-spacing:.06em;color:var(--muted);opacity:.85}
 .ribnote button:hover,.ribnote button:focus-visible{color:var(--fg);text-decoration:underline}
 html.noribbon .ribnote{display:none}
-html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translateY(56px)}
-@media (max-width:1100px){.ribnote{width:220px;height:220px}.ribnote button{top:28px;right:-104px;width:320px;font-size:9px;transform:rotate(45deg) translateY(76px)}
-  html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translateY(42px)}}
+html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translate(28px,54px)}
+@media (max-width:1100px){.ribnote{width:220px;height:220px}.ribnote button{top:28px;right:-104px;width:320px;font-size:9px;transform:rotate(45deg) translate(30px,74px)}
+  html.no-tera:not(.noribbon) .ribnote button,html.no-leis:not(.noribbon) .ribnote button{transform:rotate(45deg) translate(18px,40px)}}
 @media (max-width:900px){.ribnote{display:none}}
 #settings .ck.sub{margin-left:24px}#settings .ck.dim{opacity:.45}
 html.no-tera .ribbon:not(.r2),html.no-leis .ribbon.r2{display:none}
