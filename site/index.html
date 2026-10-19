@@ -346,7 +346,12 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 @keyframes ribSwapA{0%,45%{opacity:1;visibility:visible}50%,95%{opacity:0;visibility:hidden}100%{opacity:1;visibility:visible}}
 @keyframes ribSwapB{0%,45%{opacity:0;visibility:hidden}50%,95%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){.ribbon span::after{animation:none}}
-html.noribbon .ribbon{display:none}
+html.no-tera .ribbon:not(.r2),html.no-leis .ribbon.r2{display:none}
+/* only one ribbon left: it takes the corner and stops taking turns */
+html.no-tera .ribbon span,html.no-leis .ribbon span{animation:none}
+html.no-tera .ribbon.r2{width:170px;height:170px}
+html.no-tera .ribbon.r2 span{top:42px;right:-48px;width:240px;transform:rotate(45deg);border-top:0}
+@media (max-width:600px){html.no-tera .ribbon.r2{width:120px;height:120px}html.no-tera .ribbon.r2 span{top:28px;right:-44px;width:190px}}
 @media (max-width:600px){html.noribbon .toplinks{padding-right:0}}
 
 
@@ -449,7 +454,8 @@ html.noribbon .ribbon{display:none}
         <label class="ck"><input type="checkbox" id="optSound" checked> Enable sounds</label>
         <label class="ck"><input type="checkbox" id="optInstant"> Instant spin</label>
         <label class="ck"><input type="checkbox" id="optUnique" checked> No repeats until everything's shown</label>
-        <label class="ck"><input type="checkbox" id="optRibbons" checked> Show streamer ribbons (top right)</label>
+        <label class="ck"><input type="checkbox" id="optRibT" checked> Show Terasite ribbon</label>
+        <label class="ck"><input type="checkbox" id="optRibL" checked> Show Leissik ribbon</label>
       </div>
       <div class="cols">
         <div class="col presets">
@@ -546,9 +552,11 @@ const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
 MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.push(m)});
-// streamer ribbons can be hidden: Settings tick box, or ?noribbon in the link (handy for other streamers)
-const RIB_URL_OFF=/[?&](noribbon|clean)\b/i.test(location.search);
-function applyRibbons(){document.documentElement.classList.toggle("noribbon",RIB_URL_OFF||S.ribbons===false)}
+// streamer ribbons can be hidden one by one: Settings tick boxes, or the link
+//   ?noribbon        hides both     ?hide=terasite   hides just Terasite     ?hide=leissik   hides just Leissik
+const RIB_Q=new URLSearchParams(location.search),RIB_ALL_OFF=RIB_Q.has("noribbon")||RIB_Q.has("clean"),RIB_HIDE=(RIB_Q.get("hide")||"").toLowerCase();
+function applyRibbons(){const h=document.documentElement,t=RIB_ALL_OFF||RIB_HIDE.includes("terasite")||S.ribT===false,l=RIB_ALL_OFF||RIB_HIDE.includes("leissik")||S.ribL===false;
+  h.classList.toggle("no-tera",t);h.classList.toggle("no-leis",l);h.classList.toggle("noribbon",t&&l)}
 const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_seen:MAPS}))}catch(e){}};
 applyRibbons();
 
@@ -985,7 +993,7 @@ function rollWheel(W,list,styled){
 
 // ---------------- settings UI ----------------
 function buildSettings(){
-  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;
+  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibT").checked=S.ribT!==false;$("#optRibL").checked=S.ribL!==false;
   $("#wtypes").innerHTML=Object.entries(WTYPES).map(([k,l])=>`<label class="ck"><input type="checkbox" id="w-${k}" data-w="${k}" ${S.wtypes.includes(k)?"checked":""}> ${l}</label>`).join("");
   $("#maps").innerHTML=MAPS.map((m,i)=>`<label class="ck"><input type="checkbox" id="m-${i}" data-m="${m}" ${S.maps.includes(m)?"checked":""}> ${m}</label>`).join("");
   $("#opsList").innerHTML=OPERATORS.map(([n])=>`<label class="ck"><input type="checkbox" id="o-${n}" data-o="${n}" ${S.opsOff.includes(n)?"":"checked"}> ${n}</label>`).join("");
@@ -1036,7 +1044,8 @@ $("#settings").addEventListener("change",e=>{
   if(t.id==="optSound")S.sound=t.checked;
   if(t.id==="optInstant")S.instant=t.checked;
   if(t.id==="optUnique")S.unique=t.checked;
-  if(t.id==="optRibbons"){S.ribbons=t.checked;applyRibbons()}
+  if(t.id==="optRibT"){S.ribT=t.checked;applyRibbons()}
+  if(t.id==="optRibL"){S.ribL=t.checked;applyRibbons()}
   if(t.dataset.w){S.wtypes=t.checked?[...new Set([...S.wtypes,t.dataset.w])]:S.wtypes.filter(x=>x!==t.dataset.w)}
   if(t.dataset.m){S.maps=t.checked?[...new Set([...S.maps,t.dataset.m])]:S.maps.filter(x=>x!==t.dataset.m)}
   if(t.dataset.o){S.opsOff=t.checked?S.opsOff.filter(x=>x!==t.dataset.o):[...S.opsOff,t.dataset.o]}
