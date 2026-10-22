@@ -1511,6 +1511,9 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const h = (location.hash || '').slice(1);
   setTimeout(() => show(tabs.includes(h) ? h : 'range'), 0);
 
+  /* while the mouse is locked (playing the range or the polling test), the scroll wheel must not move the page */
+  window.addEventListener('wheel', e => { if (document.pointerLockElement) e.preventDefault(); }, { passive: false });
+
   /* Delta Force turn rate. 0.022 degrees per mouse count at sens 1.00 is the figure sens converter sites use for Delta Force (a community estimate). */
   const DF_YAW = 0.022;
   const dfCm = (dpi, sens) => 360 / (dpi * sens * DF_YAW) * 2.54;
