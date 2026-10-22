@@ -2059,21 +2059,45 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     }
     return true;
   }
+  // posts, crates and sandbags as boxes on the floor plan, so a mannequin is never placed inside or touching one
+  let OBST = null;
+  function obstacles() {
+    if (OBST) return OBST;
+    OBST = [];
+    const bx = new T.Box3();
+    for (const m of SOLIDS) {
+      bx.setFromObject(m);
+      const sx = bx.max.x - bx.min.x, sz = bx.max.z - bx.min.z;
+      if (bx.min.y < 2.4 && bx.max.y > 0.15 && sx < 8 && sz < 8) OBST.push([bx.min.x, bx.max.x, -bx.max.z, -bx.min.z]); // x range, my-z range
+    }
+    return OBST;
+  }
+  function freeSpot(x, z, pad = 0.75) {
+    if (!ready) return true;
+    for (const [x0, x1, z0, z1] of obstacles()) if (x > x0 - pad && x < x1 + pad && z > z0 - pad && z < z1 + pad) return false;
+    return true;
+  }
+  const okSpot = (x, z) => freeSpot(x, z) && clearShot(x, z);
   function pathClear(x, z, range) { // a moving target must stay visible along its whole run
     const L = Math.hypot(x, z) || 1, ux = z / L, uz = -x / L;
-    for (const k of [-1, -0.5, 0, 0.5, 1]) if (!clearShot(x + ux * range * k, z + uz * range * k)) return false;
+    for (const k of [-1, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1]) if (!okSpot(x + ux * range * k, z + uz * range * k)) return false;
     return true;
   }
   function spawn(now) {
     const d = drill(), live = targets.filter(t => !t.hit);
     const moving = d.track || $('r-move').value === 'on', range = d.track ? 6 : 2 + Math.random() * 2;
-    let a, r, x, z, tries = 0, ok;
+    let a, r, x, z, tries = 0, ok, fb = null;
     do {
       a = (Math.random() * 2 - 1) * d.ang; r = d.dist[0] + Math.random() * (d.dist[1] - d.dist[0]); tries++;
       z = Math.max(4, r * Math.cos(a * D2R)); x = r * Math.sin(a * D2R);
       const spacing = !live.some(t => Math.abs(t.ang - a) < Math.max(5, d.ang * 0.18)) && !(targets.lastAng !== undefined && Math.abs(a - targets.lastAng) < Math.min(8, d.ang * 0.35));
-      ok = (spacing || tries > 40) && Math.abs(x) < HALL_W / 2 - 2 && (moving ? pathClear(x, z, range) : clearShot(x, z));
-    } while (!ok && tries < 120);
+      const clear = Math.abs(x) < HALL_W / 2 - 2 && (moving ? pathClear(x, z, range) : okSpot(x, z));
+      if (clear && !fb) fb = [a, x, z];
+      ok = (spacing || tries > 40) && clear;
+    } while (!ok && tries < 200);
+    if (!ok) { // never fall back to a blocked spot: use the first clear one found, else the open lane in the middle
+      if (fb) [a, x, z] = fb; else { a = 0; x = 0; z = (d.dist[0] + d.dist[1]) / 2; }
+    }
     targets.lastAng = a;
     const host = !d.track && $('r-host').value === 'on' && live.length && Math.random() < 0.28;
     const spd = SPEEDS[$('r-speed').value] || SPEEDS.normal;
