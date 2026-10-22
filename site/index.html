@@ -410,6 +410,8 @@ html.noribbon .ribnote{display:none}
   padding: 10px 16px; cursor: pointer;
 }
 #senslab .tab:hover { color: var(--fg); }
+#senslab .beta { display: inline-block; vertical-align: middle; font: 700 10px/1 var(--body); letter-spacing: .1em; color: #14171a; background: #ffb020; padding: 3px 5px; border-radius: 3px; margin-left: 4px; }
+#senslab .betanote { font-size: 12px; color: #ffb020; margin: -2px 0 10px; }
 #senslab .tab[aria-selected="true"] { color: var(--green); border-bottom-color: var(--green); }
 #senslab .tab:focus-visible, #senslab button:focus-visible, #senslab input:focus-visible, #senslab select:focus-visible, #senslab .lockable:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 #senslab .panel { display: grid; gap: 18px; }
@@ -647,7 +649,7 @@ html.noribbon .ribnote{display:none}
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Tools">
-    <button class="tab" role="tab" id="t-range" aria-controls="p-range" aria-selected="true">Test range</button>
+    <button class="tab" role="tab" id="t-range" aria-controls="p-range" aria-selected="true">Test range <span class="beta">BETA</span></button>
     <button class="tab" role="tab" id="t-calc" aria-controls="p-calc" aria-selected="false">Sens calculator</button>
     <button class="tab" role="tab" id="t-poll" aria-controls="p-poll" aria-selected="false">Polling rate test</button>
   </nav>
@@ -2338,7 +2340,8 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function menu() {
     if (state !== 'menu' || !targets.length) idleTargets();
     state = 'menu'; ads = false; fireHeld = false;
-    overlay(`<div class="t">Firing range</div>
+    overlay(`<div class="t">Firing range <span class="beta">BETA</span></div>
+      <div class="betanote">The test range is still in beta, so things may change and the guns and targets are getting better.</div>
       <div class="sl-sub">${drill().name} · ${wpn().name} · sens ${(+$('r-sens').value).toFixed(2)} @ ${$('r-dpi').value} DPI (${(+$('r-cm').value).toFixed(1)} cm/360)</div>
       <div class="obtns"><button class="btn" data-go="test">Start test</button><button class="sl-ghost" data-go="free">Free fire</button><button class="sl-ghost" data-go="records">Records</button><button class="sl-ghost" data-go="full">Fullscreen</button></div>
       <div class="sl-sub small">Left click shoots, right click aims (ADS), R reloads, Esc pauses. Pale blue targets with hands up are hostages: don't shoot them.</div>`);
