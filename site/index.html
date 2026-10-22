@@ -22,7 +22,7 @@
 <meta property="og:title" content="Delta Force Random Loadout Generator &amp; Randomizer | Season 11">
 <meta property="og:url" content="https://deltaforcerandomkit.com/">
 <meta property="og:description" content="Free Delta Force random loadout generator for Operations: spin a random operator, map, weapon, gear, difficulty, mod budget and ammo, plus today's door codes.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
 /* Layout: slot-machine row of seven reels, dice under it, settings drawer at the bottom. Single dark look by design. */
@@ -370,6 +370,138 @@ html.noribbon .ribnote{display:none}
 .bnote{display:none;text-align:center;max-width:220px;font-size:11.5px;color:var(--muted);font-style:italic}
 .buildmode .bnote{display:block}
 #budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
+
+/* site tabs: Random Loadout | Sens Lab */
+.sitetabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:-6px}
+.sitetabs button{all:unset;cursor:pointer;font:700 14px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:11px 20px;border:1px solid var(--line);border-radius:4px;background:var(--reel);display:inline-flex;align-items:center;gap:8px}
+.sitetabs button:hover{color:var(--fg);border-color:var(--green)}
+.sitetabs button[aria-selected="true"]{color:#062014;background:var(--green);border-color:var(--green);box-shadow:0 0 14px rgba(15,247,150,.35)}
+.sitetabs button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.sitetabs .new{font-size:10px;letter-spacing:.1em;background:#ffe000;color:#14171a;padding:3px 5px;border-radius:3px}
+.tabpane{display:contents}
+.tabpane[hidden]{display:none!important}
+#senslab .sl-title{font:700 clamp(24px,3vw,32px) var(--display);margin:0;letter-spacing:.02em}
+#senslab {
+  --bg: #0a0e14;
+  --panel: #111823;
+  --panel2: #0d131c;
+  --line: #1f2a38;
+  --fg: #e3ebf2;
+  --muted: #7f90a3;
+  --green: #0ff796;
+  --yellow: #ffe000;
+  --cyan: #2ee6ff;
+  --red: #ff5a5a;
+  --display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+#senslab * { box-sizing: border-box; }
+#senslab .wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 20px; }
+#senslab header { display: grid; gap: 4px; }
+#senslab .brand { font-family: var(--display); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--green); }
+#senslab h1 { font-family: var(--display); font-weight: 700; font-size: clamp(28px, 5vw, 40px); margin: 0; letter-spacing: .02em; text-wrap: balance; }
+#senslab .lede { color: var(--muted); margin: 0; max-width: 65ch; }
+#senslab .tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid var(--line); }
+#senslab .tab {
+  font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  padding: 10px 16px; cursor: pointer;
+}
+#senslab .tab:hover { color: var(--fg); }
+#senslab .tab[aria-selected="true"] { color: var(--green); border-bottom-color: var(--green); }
+#senslab .tab:focus-visible, #senslab button:focus-visible, #senslab input:focus-visible, #senslab select:focus-visible, #senslab .lockable:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+#senslab .panel { display: grid; gap: 18px; }
+#senslab .label { font-family: var(--display); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+#senslab h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; letter-spacing: .03em; }
+#senslab .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+#senslab .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+#senslab .fields { display: flex; flex-wrap: wrap; gap: 12px; }
+#senslab .field { display: grid; gap: 4px; }
+#senslab input, #senslab select {
+  font-family: var(--mono); font-size: 15px; color: var(--fg); background: var(--panel2);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 130px;
+}
+#senslab .sl-big { font-family: var(--mono); font-weight: 600; font-size: clamp(30px, 5vw, 42px); color: var(--green); font-variant-numeric: tabular-nums; line-height: 1.1; }
+#senslab .sl-sub { font-size: 13px; color: var(--muted); }
+#senslab .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-variant-numeric: tabular-nums; }
+#senslab .kv dt { color: var(--muted); font-size: 14px; }
+#senslab .kv dd { margin: 0; font-family: var(--mono); font-size: 14px; text-align: right; }
+#senslab .note { font-size: 13px; color: var(--muted); margin: 0; max-width: 72ch; }
+#senslab .note b { color: var(--fg); }
+#senslab table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+#senslab th, #senslab td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+#senslab th { font-family: var(--display); font-weight: 500; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+#senslab td { font-family: var(--mono); font-size: 14px; }
+#senslab tr:last-child td { border-bottom: 0; }
+#senslab td.hl { color: var(--green); }
+#senslab .tablewrap { overflow-x: auto; }
+#senslab button.btn {
+  font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--bg); background: var(--green); border: 0; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+}
+#senslab button.sl-ghost { font-family: var(--body); font-weight: 600; font-size: 13px; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+#senslab .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+#senslab .readouts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+#senslab .ro { background: var(--panel); padding: 14px 16px; display: grid; gap: 2px; min-width: 0; }
+#senslab .ro .val { font-family: var(--mono); font-size: clamp(22px, 4vw, 30px); font-weight: 600; font-variant-numeric: tabular-nums; }
+#senslab .lockable { position: relative; border: 2px dashed var(--line); border-radius: 12px; background: var(--panel); cursor: pointer; user-select: none; }
+#senslab .lockable.locked { border-style: solid; border-color: var(--cyan); cursor: none; }
+#senslab .pad { min-height: 220px; display: grid; align-content: center; gap: 16px; padding: 22px; }
+#senslab .pad.recording { border-color: var(--yellow); }
+#senslab .pad.done { border-color: var(--green); }
+#senslab .pad .msg { font-family: var(--display); font-weight: 700; font-size: clamp(19px, 3.2vw, 26px); text-align: center; text-wrap: balance; }
+#senslab .pad.done .msg { color: var(--green); }
+#senslab .pad .hint { color: var(--muted); font-size: 14px; text-align: center; }
+#senslab .sl-track { position: relative; height: 30px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
+#senslab .fill { position: absolute; inset: 0 auto 0 0; width: 0%; background: var(--yellow); }
+#senslab .pad.done .fill { background: var(--green); }
+#senslab .flag { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .1em; color: var(--muted); }
+#senslab .pad.done .flag { color: var(--bg); }
+#senslab .meter { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+#senslab .meter i { display: block; height: 100%; width: 0%; background: var(--cyan); }
+#senslab .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-family: var(--body); font-weight: 600; white-space: nowrap; }
+#senslab .pill.good { background: color-mix(in srgb, var(--green) 16%, transparent); color: var(--green); }
+#senslab .pill.warn { background: color-mix(in srgb, var(--yellow) 16%, transparent); color: var(--yellow); }
+#senslab .pill.bad { background: color-mix(in srgb, var(--red) 16%, transparent); color: var(--red); }
+#senslab .range { overflow: hidden; }
+#senslab .range { --rw: min(1400px, calc(100vw - 32px)); width: var(--rw); justify-self: start; margin-left: calc((100% - var(--rw)) / 2); }
+#senslab .range canvas { display: block; width: 100%; height: clamp(340px, 58vw, 780px); max-height: calc(100vh - 140px); min-height: 340px; border-radius: 10px; }
+#senslab .overlay[hidden] { display: none; }
+#senslab #r-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#senslab #r-gl { background: #0d131c; }
+#senslab .overlay .sl-box { pointer-events: auto; max-width: 560px; }
+#senslab .overlay .obtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+#senslab .overlay .small { font-size: 12px; margin-top: 6px; }
+#senslab .overlay .rank { font-family: var(--display); font-weight: 700; font-size: 30px; letter-spacing: .2em; }
+#senslab .overlay .sl-res { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px 14px; margin: 6px 0; text-align: left; }
+#senslab .overlay .sl-res span { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-family: var(--display); }
+#senslab .overlay .sl-res b { font-family: var(--mono); font-size: 18px; }
+#senslab .overlay .sl-res b.bad { color: var(--red); }
+#senslab .overlay .verdict { border-top: 1px solid var(--line); padding-top: 8px; color: var(--fg); }
+#senslab .overlay .verdict b { color: var(--green); }
+#senslab .overlay table.rec td, #senslab .overlay table.rec th { padding: 5px 8px; font-size: 12px; }
+#senslab .range:fullscreen { width: 100vw; margin: 0; border-radius: 0; border: 0; }
+#senslab .range:fullscreen canvas { height: 100vh; max-height: none; border-radius: 0; }
+#senslab .best .sl-sub b { color: var(--green); font-family: var(--mono); }
+#senslab .overlay .nb { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: .14em; color: var(--yellow); }
+#senslab .overlay { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; pointer-events: none; }
+#senslab .overlay .sl-box { background: color-mix(in srgb, var(--bg) 82%, transparent); border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; max-width: 420px; display: grid; gap: 6px; }
+#senslab .overlay .t { font-family: var(--display); font-weight: 700; font-size: 22px; color: var(--green); }
+#senslab .stats { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+#senslab .stats .ro .val { font-size: clamp(20px, 3.4vw, 26px); }
+@media (max-width: 720px) {#senslab .grid2 { grid-template-columns: 1fr; }
+#senslab .readouts { grid-template-columns: 1fr; }
+#senslab .stats { grid-template-columns: repeat(3, minmax(0,1fr)); }
+ }
+@media (prefers-reduced-motion: reduce) {#senslab * { transition: none !important; }
+ }
+
+
+#senslab { color-scheme: dark; background: transparent; color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; width: min(100%, 1000px); }
+#senslab .wrap { padding: 0; }
+
 /* zoom slider */
 .wrap{zoom:var(--z,1)}
 .zoomer{position:fixed;left:16px;bottom:16px;z-index:30;display:grid;gap:5px;padding:9px 12px;background:rgba(18,21,25,.94);backdrop-filter:blur(4px);border:2px solid var(--green);border-radius:6px;box-shadow:0 0 14px rgba(15,247,150,.2);color:var(--fg)}
@@ -400,6 +532,11 @@ html.noribbon .ribnote{display:none}
     <p class="intro">Free Delta Force random loadout generator and randomizer for Operations. Spin a random operator, map, weapon, helmet, armour, chest rig and backpack, then roll difficulty, weapon mod budget and ammo type, with today's live door codes for every map.</p>
   </header>
 
+  <nav class="sitetabs" role="tablist" aria-label="Site sections">
+    <button type="button" role="tab" id="tabLoadout" aria-selected="true" aria-controls="tab-loadout">Random Loadout</button>
+    <button type="button" role="tab" id="tabSens" aria-selected="false" aria-controls="senslab">Sens Lab <span class="new">NEW</span></button>
+  </nav>
+  <div class="tabpane" id="tab-loadout" role="tabpanel" aria-labelledby="tabLoadout">
   <div class="cab">
     <section class="reels" id="reels" aria-live="polite"></section>
     <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Mystery crate</button></span><span class="cab-line"></span></div>
@@ -499,6 +636,151 @@ html.noribbon .ribnote{display:none}
 
     <p>Updated for Season 11 Reorientation, including N-Two, Rover, Vlinder and Morse, the AZ3 Nuclear Plant map, and new weapons such as the MDR, Thompson, RM277, AR-57, SVCH and M82.</p>
   </section>
+
+  </div>
+
+<section class="tabpane" id="senslab" hidden aria-labelledby="tabSens">
+<div class="wrap">
+  <header>
+    <h2 class="sl-title">Sens Lab</h2>
+    <p class="lede">Convert your sensitivity when you change DPI, check your mouse's polling rate, and test your sens in a practice range.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Tools">
+    <button class="tab" role="tab" id="t-range" aria-controls="p-range" aria-selected="true">Test range</button>
+    <button class="tab" role="tab" id="t-calc" aria-controls="p-calc" aria-selected="false">Sens calculator</button>
+    <button class="tab" role="tab" id="t-poll" aria-controls="p-poll" aria-selected="false">Polling rate test</button>
+  </nav>
+
+  <!-- ============ CALCULATOR ============ -->
+  <section class="panel" id="p-calc" role="tabpanel" aria-labelledby="t-calc" hidden>
+    <div class="grid2">
+      <div class="card">
+        <h2>Change DPI, keep the same aim</h2>
+        <div class="fields">
+          <div class="field"><label class="label" for="c-odpi">Current DPI</label><input id="c-odpi" type="number" value="850" min="50" step="50"></div>
+          <div class="field"><label class="label" for="c-osens">Mouse Sensitivity</label><input id="c-osens" type="number" value="2.11" min="0.01" step="0.01"></div>
+          <div class="field"><label class="label" for="c-ndpi">New DPI</label><input id="c-ndpi" type="number" value="1700" min="50" step="50"></div>
+        </div>
+        <div>
+          <span class="label">New Mouse Sensitivity</span>
+          <div class="sl-big" id="c-nsens">1.06</div>
+          <div class="sl-sub" id="c-nsub">Exact: 1.055 · effective sens 1,802 vs 1,794 now (+0.4%)</div>
+        </div>
+        <p class="note">In Delta Force, change only <b>Mouse Sensitivity</b>. Vertical, Horizontal and the ADS sliders are multipliers on top of it, so leave them alone.</p>
+      </div>
+
+      <div class="card">
+        <h2>Your sens at other DPIs</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>DPI</th><th>Mouse Sensitivity</th><th>Effective sens</th></tr></thead>
+            <tbody id="c-table"></tbody>
+          </table>
+        </div>
+        <p class="note">Effective sens is DPI × Mouse Sensitivity. Two setups with the same number aim the same.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Your cm/360</h2>
+      <p class="note">This is how far the mouse moves for a full turn, and it works across any game. Your new sens above works out to about <b id="c-est">23.1 cm/360</b>. That figure uses the community's estimate for Delta Force, so for an exact number measure it once in the in-game firing range: mark your mousepad, turn a full 360 using the compass at the top of the screen, then measure the distance and enter it here.</p>
+      <div class="fields">
+        <div class="field"><label class="label" for="c-cm">Measured cm/360</label><input id="c-cm" type="number" value="23.1" min="1" step="0.1"></div>
+        <div class="field"><label class="label" for="c-cmdpi">At DPI</label><input id="c-cmdpi" type="number" value="1700" min="50" step="50"></div>
+      </div>
+      <dl class="kv" id="c-cmout"></dl>
+    </div>
+  </section>
+
+  <!-- ============ POLLING ============ -->
+  <section class="panel" id="p-poll" role="tabpanel" aria-labelledby="t-poll" hidden>
+    <div class="fields">
+      <div class="field"><label class="label" for="p-dpi">DPI</label><input id="p-dpi" type="number" value="1700" min="50" step="50"></div>
+      <div class="field"><label class="label" for="p-dist">Distance (cm)</label><input id="p-dist" type="number" value="10" min="1" step="1"></div>
+      <div class="field"><label class="label" for="p-rate">Rate set on mouse</label>
+        <select id="p-rate"><option>1000Hz</option><option>2000Hz</option><option selected>4000Hz</option><option>8000Hz</option><option>500Hz</option></select></div>
+    </div>
+
+    <div class="readouts" aria-label="Live readings">
+      <div class="ro"><span class="label">Measured rate</span><span class="val" id="p-hz">—</span><span class="sl-sub" id="p-hzsub">Click the box to start</span></div>
+      <div class="ro"><span class="label">Hand speed</span><span class="val" id="p-speed">—</span><span class="sl-sub" id="p-speedsub">cm per second</span></div>
+      <div class="ro"><span class="label">Speed for full rate</span><span class="val" id="p-need">—</span><span class="sl-sub">cm/s at this DPI</span>
+        <div class="meter" aria-hidden="true"><i id="p-meter"></i></div></div>
+    </div>
+
+    <div class="lockable pad" id="p-pad" tabindex="0" role="button" aria-label="Click to lock the mouse for the polling test">
+      <div class="msg" id="p-msg">Click here to start</div>
+      <div>
+        <div class="sl-track" aria-hidden="true"><div class="fill" id="p-fill"></div><div class="flag">STOP</div></div>
+      </div>
+      <div class="hint" id="p-hint">Mark your mousepad at the front edge of the mouse first. The cursor hides while testing; Esc brings it back.</div>
+    </div>
+
+    <div class="card">
+      <div class="row"><span class="label">Results</span><button class="sl-ghost" id="p-clear" type="button">Clear</button></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Rate set</th><th>Peak rate</th><th>Peak speed</th><th>Check</th></tr></thead>
+          <tbody id="p-rows"><tr><td colspan="4" style="color:var(--muted);font-family:var(--body)">Your slides will appear here.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="note"><b>How to read it:</b> hold left click and slide until the bar says STOP. Do the same slide at 1000Hz and at your higher rate. If the mouse stops on the same mark both times, nothing is being lost. The measured rate only reaches its max when your hand speed is above the "speed for full rate", and browsers usually top out around 4,000–5,000Hz, so a lower reading at 8000Hz isn't always a fault.</p>
+    </div>
+  </section>
+
+  <!-- ============ RANGE ============ -->
+  <section class="panel" id="p-range" role="tabpanel" aria-labelledby="t-range">
+    <div class="grid2">
+      <div class="card">
+        <span class="label">Your setup</span>
+        <div class="fields">
+          <div class="field"><label class="label" for="r-dpi">DPI</label><input id="r-dpi" type="number" value="1700" min="50" step="50"></div>
+          <div class="field"><label class="label" for="r-sens">Delta Force sens</label><input id="r-sens" type="number" value="1.06" min="0.01" step="0.01"></div>
+          <div class="field"><label class="label" for="r-cm">cm/360</label><input id="r-cm" type="number" value="23.1" min="1" step="0.1"></div>
+          <div class="field"><label class="label" for="r-fov">FOV</label><input id="r-fov" type="number" value="90" min="60" max="120" step="1"></div>
+          <div class="field"><label class="label" for="r-ads">ADS sens ×</label><input id="r-ads" type="number" value="1.00" min="0.1" max="3" step="0.05"></div>
+        </div>
+      </div>
+      <div class="card">
+        <span class="label">Drill</span>
+        <div class="fields">
+          <div class="field"><label class="label" for="r-mode">Drill</label>
+            <select id="r-mode"><option value="flick">Pop-up flicks (10–40 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (50–100 m)</option><option value="track">Tracking</option></select></div>
+          <div class="field"><label class="label" for="r-wpn">Weapon</label>
+            <select id="r-wpn"><option value="m4">M4A1 · auto</option><option value="akm">AKM · auto</option><option value="sr25">SR-25 · semi</option><option value="deagle">Desert Eagle · semi</option><option value="awm">AWM · bolt, scope</option></select></div>
+          <div class="field"><label class="label" for="r-len">Length</label><select id="r-len"><option value="30">30 s</option><option value="60" selected>60 s</option></select></div>
+          <div class="field"><label class="label" for="r-count">Targets at once</label><select id="r-count"><option>1</option><option>2</option><option>3</option></select></div>
+          <div class="field"><label class="label" for="r-move">Targets move</label><select id="r-move"><option value="off">No</option><option value="on">Yes</option></select></div>
+          <div class="field"><label class="label" for="r-speed">Move speed</label><select id="r-speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
+          <div class="field"><label class="label" for="r-vanish">Targets vanish</label><select id="r-vanish"><option value="0">Never</option><option value="3">After 3 s</option><option value="2">After 2 s</option><option value="1.5">After 1.5 s</option></select></div>
+          <div class="field"><label class="label" for="r-host">Hostages</label><select id="r-host"><option value="off">Off</option><option value="on">On</option></select></div>
+          <div class="field"><label class="label" for="r-hp">Target HP</label><select id="r-hp"><option value="0">One shot</option><option value="100">100</option><option value="200">200 (armour)</option><option value="300">300 (armour)</option></select></div>
+          <div class="field"><label class="label" for="r-ammo">Ammo</label><select id="r-ammo"><option value="inf">Unlimited (no reload)</option><option value="mag">Magazine + reload</option></select></div>
+          <div class="field"><label class="label" for="r-snd">Sound</label><select id="r-snd"><option value="on">On</option><option value="off">Off</option></select></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="ro"><span class="label">Kills</span><span class="val" id="r-hits">0</span></div>
+      <div class="ro"><span class="label">Headshots</span><span class="val" id="r-heads">0</span></div>
+      <div class="ro"><span class="label">Accuracy</span><span class="val" id="r-acc">—</span></div>
+      <div class="ro"><span class="label">Avg kill</span><span class="val" id="r-avg">—</span></div>
+      <div class="ro"><span class="label">Points</span><span class="val" id="r-pts">0</span></div>
+      <div class="ro"><span class="label">Time left</span><span class="val" id="r-time">60</span></div>
+    </div>
+    <div class="row best"><span class="sl-sub" id="r-best">No best score yet for this drill.</span></div>
+
+    <div class="lockable range" id="r-box" tabindex="0" role="button" aria-label="Test range">
+      <canvas id="r-gl" aria-hidden="true"></canvas><canvas id="r-canvas" width="1000" height="520"></canvas>
+      <div class="overlay" id="r-overlay"><div class="sl-box" id="r-obox"></div></div>
+    </div>
+
+    <p class="note">Enter your <b>DPI</b> and <b>Delta Force sens</b> and the range turns at about the same speed as the game; if you've measured your real cm/360 in game, type that in instead. <b>ADS sens ×</b> works like your ADS slider: 1.00 means aiming turns at the same speed on screen as hipfire. The sens check on the results screen looks at your flicks: if you keep going past targets your sens may be high, if you keep stopping short it may be low.</p>
+  </section>
+</div>
+</section>
 
   <footer>
     <span>Fan-made tool. Not affiliated with Team Jade or TiMi Studio Group.</span>
@@ -1082,7 +1364,7 @@ $("#settings").addEventListener("change",e=>{
   if(t.dataset.o){S.opsOff=t.checked?S.opsOff.filter(x=>x!==t.dataset.o):[...S.opsOff,t.dataset.o]}
   save();
 });
-document.addEventListener("keydown",e=>{if(e.code==="Space"&&!e.target.closest("button,input,summary")){const d=document.querySelector(".dip");if(d&&!d.hidden)return;e.preventDefault();spinAll()}});
+document.addEventListener("keydown",e=>{if(e.code==="Space"&&document.body.dataset.tab!=="senslab"&&!e.target.closest("button,input,summary,select")){const d=document.querySelector(".dip");if(d&&!d.hidden)return;e.preventDefault();spinAll()}});
 let rT;window.addEventListener("resize",()=>{clearTimeout(rT);rT=setTimeout(()=>SLOTS.forEach(([k])=>layout(k)),150)});
 
 buildReels();buildSettings();setTimeout(()=>{const q=Object.values(IMG);let i=0;const nx=()=>{if(i>=q.length)return;const im=new Image();im.decoding="async";im.onload=im.onerror=nx;im.src=q[i++]};for(let k=0;k<6;k++)nx()},800);
@@ -1189,6 +1471,1007 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotat
 (function(){const r=$("#zRange"),v=$("#zVal");const set=(n,keep)=>{n=Math.max(80,Math.min(150,Math.round(n/5)*5));r.value=n;v.textContent=n+"%";document.documentElement.style.setProperty("--z",n/100);if(!keep)try{localStorage.setItem("hawkroll.zoom",n)}catch(e){}};
 let z=100;try{z=+localStorage.getItem("hawkroll.zoom")||100}catch(e){}set(z,true);
 r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value+5);$("#zOut").onclick=()=>set(+r.value-5);v.onclick=()=>set(100);})();
+
+// ---------------- site tabs ----------------
+(function(){
+  const bL=document.getElementById("tabLoadout"),bS=document.getElementById("tabSens"),pL=document.getElementById("tab-loadout"),pS=document.getElementById("senslab");
+  function go(t,push){
+    const sens=t==="senslab";document.body.dataset.tab=t;
+    bL.setAttribute("aria-selected",!sens);bS.setAttribute("aria-selected",sens);pL.hidden=sens;pS.hidden=!sens;
+    if(!sens&&document.pointerLockElement)document.exitPointerLock();
+    if(push)history.replaceState(null,"",sens?"#sens-lab":location.pathname+location.search);
+    if(sens){window.dispatchEvent(new Event("resize"));window.dispatchEvent(new Event("senslab:open"));}
+  }
+  bL.onclick=()=>go("loadout",true);bS.onclick=()=>go("senslab",true);
+  [bL,bS].forEach(b=>b.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();(b===bL?bS:bL).focus();(b===bL?bS:bL).click();}}));
+  go(/^#sens/.test(location.hash)?"senslab":"loadout",false);
+})();
+</script>
+<script>
+
+(() => {
+  const $ = id => document.getElementById(id);
+  const fmt = (n, d = 0) => Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+  /* ---------- tabs ---------- */
+  const tabs = ['range', 'calc', 'poll'];
+  let cur = 'range';
+  /* the range (and three.js) only starts once it is actually on screen */
+  const startRange = () => { if (cur === 'range' && $('p-range').offsetParent !== null) { initRange(); drawRange(); } };
+  function show(name) {
+    if (document.pointerLockElement) document.exitPointerLock();
+    cur = name;
+    tabs.forEach(t => { $('t-' + t).setAttribute('aria-selected', t === name); $('p-' + t).hidden = t !== name; });
+    startRange();
+  }
+  tabs.forEach(t => $('t-' + t).addEventListener('click', () => show(t)));
+  window.addEventListener('senslab:open', startRange);
+  const h = (location.hash || '').slice(1);
+  setTimeout(() => show(tabs.includes(h) ? h : 'range'), 0);
+
+  /* Delta Force turn rate. 0.022 degrees per mouse count at sens 1.00 is the figure sens converter sites use for Delta Force (a community estimate). */
+  const DF_YAW = 0.022;
+  const dfCm = (dpi, sens) => 360 / (dpi * sens * DF_YAW) * 2.54;
+  const dfSens = (dpi, cm) => 360 / (dpi * DF_YAW) * 2.54 / cm;
+
+  /* ---------- calculator ---------- */
+  function calc() {
+    const od = +$('c-odpi').value, os = +$('c-osens').value, nd = +$('c-ndpi').value;
+    const edpi = od * os;
+    if (!(od > 0 && os > 0 && nd > 0)) return;
+    const exact = edpi / nd, rounded = Math.round(exact * 100) / 100;
+    const newE = rounded * nd, diff = (newE / edpi - 1) * 100;
+    $('c-nsens').textContent = rounded.toFixed(2);
+    $('c-nsub').textContent = `Exact: ${exact.toFixed(3)} · effective sens ${fmt(newE)} vs ${fmt(edpi)} now (${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%) · about ${dfCm(nd, rounded).toFixed(1)} cm/360`;
+    if ($('c-est')) $('c-est').textContent = dfCm(nd, rounded).toFixed(1) + ' cm/360';
+    const dpis = [400, 800, 850, 1000, 1200, 1600, 1700, 2000, 3200].filter((v, i, a) => a.indexOf(v) === i);
+    $('c-table').innerHTML = dpis.map(d => {
+      const s = Math.round(edpi / d * 100) / 100;
+      const cls = d === nd ? ' class="hl"' : '';
+      return `<tr><td${cls}>${d}</td><td${cls}>${s.toFixed(2)}</td><td${cls}>${fmt(s * d)}</td></tr>`;
+    }).join('');
+    const cm = +$('c-cm').value, cd = +$('c-cmdpi').value;
+    if (cm > 0 && cd > 0) {
+      const in360 = cm / 2.54, counts = in360 * cd;
+      $('c-cmout').innerHTML =
+        `<dt>Inches per 360</dt><dd>${in360.toFixed(2)} in</dd>` +
+        `<dt>Mouse counts per 360</dt><dd>${fmt(counts)}</dd>` +
+        `<dt>Degrees per count</dt><dd>${(360 / counts).toFixed(4)}°</dd>` +
+        `<dt>Feel</dt><dd>${cm < 20 ? 'Fast' : cm < 35 ? 'Medium' : cm < 55 ? 'Slow' : 'Very slow'}</dd>`;
+    }
+  }
+  ['c-odpi', 'c-osens', 'c-ndpi', 'c-cm', 'c-cmdpi'].forEach(id => $(id).addEventListener('input', calc));
+  calc();
+
+  /* ---------- shared raw input ---------- */
+  const useRaw = 'onpointerrawupdate' in window;
+  async function lock(el) {
+    try { await el.requestPointerLock({ unadjustedMovement: true }); }
+    catch (e) { try { await el.requestPointerLock(); } catch (e2) { return false; } }
+    return true;
+  }
+  const moveHandlers = [];
+  function onAnyMove(e) {
+    const evs = (!useRaw && e.getCoalescedEvents) ? e.getCoalescedEvents() : [e];
+    const list = evs.length ? evs : [e];
+    moveHandlers.forEach(fn => fn(list));
+  }
+  document.addEventListener(useRaw ? 'pointerrawupdate' : 'pointermove', onAnyMove);
+
+  /* ---------- polling test ---------- */
+  const pad = $('p-pad');
+  let pLocked = false, pRec = false, pDone = false, pCounts = 0, pEvents = 0, pStart = 0;
+  let winEv = 0, winCounts = 0, winStart = performance.now(), peakHz = 0, peakSpeed = 0;
+  const pTarget = () => Math.round((+$('p-dpi').value || 0) * (+$('p-dist').value || 10) / 2.54);
+  const rateNum = () => parseInt($('p-rate').value, 10);
+  function needSpeed() { const d = +$('p-dpi').value || 1; return rateNum() * 2.54 / d; }
+  function updNeed() { $('p-need').textContent = fmt(needSpeed()); }
+  ['p-dpi', 'p-rate'].forEach(id => $(id).addEventListener('input', updNeed)); updNeed();
+
+  pad.addEventListener('click', async () => { if (!pLocked && !(await lock(pad))) $('p-msg').textContent = 'Mouse lock was blocked. Open this page in Chrome.'; });
+  pad.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pad.click(); } });
+  function pIdle(msg) { $('p-msg').textContent = msg || 'Put the mouse on your start mark, hold left click and slide right'; $('p-hint').textContent = 'Stop when the bar turns green. Esc brings your cursor back.'; }
+  function pFill(p) { $('p-fill').style.width = Math.min(100, p) + '%'; }
+  function pFinish() {
+    pRec = false; pDone = true; pad.classList.remove('recording'); pad.classList.add('done'); pFill(100);
+    $('p-msg').textContent = 'STOP — let go and check your mark';
+    $('p-hint').textContent = 'Same spot as at 1000Hz? Then nothing is being lost.';
+    addPollRow();
+  }
+  function addPollRow() {
+    const body = $('p-rows');
+    if (body.querySelector('td[colspan]')) body.innerHTML = '';
+    const need = needSpeed();
+    const fast = peakSpeed >= need;
+    const pill = fast ? '<span class="pill good">Fast enough for full rate</span>' : `<span class="pill warn">Slide faster than ${fmt(need)} cm/s</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${$('p-rate').value}</td><td>${fmt(peakHz)} Hz</td><td>${fmt(peakSpeed)} cm/s</td><td>${pill}</td>`;
+    body.prepend(tr);
+  }
+  moveHandlers.push(list => {
+    if (!pLocked) return;
+    for (const ev of list) {
+      if (ev.movementX === 0 && ev.movementY === 0) continue;
+      winEv++; winCounts += Math.hypot(ev.movementX, ev.movementY);
+      if (pRec) { pCounts += ev.movementX; pEvents++; }
+    }
+    if (pRec) {
+      const c = Math.max(0, pCounts);
+      pFill(c / pTarget() * 100);
+      if (c >= pTarget()) pFinish();
+    }
+  });
+  document.addEventListener('pointerlockchange', () => {
+    pLocked = document.pointerLockElement === pad;
+    pad.classList.toggle('locked', pLocked);
+    if (pLocked) pIdle();
+    else { pRec = false; pDone = false; pad.classList.remove('recording', 'done'); pFill(0); $('p-msg').textContent = 'Click here to start'; $('p-hint').textContent = 'Mark your mousepad at the front edge of the mouse first. The cursor hides while testing; Esc brings it back.'; }
+    winEv = 0; winCounts = 0; winStart = performance.now();
+  });
+  document.addEventListener('mousedown', e => {
+    if (!pLocked || e.button !== 0) return;
+    pRec = true; pDone = false; pCounts = 0; pEvents = 0; pStart = performance.now(); peakHz = 0; peakSpeed = 0;
+    pad.classList.remove('done'); pad.classList.add('recording'); pFill(0);
+    $('p-msg').textContent = 'Keep sliding right…'; $('p-hint').textContent = 'Stop when the bar turns green.';
+  });
+  document.addEventListener('mouseup', e => {
+    if (!pLocked || e.button !== 0) return;
+    if (pRec) { pRec = false; pad.classList.remove('recording'); pFill(0); pIdle('You let go early. Go back to your start mark and try again'); }
+    else if (pDone) setTimeout(() => { if (!pRec && pLocked) { pad.classList.remove('done'); pFill(0); pIdle('Saved. Back to the start mark for the next slide'); } }, 1200);
+  });
+  $('p-clear').addEventListener('click', () => { $('p-rows').innerHTML = '<tr><td colspan="4" style="color:var(--muted);font-family:var(--body)">Your slides will appear here.</td></tr>'; });
+  setInterval(() => {
+    if (!pLocked) return;
+    const now = performance.now(), dt = (now - winStart) / 1000;
+    if (dt < 0.2) return;
+    const dpi = +$('p-dpi').value || 1;
+    if (winEv > 10) {
+      const hz = winEv / dt, speed = winCounts / dt / dpi * 2.54;
+      $('p-hz').textContent = fmt(hz); $('p-hzsub').textContent = 'reports per second while moving';
+      $('p-speed').textContent = fmt(speed);
+      $('p-meter').style.width = Math.min(100, speed / needSpeed() * 100) + '%';
+      if (pRec) { peakHz = Math.max(peakHz, hz); peakSpeed = Math.max(peakSpeed, speed); }
+    } else { $('p-hzsub').textContent = 'Keep the mouse moving'; $('p-speed').textContent = '0'; $('p-meter').style.width = '0%'; }
+    winEv = 0; winCounts = 0; winStart = now;
+  }, 200);
+
+  /* ---------- test range: 3D firing range (three.js) ---------- */
+  const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
+  const box = $('r-box'), hud = $('r-canvas'), ctx = hud.getContext('2d'), gl = $('r-gl');
+  const D2R = Math.PI / 180, EYE = 1.6;
+  let T = null, renderer = null, scene = null, cam = null, gunCam = null, gunScene = null, ready = false, loading = false;
+  let dmgTotal = 0, rLocked = false, state = 'menu', free = false, yaw = 0, pitch = 0, raf = 0, lastT = performance.now();
+  let targets = [], fx = [], marker = null, endAt = 0, pausedAt = 0, countEnd = 0;
+  let kills = 0, heads = 0, shots = 0, hitsN = 0, hostHits = 0, missedT = 0, points = 0, killTimes = [], reacts = [], shotsPerKill = [];
+  let over = 0, under = 0, clean = 0;
+  let ammo = 30, reloadUntil = 0, nextShot = 0, fireHeld = false, ads = false, adsT = 0, kickT = 0, flashT = 0;
+  let yawVel = 0, frameYaw = 0, swayX = 0, swayY = 0;
+
+  const WEAPONS = {
+    m4:     { name: 'M4A1',         dmg: 34,  mode: 'AUTO', rpm: 750, mag: 30, reload: 2200, kick: 0.6, zoom: 1.4, armour: 2 },
+    akm:    { name: 'AKM',          dmg: 38,  mode: 'AUTO', rpm: 600, mag: 30, reload: 2400, kick: 1.0, zoom: 1.4, armour: 2 },
+    sr25:   { name: 'SR-25',        dmg: 58,  mode: 'SEMI', rpm: 300, mag: 20, reload: 2600, kick: 1.2, zoom: 2.2, armour: 1 },
+    deagle: { name: 'Desert Eagle', dmg: 52,  mode: 'SEMI', rpm: 240, mag: 7,  reload: 2000, kick: 1.6, zoom: 1.25, armour: 2, pistol: true },
+    awm:    { name: 'AWM',          dmg: 130, mode: 'BOLT', rpm: 45,  mag: 5,  reload: 3400, kick: 2.0, zoom: 4, armour: 1, scope: true },
+  };
+  const wpn = () => WEAPONS[$('r-wpn').value] || WEAPONS.m4;
+  function zoomNow() { return 1 + (wpn().zoom - 1) * adsT; }
+  function degPerCount() {
+    const dpi = +$('r-dpi').value || 800, cm = +$('r-cm').value || 30, base = 360 / (cm / 2.54 * dpi);
+    return ads ? base / zoomNow() * (+$('r-ads').value || 1) : base;
+  }
+  // my world: x right, y up, z down range.  three.js: same but z flipped
+  const V = (x, y, z) => new T.Vector3(x, y, -z);
+
+  /* ---------- procedural textures (no image files needed) ---------- */
+  function canvasTex(w, h, draw, rx = 1, ry = 1) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+    const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rx, ry); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t;
+  }
+  function noise(g, w, h, base, spread, n, size) {
+    if (base) { g.fillStyle = base; g.fillRect(0, 0, w, h); }
+    for (let i = 0; i < n; i++) { const v = (Math.random() - 0.5) * spread; g.fillStyle = v > 0 ? `rgba(255,255,255,${v})` : `rgba(0,0,0,${-v})`; const s = Math.random() * size + 1; g.fillRect(Math.random() * w, Math.random() * h, s, s); }
+  }
+  let TEX = {};
+  function makeTextures() {
+    TEX.floor = canvasTex(512, 512, (g, w, h) => { noise(g, w, h, '#585a5b', 0.16, 12000, 2); for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(20,22,24,${Math.random() * 0.22})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 20 + Math.random() * 60, 8 + Math.random() * 30, Math.random() * 3, 0, 7); g.fill(); }
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h); }, 14, 42);
+    TEX.wall = canvasTex(512, 256, (g, w, h) => { noise(g, w, h, '#7d8185', 0.14, 9000, 2); g.strokeStyle = 'rgba(0,0,0,.28)'; g.lineWidth = 3; for (let x = 0; x <= w; x += 128) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+      for (let i = 0; i < 30; i++) { g.fillStyle = 'rgba(40,36,30,.10)'; g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 30 + Math.random() * 80); } g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, h * 0.62, w, h * 0.38); }, 30, 1);
+    TEX.ceil = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#5c6064', 0.12, 4000, 2); }, 20, 40);
+    TEX.hazard = canvasTex(128, 32, (g, w, h) => { g.fillStyle = '#16181a'; g.fillRect(0, 0, w, h); g.fillStyle = '#d8b022'; for (let x = -32; x < w + 32; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h); g.lineTo(x + 32, 0); g.lineTo(x + 16, 0); g.closePath(); g.fill(); } }, 40, 1);
+    TEX.bag = canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#6f6248'; g.fillRect(0, 0, w, h); for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) { const x = c * 52 + (r % 2) * 26 - 10, y = r * 32; g.fillStyle = `rgb(${150 + Math.random() * 25},${125 + Math.random() * 20},${88 + Math.random() * 15})`; g.beginPath(); g.roundRect(x + 2, y + 2, 48, 28, 12); g.fill(); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; g.stroke(); } });
+    TEX.num = n => canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.1, 1500, 2); g.fillStyle = '#d9dcdf'; g.font = '700 190px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), w / 2, h / 2 + 10); });
+    TEX.dist = d => canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#d8b022'; g.fillRect(0, 0, w, h); g.strokeStyle = '#16181a'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#16181a'; g.font = '700 74px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(d + 'M', w / 2, h / 2 + 4); });
+    TEX.screen = canvasTex(256, 160, (g, w, h) => { g.fillStyle = '#071512'; g.fillRect(0, 0, w, h); g.strokeStyle = '#19c48a'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = '#19c48a'; g.font = '600 18px monospace'; ['RANGE CONTROL', 'TARGETS: ON', 'DIST: AUTO', 'HP: SET'].forEach((s, i) => g.fillText(s, 20, 38 + i * 28)); });
+  }
+
+  /* ---------- the range: an underground concrete hall, like the in-game firing range ---------- */
+  const HALL_W = 72, HALL_H = 7, HALL_L = 210;
+  const PROPS = [ // sandbag piles and crates down the hall (x, z, w, h, d)
+    { x: -9, z: 14, w: 3.4, h: 0.9, d: 1.1, k: 'bag' }, { x: 7.5, z: 19, w: 2.8, h: 0.9, d: 1.1, k: 'bag' },
+    { x: -3, z: 33, w: 2.6, h: 0.9, d: 1.1, k: 'bag' }, { x: 13, z: 40, w: 3.2, h: 1.2, d: 1.2, k: 'bag' },
+    { x: -15, z: 47, w: 3.6, h: 0.9, d: 1.1, k: 'bag' }, { x: 4, z: 60, w: 3, h: 0.9, d: 1.1, k: 'bag' },
+    { x: -7, z: 74, w: 3.2, h: 1.2, d: 1.2, k: 'bag' }, { x: 16, z: 82, w: 3, h: 0.9, d: 1.1, k: 'bag' },
+    { x: 21, z: 23, k: 'crate' }, { x: -22, z: 29, k: 'crate' }, { x: 26, z: 56, k: 'crate' }, { x: -28, z: 12, k: 'crate' },
+  ];
+  let laneLights = [];
+  function buildWorld() {
+    makeTextures();
+    scene = new T.Scene();
+    scene.background = new T.Color('#0d1013');
+    scene.fog = new T.Fog('#1b2025', 55, 210);
+    scene.add(new T.HemisphereLight('#b9c2ca', '#3a352d', 0.95));
+    const key = new T.DirectionalLight('#e6eef5', 1.5); key.position.set(10, 30, 20); key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -40, right: 40, top: 60, bottom: -60, near: 1, far: 120 }); key.shadow.bias = -0.0006;
+    key.target.position.set(0, 0, -30); scene.add(key, key.target);
+    const std = o => new T.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, o));
+    const add = (geo, mat, x, y, z, cast = true, recv = true) => { const m = new T.Mesh(geo, mat); m.position.copy(V(x, y, z)); m.castShadow = cast; m.receiveShadow = recv; scene.add(m); return m; };
+    const yellow = std({ color: '#d1a823', roughness: 0.55, metalness: 0.2 }), steel = std({ color: '#3c4248', roughness: 0.5, metalness: 0.5 }), dark = std({ color: '#1c1f22', roughness: 0.8 });
+    // floor, ceiling, walls
+    const floor = add(new T.PlaneGeometry(HALL_W, HALL_L + 20), std({ map: TEX.floor, roughness: 0.75 }), 0, 0, HALL_L / 2 - 8, false, true); floor.rotation.x = -Math.PI / 2;
+    const ceil = add(new T.PlaneGeometry(HALL_W, HALL_L + 20), std({ map: TEX.ceil }), 0, HALL_H, HALL_L / 2 - 8, false, false); ceil.rotation.x = Math.PI / 2;
+    const wallM = std({ map: TEX.wall });
+    [-1, 1].forEach(sd => add(new T.BoxGeometry(0.5, HALL_H, HALL_L + 20), wallM, sd * (HALL_W / 2), HALL_H / 2, HALL_L / 2 - 8, false, true));
+    const back = add(new T.BoxGeometry(HALL_W, HALL_H, 0.5), std({ color: '#2a2e32' }), 0, HALL_H / 2, HALL_L, false, true);
+    add(new T.BoxGeometry(HALL_W, HALL_H, 0.5), wallM, 0, HALL_H / 2, -8, false, true);
+    // ceiling beams + strip lights every 12 m
+    for (let z = 4; z < HALL_L; z += 12) {
+      add(new T.BoxGeometry(HALL_W, 0.6, 0.7), std({ color: '#565b60' }), 0, HALL_H - 0.3, z, false, false);
+      for (let x = -28; x <= 28; x += 14) { add(new T.BoxGeometry(0.25, 0.06, 2.4), new T.MeshBasicMaterial({ color: '#f2f6ff' }), x, HALL_H - 0.66, z + 3, false, false); }
+    }
+    // pillars with big lane numbers
+    let n = 1;
+    for (const x of [-24, -12, 12, 24]) for (const z of [24, 60, 100, 140]) {
+      add(new T.BoxGeometry(1.2, HALL_H, 1.2), wallM, x, HALL_H / 2, z, true, true);
+      if (z === 24) add(new T.PlaneGeometry(1.0, 1.0), std({ map: TEX.num(n++), roughness: 0.8 }), x, 2.6, z - 0.61, false, false);
+    }
+    // rails down each lane
+    for (let x = -27; x <= 27; x += 6) for (const dx of [-0.35, 0.35]) add(new T.BoxGeometry(0.07, 0.05, HALL_L - 6), steel, x + dx, 0.025, HALL_L / 2 + 1, false, true);
+    // distance markers on the floor and on the walls
+    [10, 25, 50, 75, 100, 150].forEach(d => {
+      const l = add(new T.PlaneGeometry(HALL_W - 1, 0.12), std({ color: '#c9a21f', roughness: 1, transparent: true, opacity: 0.55 }), 0, 0.012, d, false, false); l.rotation.x = -Math.PI / 2;
+      [-1, 1].forEach(sd => { const s = add(new T.PlaneGeometry(1.4, 0.7), std({ map: TEX.dist(d), roughness: 0.7 }), sd * (HALL_W / 2 - 0.27), 2.2, d, false, false); s.rotation.y = sd > 0 ? Math.PI / 2 : -Math.PI / 2; s.rotation.y += Math.PI; });
+    });
+    // yellow pipes along the right wall, cable trays on the left
+    for (const y of [4.8, 5.2]) { const p = add(new T.CylinderGeometry(0.12, 0.12, HALL_L, 12), yellow, HALL_W / 2 - 0.5, y, HALL_L / 2 - 4, false, false); p.rotation.x = Math.PI / 2; }
+    add(new T.BoxGeometry(0.4, 0.08, HALL_L), steel, -HALL_W / 2 + 0.5, 5.0, HALL_L / 2 - 4, false, false);
+    // the shooting booth: counter, glass dividers, hazard tape, control screen
+    add(new T.BoxGeometry(HALL_W - 1, 1.05, 0.7), std({ color: '#2b2f33', roughness: 0.6, metalness: 0.3 }), 0, 0.525, 1.4, true, true);
+    add(new T.BoxGeometry(HALL_W - 1, 0.05, 0.8), std({ color: '#23272b', roughness: 0.7 }), 0, 1.075, 1.4, false, true);
+    const tape = add(new T.PlaneGeometry(HALL_W - 1, 0.25), std({ map: TEX.hazard, roughness: 0.8 }), 0, 0.013, 0.8, false, false); tape.rotation.x = -Math.PI / 2;
+    const glassM = new T.MeshStandardMaterial({ color: '#8fb7c9', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.12, depthWrite: false });
+    for (const x of [-9, -3, 3, 9]) { add(new T.BoxGeometry(0.08, 3.4, 0.08), steel, x, 1.7, 1.2); add(new T.BoxGeometry(0.08, 3.4, 0.08), steel, x, 1.7, -1.5); add(new T.BoxGeometry(0.03, 2.4, 2.6), glassM, x, 2.0, -0.15, false, false); }
+    add(new T.BoxGeometry(HALL_W - 1, 0.5, 3.2), std({ color: '#30353a' }), 0, 3.6, -0.2, false, false);
+    const scr = add(new T.PlaneGeometry(0.6, 0.38), new T.MeshBasicMaterial({ map: TEX.screen, color: '#9aa' }), 5.2, 1.35, 1.1, false, false); scr.rotation.x = -0.5;
+    // props
+    const bagM = std({ map: TEX.bag, roughness: 1 });
+    for (const p of PROPS) {
+      if (p.k === 'crate') { add(new T.BoxGeometry(1.2, 0.9, 1.0), std({ color: '#3f4d3a', roughness: 0.7 }), p.x, 0.45, p.z); add(new T.BoxGeometry(1.0, 0.7, 0.9), std({ color: '#47553f', roughness: 0.7 }), p.x + 0.1, 1.25, p.z); continue; }
+      const m = add(new T.BoxGeometry(p.w, p.h, p.d, 6, 3, 2), bagM.clone(), p.x, p.h / 2, p.z); m.material.map = TEX.bag.clone(); m.material.map.repeat.set(p.w / 1.4, p.h / 0.9); m.material.map.needsUpdate = true;
+      const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y > 0) pos.setX(i, pos.getX(i) * (1 - 0.12 * (y / (p.h / 2)))); pos.setY(i, y + (Math.random() - 0.5) * 0.04); } m.geometry.computeVertexNormals();
+    }
+    // warm lamps over the booth and a few down the hall (cheap point lights, no shadows)
+    for (const [x, z, c, i] of [[0, 16, '#dfe9ff', 26], [0, 48, '#dfe9ff', 26], [0, 90, '#dfe9ff', 26]]) { const L = new T.PointLight(c, i, 60, 1); L.position.copy(V(x, HALL_H - 1, z)); scene.add(L); }
+    cam = new T.PerspectiveCamera(60, 16 / 9, 0.05, 1500); cam.rotation.order = 'YXZ'; cam.position.set(0, EYE, 0); scene.add(cam);
+    buildGun();
+    buildFx();
+  }
+
+  /* ---------- targets: yellow crash-test mannequins on rail carts ---------- */
+  function makeBot(kind, armour) {
+    const host = kind === 'host';
+    const skin = new T.MeshStandardMaterial({ color: host ? '#c7d4e0' : '#c99f2e', roughness: 0.45, metalness: 0.05 });
+    const joint = new T.MeshStandardMaterial({ color: '#1d1f22', roughness: 0.5, metalness: 0.3 });
+    const mats = [skin, joint];
+    const root = new T.Group();
+    const cast = o => { o.castShadow = true; o.receiveShadow = true; return o; };
+    const M = (geo, mat, x, y, z, parent) => { const m = cast(new T.Mesh(geo, mat)); m.position.set(x, y, z); (parent || root).add(m); return m; };
+    // rail cart
+    const cartM = new T.MeshStandardMaterial({ color: '#2a2e33', roughness: 0.6, metalness: 0.4 }); mats.push(cartM);
+    M(new T.BoxGeometry(0.9, 0.12, 0.6), cartM, 0, 0.1, 0); for (const sx of [-0.35, 0.35]) for (const sz of [-0.22, 0.22]) { const w = M(new T.CylinderGeometry(0.06, 0.06, 0.05, 12), joint, sx, 0.06, sz); w.rotation.z = Math.PI / 2; }
+    M(new T.CylinderGeometry(0.04, 0.04, 0.2, 8), joint, 0, 0.25, 0);
+    const body = new T.Group(); body.position.y = 0.32; root.add(body);
+    // legs
+    for (const sx of [-0.1, 0.1]) { M(new T.CapsuleGeometry(0.07, 0.38, 4, 10), skin, sx, 0.33, 0, body); M(new T.SphereGeometry(0.06, 10, 8), joint, sx, 0.58, 0, body); M(new T.CapsuleGeometry(0.08, 0.36, 4, 10), skin, sx, 0.86, 0, body); }
+    M(new T.BoxGeometry(0.34, 0.16, 0.2), skin, 0, 1.1, 0, body).geometry.translate(0, 0, 0);       // hips
+    const torso = M(new T.CapsuleGeometry(0.17, 0.32, 6, 14), skin, 0, 1.42, 0, body); torso.scale.set(1.2, 1, 0.72);
+    for (let i = 0; i < 3; i++) M(new T.TorusGeometry(0.055, 0.016, 6, 14), joint, 0, 1.73 + i * 0.03, 0, body).rotation.x = Math.PI / 2; // neck rings
+    const head = M(new T.SphereGeometry(0.115, 18, 14), skin, 0, 1.9, 0, body); head.scale.set(0.9, 1.15, 0.95);
+    // arms hang slightly out (or up for hostages)
+    for (const sd of [-1, 1]) {
+      const sh = new T.Group(); sh.position.set(sd * 0.26, 1.6, 0); body.add(sh); M(new T.SphereGeometry(0.065, 10, 8), joint, 0, 0, 0, sh);
+      const a1 = M(new T.CapsuleGeometry(0.055, 0.26, 4, 8), skin, 0, -0.19, 0, sh); const el = new T.Group(); el.position.y = -0.36; sh.add(el);
+      M(new T.SphereGeometry(0.05, 8, 6), joint, 0, 0, 0, el); M(new T.CapsuleGeometry(0.05, 0.24, 4, 8), skin, 0, -0.17, 0, el);
+      if (host) { sh.rotation.z = sd * 2.7; el.rotation.z = sd * 0.25; } else { sh.rotation.z = sd * 0.42; el.rotation.z = sd * 0.15; }
+    }
+    // armour: helmet and plate carrier (shown when the target has extra HP)
+    if (armour && !host) {
+      const camo = new T.MeshStandardMaterial({ color: '#4c5240', roughness: 0.95 }), helmM = new T.MeshStandardMaterial({ color: '#3a3f33', roughness: 0.7 }); mats.push(camo, helmM);
+      const vest = M(new T.BoxGeometry(0.46, 0.5, 0.32), camo, 0, 1.45, 0, body);
+      for (let i = -1; i <= 1; i++) M(new T.BoxGeometry(0.11, 0.13, 0.07), camo, i * 0.13, 1.3, -0.19, body);
+      const helm = M(new T.SphereGeometry(0.14, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), helmM, 0, 1.93, 0, body);
+      M(new T.BoxGeometry(0.06, 0.1, 0.06), helmM, -0.13, 1.92, 0, body); M(new T.BoxGeometry(0.06, 0.1, 0.06), helmM, 0.13, 1.92, 0, body); // ear pieces
+    }
+    // invisible hit boxes
+    const hb = new T.MeshBasicMaterial({ visible: false });
+    const hHead = M(new T.SphereGeometry(0.15, 8, 6), hb, 0, 1.9, 0, body); hHead.userData.part = 'head'; hHead.castShadow = false;
+    const hBody = M(new T.BoxGeometry(0.62, 0.72, 0.36), hb, 0, 1.38, 0, body); hBody.userData.part = 'body'; hBody.castShadow = false;
+    const hLegs = M(new T.BoxGeometry(0.36, 1.05, 0.26), hb, 0, 0.55, 0, body); hLegs.userData.part = 'body'; hLegs.castShadow = false;
+    scene.add(root);
+    return { root, body, mats, skin, hit: [hHead, hBody, hLegs] };
+  }
+  function dropBot(t) { if (!t.bot) return; scene.remove(t.bot.root); t.bot.mats.forEach(m => m.dispose()); t.bot = null; }
+  function poseBot(t, now) {
+    if (!t.bot) t.bot = makeBot(t.kind, t.hpMax > 100);
+    const b = t.bot, up = 1 - t.tilt / (Math.PI / 2);
+    b.root.position.copy(V(t.x, 0, t.z));
+    b.root.rotation.set(0, Math.atan2(t.x, -t.z), 0);
+    if (t.hit) { b.body.rotation.x = (1 - up) * 1.45; b.body.position.y = 0.32; b.root.position.y = 0; }  // knocked down backwards
+    else { b.body.rotation.x = 0; b.body.position.y = 0.32 - (1 - up) * 2.3; }                           // rises up from the floor
+    const fl = t.flashT && now - t.flashT < 90, col = t.hit && !t.gone ? (t.kind === 'host' || t.head ? 0x5a0d0d : 0x2a2a2a) : fl ? 0x444444 : 0x000000;
+    b.mats.forEach(m => m.emissive && m.emissive.setHex(col));
+  }
+
+  /* ---------- the guns (their own little scene so they never clip into walls) ---------- */
+  let GUNS = {}, gunNow = null, flashSprite = null;
+  function buildGun() {
+    gunScene = new T.Scene();
+    gunScene.add(new T.HemisphereLight('#e8eef4', '#4a4236', 1.4));
+    const dl = new T.DirectionalLight('#fff3dd', 2.8); dl.position.set(-1.5, 2.5, 1.5); gunScene.add(dl);
+    const rim = new T.DirectionalLight('#bcd2ff', 1.1); rim.position.set(2, 0.6, -2); gunScene.add(rim);
+    gunCam = new T.PerspectiveCamera(52, 16 / 9, 0.01, 10);
+    // reflections for metal: a soft studio made on the fly
+    try {
+      const env = new T.Scene(), room = new T.Mesh(new T.BoxGeometry(10, 6, 10), new T.MeshBasicMaterial({ color: '#4a4f55', side: T.BackSide })); env.add(room);
+      [[0, 2.9, 0, 6, 0.1, 3, '#ffffff'], [-4.9, 1, 0, 0.1, 2, 6, '#c9d6e6'], [4.9, 1, 1, 0.1, 1.5, 3, '#fff0d8'], [0, -2.9, 0, 10, 0.1, 10, '#23262a']].forEach(([x, y, z, w, h, d, c]) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), new T.MeshBasicMaterial({ color: c })); m.position.set(x, y, z); env.add(m); });
+      const pm = new T.PMREMGenerator(renderer); gunScene.environment = pm.fromScene(env, 0.04).texture; pm.dispose();
+    } catch (e) {}
+
+    // grime / wear for roughness so surfaces don't look plastic
+    const grime = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#8a8a8a', 0.35, 9000, 2); for (let i = 0; i < 50; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.12})`; g.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 10 + Math.random() * 40); } }, 3, 3);
+    grime.colorSpace = T.NoColorSpace;
+    const PBR = (color, metal, rough, extra) => new T.MeshStandardMaterial(Object.assign({ color, metalness: metal, roughness: rough, roughnessMap: grime }, extra || {}));
+    const M = {
+      alu: PBR('#474c53', 0.25, 0.45), poly: PBR('#33373c', 0.05, 0.6), steel: PBR('#5a5e63', 0.45, 0.35), dark: PBR('#2a2d31', 0.2, 0.5),
+      wood: PBR('#6a3d1e', 0.0, 0.5), tan: PBR('#8a7a5a', 0.05, 0.7), olive: PBR('#4a5039', 0.05, 0.75),
+      glass: new T.MeshPhysicalMaterial({ color: '#a8d4ff', metalness: 0, roughness: 0.05, transmission: 0.2, transparent: true, opacity: 0.18, depthWrite: false }),
+      lens: PBR('#1a2a3a', 0.9, 0.1), glove: PBR('#24262a', 0.0, 0.85), gloveRed: PBR('#8c1f22', 0.0, 0.7), knuckle: PBR('#3a3d42', 0.2, 0.6), sleeve: PBR('#3e4234', 0.0, 0.95),
+      dot: new T.MeshBasicMaterial({ color: '#ff2a2a' }),
+    };
+    // side profile (u = forward, v = up, in metres) pushed out to a thickness, with rounded edges
+    function side(pts, depth, mat, bevel = 0.003) {
+      const s = new T.Shape(); pts.forEach(([u, v], i) => i ? s.lineTo(u, v) : s.moveTo(u, v)); s.closePath();
+      const g = new T.ExtrudeGeometry(s, { depth: depth - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 6 });
+      g.rotateY(Math.PI / 2); g.translate(-(depth - bevel * 2) / 2, 0, 0);
+      return new T.Mesh(g, mat);
+    }
+    const put = (g, m, x, y, z, rx = 0, ry = 0, rz = 0) => { m.position.set(x, y, z); m.rotation.set(rx, ry, rz); g.add(m); return m; };
+    const box = (g, w, h, d, mat, x, y, z, rx = 0) => put(g, new T.Mesh(new T.BoxGeometry(w, h, d), mat), x, y, z, rx);
+    const tube = (g, r, len, mat, u, v, seg = 18, r2) => put(g, new T.Mesh(new T.CylinderGeometry(r2 ?? r, r, len, seg), mat), 0, v, -u, Math.PI / 2); // along the gun at forward position u
+    const rail = (g, u0, u1, v, w = 0.022) => { box(g, w, 0.006, u1 - u0, M.alu, 0, v, -(u0 + u1) / 2); for (let u = u0 + 0.004; u < u1; u += 0.01) box(g, w + 0.004, 0.004, 0.005, M.alu, 0, v + 0.004, -u); };
+
+    // gloved hands: palm, wrapped fingers, thumb, knuckle pad, sleeve going back off screen
+    function hand(g, x, y, z, opts) {
+      const h = new T.Group(); h.position.set(x, y, z); h.rotation.set(opts.rx || 0, opts.ry || 0, opts.rz || 0); g.add(h);
+      const palm = new T.Mesh(new T.BoxGeometry(0.03, 0.085, 0.075, 2, 2, 2), M.glove); h.add(palm);
+      const pal = palm.geometry.attributes.position; for (let i = 0; i < pal.count; i++) pal.setX(i, pal.getX(i) * (1 - 0.15 * Math.abs(pal.getY(i)) / 0.04)); palm.geometry.computeVertexNormals();
+      const back = new T.Mesh(new T.BoxGeometry(0.008, 0.06, 0.05), M.gloveRed); back.position.set(opts.side * 0.017, 0.005, 0); h.add(back);
+      const knk = new T.Mesh(new T.BoxGeometry(0.01, 0.018, 0.06), M.knuckle); knk.position.set(opts.side * 0.02, 0.035, -0.005); h.add(knk);
+      for (let f = 0; f < 4; f++) { // fingers curl round whatever the hand holds
+        const fg = new T.Group(); fg.position.set(-opts.side * 0.012, 0.03 - f * 0.021, -0.035); h.add(fg);
+        const a = new T.Mesh(new T.CapsuleGeometry(0.0085, 0.022, 3, 8), M.glove); a.rotation.x = Math.PI / 2; a.position.z = -0.012; fg.add(a);
+        const b = new T.Mesh(new T.CapsuleGeometry(0.008, 0.018, 3, 8), M.glove); b.position.set(-opts.side * 0.014, 0, -0.03); b.rotation.set(Math.PI / 2, 0, 0); b.rotation.y = -opts.side * 1.2; fg.add(b);
+      }
+      const th = new T.Mesh(new T.CapsuleGeometry(0.009, 0.03, 3, 8), M.glove); th.position.set(opts.side * 0.005, 0.045, -0.03); th.rotation.set(0.4, 0, opts.side * 0.9); h.add(th);
+      const cuff = new T.Mesh(new T.CylinderGeometry(0.03, 0.032, 0.03, 12), M.glove); cuff.rotation.x = Math.PI / 2; cuff.position.set(0, -0.01, 0.05); h.add(cuff);
+      const arm = new T.Mesh(new T.CylinderGeometry(0.03, 0.034, 0.12, 12), M.sleeve); arm.rotation.x = Math.PI / 2 - 0.9; arm.position.set(opts.side * 0.006, -0.05, 0.1); h.add(arm);
+      return h;
+    }
+    function holo(g, u, v) { // holographic sight with a hood; returns the eye point
+      box(g, 0.034, 0.012, 0.075, M.alu, 0, v + 0.006, -u);                       // base
+      box(g, 0.044, 0.03, 0.05, M.dark, 0, v + 0.027, -u + 0.01);                // body
+      const fr = 0.036; [[-1], [1]].forEach(([sd]) => box(g, 0.004, 0.034, 0.045, M.dark, sd * fr / 2 + sd * 0.004, v + 0.06, -u - 0.012)); // hood sides
+      box(g, 0.044, 0.004, 0.045, M.dark, 0, v + 0.078, -u - 0.012);             // hood top
+      put(g, new T.Mesh(new T.PlaneGeometry(0.034, 0.03), M.glass), 0, v + 0.06, -u - 0.03);
+      put(g, new T.Mesh(new T.CircleGeometry(0.0009, 10), M.dot), 0, v + 0.06, -u - 0.031);
+      return new T.Vector3(0, v + 0.06, -u + 0.02);
+    }
+    function scope(g, u, v, len, big) { // riflescope: tube, bells, turrets, rings
+      tube(g, 0.016, len, M.dark, u, v, 24);
+      tube(g, big ? 0.03 : 0.024, 0.06, M.dark, u + len / 2 + 0.02, v, 24, big ? 0.018 : 0.016);   // objective bell
+      tube(g, 0.022, 0.07, M.dark, u - len / 2 - 0.03, v, 24, 0.016);                                // eyepiece
+      put(g, new T.Mesh(new T.CircleGeometry(big ? 0.027 : 0.021, 24), M.lens), 0, v, -(u + len / 2 + 0.05));
+      box(g, 0.022, 0.022, 0.02, M.dark, 0, v + 0.022, -u); box(g, 0.022, 0.022, 0.02, M.dark, 0.022, v, -u);  // turrets
+      [-0.06, 0.06].forEach(du => { tube(g, 0.02, 0.016, M.alu, u + du, v, 18); box(g, 0.02, 0.02, 0.016, M.alu, 0, v - 0.024, -(u + du)); });
+      return new T.Vector3(0, v, -(u - len / 2 - 0.075));
+    }
+
+    function ar({ wood = false, long = false, optic = 'holo', mag = 'stanag' }) {
+      const g = new T.Group(), furn = wood ? M.wood : M.poly;
+      // upper receiver with ejection port, forward assist and charging handle
+      g.add(side([[-0.1, 0], [0.17, 0], [0.17, 0.052], [-0.1, 0.052]], 0.044, M.alu));
+      box(g, 0.002, 0.016, 0.05, M.dark, 0.023, 0.028, -0.06);
+      put(g, new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.02, 12), M.alu), 0.026, 0.035, 0.02, 0, 0, Math.PI / 2);
+      box(g, 0.03, 0.008, 0.02, M.alu, 0, 0.05, 0.1);
+      rail(g, -0.095, 0.17, 0.055);
+      // lower receiver with mag well, trigger guard and pistol grip
+      g.add(side([[-0.08, 0], [0.13, 0], [0.13, -0.022], [0.095, -0.03], [0.095, -0.075], [0.025, -0.075], [0.025, -0.04], [-0.02, -0.042], [-0.08, -0.03]], 0.04, M.alu));
+      g.add(side([[0.0, -0.042], [0.022, -0.042], [0.02, -0.07], [-0.01, -0.07], [-0.02, -0.06]], 0.012, M.alu, 0.001));
+      g.add(side([[-0.025, -0.035], [-0.06, -0.035], [-0.095, -0.15], [-0.07, -0.158], [-0.05, -0.15], [-0.03, -0.06]], 0.03, furn));
+      // magazine (curved)
+      const magPts = mag === 'ak' ? [[0.03, -0.07], [0.09, -0.07], [0.135, -0.16], [0.16, -0.25], [0.105, -0.26], [0.08, -0.17]] : [[0.03, -0.07], [0.09, -0.07], [0.105, -0.16], [0.12, -0.235], [0.065, -0.24], [0.045, -0.16]];
+      g.add(side(magPts, 0.026, mag === 'ak' ? M.alu : M.poly));
+      // buffer tube + stock
+      tube(g, 0.015, 0.2, M.alu, -0.2, 0.03);
+      g.add(side(wood ? [[-0.1, 0.045], [-0.33, 0.03], [-0.36, -0.08], [-0.33, -0.09], [-0.12, -0.03]] : [[-0.17, 0.05], [-0.33, 0.05], [-0.345, 0.04], [-0.345, -0.07], [-0.32, -0.075], [-0.28, 0.0], [-0.17, 0.0]], 0.04, furn));
+      // handguard (M-LOK slots), barrel, muzzle brake
+      const hgEnd = long ? 0.5 : 0.44;
+      const hg = tube(g, 0.029, hgEnd - 0.17, furn, (0.17 + hgEnd) / 2, 0.026, 8); hg.rotation.y = Math.PI / 8;
+      if (!wood) for (let u = 0.2; u < hgEnd - 0.02; u += 0.032) for (const sd of [-1, 1]) box(g, 0.004, 0.009, 0.02, M.dark, sd * 0.027, 0.018, -u);
+      rail(g, 0.17, hgEnd, 0.058);
+      tube(g, 0.0095, long ? 0.24 : 0.17, M.steel, hgEnd + (long ? 0.12 : 0.085), 0.026);
+      const mz = hgEnd + (long ? 0.24 : 0.17);
+      tube(g, 0.015, 0.06, M.dark, mz + 0.03, 0.026, 12);
+      for (let k = 0; k < 3; k++) for (const sd of [-1, 1]) box(g, 0.004, 0.012, 0.006, M.steel, sd * 0.014, 0.026, -(mz + 0.012 + k * 0.016));
+      // optic
+      let eye;
+      if (optic === 'holo') eye = holo(g, 0.035, 0.058);
+      else eye = scope(g, 0.05, 0.1, 0.22, optic === 'big');
+      if (optic !== 'holo') { box(g, 0.022, 0.03, 0.02, M.alu, 0, 0.073, -0.0); box(g, 0.022, 0.03, 0.02, M.alu, 0, 0.073, -0.11); }
+      // hands
+      hand(g, 0.012, -0.075, -0.06, { side: 1, rx: -0.35, rz: 0.12 });                 // trigger hand on the grip
+      hand(g, -0.02, 0.0, -(0.3 + (long ? 0.04 : 0)), { side: -1, rx: 0.1, rz: -1.1 });    // support hand on the handguard
+      g.userData.sight = eye; g.userData.muzzle = new T.Vector3(0, 0.026, -(mz + 0.07));
+      return g;
+    }
+    function awm() {
+      const g = new T.Group();
+      g.add(side([[-0.12, 0.0], [0.2, 0.0], [0.2, 0.05], [-0.12, 0.05]], 0.046, M.dark));                        // action
+      g.add(side([[-0.12, 0], [0.42, 0.0], [0.42, -0.04], [0.12, -0.05], [0.05, -0.045], [-0.03, -0.06], [-0.06, -0.16], [-0.1, -0.16], [-0.08, -0.05], [-0.42, -0.06], [-0.44, -0.11], [-0.47, -0.11], [-0.47, 0.06], [-0.2, 0.045]], 0.05, M.olive)); // chassis + stock
+      box(g, 0.03, 0.08, 0.06, M.dark, 0, -0.08, -0.08);                                                          // magazine
+      put(g, new T.Mesh(new T.CylinderGeometry(0.006, 0.006, 0.07, 10), M.steel), 0.045, 0.03, 0.08, 0, 0, Math.PI / 2 - 0.3); // bolt handle
+      put(g, new T.Mesh(new T.SphereGeometry(0.011, 12, 10), M.steel), 0.08, 0.02, 0.08);
+      tube(g, 0.012, 0.5, M.steel, 0.45, 0.025); tube(g, 0.02, 0.08, M.dark, 0.73, 0.025, 12);
+      for (let k = 0; k < 4; k++) for (const sd of [-1, 1]) box(g, 0.004, 0.014, 0.008, M.steel, sd * 0.019, 0.025, -(0.7 + k * 0.016));
+      const eye = scope(g, 0.04, 0.105, 0.3, true);
+      hand(g, 0.012, -0.08, 0.03, { side: 1, rx: -0.4, rz: 0.1 }); hand(g, -0.02, -0.02, -0.3, { side: -1, rx: 0.1, rz: -1.1 });
+      g.userData.sight = eye; g.userData.muzzle = new T.Vector3(0, 0.025, -0.8);
+      return g;
+    }
+    function deagle() {
+      const g = new T.Group();
+      g.add(side([[-0.05, 0.0], [0.17, 0.0], [0.17, 0.034], [-0.045, 0.036]], 0.034, M.steel));                // slide
+      for (let k = 0; k < 8; k++) for (const sd of [-1, 1]) box(g, 0.002, 0.026, 0.003, M.dark, sd * 0.0175, 0.017, -(-0.035 + k * 0.007));
+      g.add(side([[-0.04, 0], [0.16, 0], [0.16, -0.022], [0.05, -0.024], [0.04, -0.05], [0.0, -0.05], [-0.02, -0.03], [-0.04, -0.03]], 0.03, M.steel)); // frame + trigger guard
+      g.add(side([[-0.04, -0.025], [0.0, -0.025], [-0.025, -0.135], [-0.065, -0.13]], 0.034, M.poly));           // grip
+      box(g, 0.006, 0.01, 0.008, M.dark, 0, 0.04, -0.16); box(g, 0.022, 0.01, 0.008, M.dark, 0, 0.04, 0.035);   // sights
+      hand(g, 0.012, -0.075, 0.02, { side: 1, rx: -0.3, rz: 0.12 }); hand(g, -0.012, -0.085, 0.015, { side: -1, rx: -0.3, rz: -0.3 });
+      g.userData.sight = new T.Vector3(0, 0.045, 0.04); g.userData.muzzle = new T.Vector3(0, 0.017, -0.18);
+      return g;
+    }
+    GUNS = { m4: ar({}), akm: ar({ wood: true, mag: 'ak' }), sr25: ar({ long: true, optic: 'scope' }), awm: awm(), deagle: deagle() };
+    Object.values(GUNS).forEach(g => { g.visible = false; g.traverse(o => { if (o.isMesh) o.renderOrder = 1; }); gunScene.add(g); });
+    const fc = document.createElement('canvas'); fc.width = fc.height = 64; const fg = fc.getContext('2d'); const gr = fg.createRadialGradient(32, 32, 2, 32, 32, 30);
+    gr.addColorStop(0, 'rgba(255,255,220,1)'); gr.addColorStop(0.35, 'rgba(255,200,80,.9)'); gr.addColorStop(1, 'rgba(255,140,30,0)'); fg.fillStyle = gr; fg.fillRect(0, 0, 64, 64);
+    flashSprite = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(fc), blending: T.AdditiveBlending, depthWrite: false, transparent: true })); flashSprite.scale.set(0.16, 0.16, 1); gunScene.add(flashSprite);
+  }
+  function poseGun(now) {
+    const W = wpn(), key = $('r-wpn').value, g = GUNS[key] || GUNS.m4;
+    Object.entries(GUNS).forEach(([k, o]) => o.visible = k === key && !(W.scope && adsT > 0.85));
+    gunNow = g;
+    const k = Math.max(0, 1 - (now - kickT) / 110), s = g.userData.sight;
+    const hip = new T.Vector3(W.pistol ? 0.13 : 0.15, W.pistol ? -0.15 : -0.17, W.pistol ? -0.36 : -0.4);
+    const ad = new T.Vector3(-s.x, -s.y, -s.z - (W.pistol ? 0.3 : 0.14));
+    g.position.lerpVectors(hip, ad, adsT);
+    g.position.x += -swayX * 0.0012 * (1 - adsT * 0.85); g.position.y += swayY * 0.001 * (1 - adsT * 0.85) - k * 0.004 * W.kick;
+    g.position.z += k * 0.03 * W.kick;
+    g.rotation.set(k * 0.05 * W.kick, (1 - adsT) * 0.05, (1 - adsT) * -0.02);
+    const show = now - flashT < 45 && g.visible;
+    flashSprite.visible = show;
+    if (show) { const m = g.userData.muzzle.clone(); g.localToWorld(m); flashSprite.position.copy(m); flashSprite.material.rotation = Math.random() * 6; }
+  }
+
+  /* ---------- shooting: a ray from the middle of the screen ---------- */
+  let SOLIDS = [];
+  const ray = () => { const rc = new T.Raycaster(); rc.setFromCamera(new T.Vector2(0, 0), cam); rc.far = 900; return rc; };
+  function shootRay() {
+    if (!ready) return null;
+    cam.rotation.set(pitch * D2R, -yaw * D2R, 0); const now = performance.now(); for (const t of targets) poseBot(t, now); // aim and targets exactly as they are now
+    scene.updateMatrixWorld(); const rc = ray(), boxes = [];
+    for (const t of targets) if (t.bot && !t.hit && t.tilt < 0.35) t.bot.hit.forEach(h => { h.userData.t = t; boxes.push(h); });
+    const hits = rc.intersectObjects(boxes.concat(SOLIDS), false);
+    if (!hits.length) return null;
+    const f = hits[0], p = f.point;
+    if (f.object.userData.t) {
+      // a head hit counts if any head box is hit at (nearly) the same distance as the first hit
+      const headHit = hits.find(h => h.object.userData.part === 'head' && h.object.userData.t === f.object.userData.t && h.distance - f.distance < 0.35);
+      return { t: f.object.userData.t, head: !!headHit, p: [p.x, p.y, -p.z] };
+    }
+    return { miss: [p.x, p.y, -p.z] };
+  }
+
+  /* ---------- sparks and dust ---------- */
+  function buildFx() { SOLIDS = []; scene.traverse(o => { if (o.isMesh && o.geometry && !(o.geometry.type === 'SphereGeometry' && o.geometry.parameters.radius > 500) && o.material && !o.material.transparent) SOLIDS.push(o); }); }
+  function project(x, y, z, w, h) { const v = V(x, y, z).project(cam); return v.z > 1 ? null : [(v.x + 1) / 2 * w, (1 - v.y) / 2 * h, v.z]; }
+  function drawFx(w, h, now) {
+    fx = fx.filter(f => now - f.t < f.life);
+    for (const f of fx) {
+      const s = project(f.x, f.y, f.z, w, h); if (!s) continue; const age = (now - f.t) / f.life;
+      if (f.k === 'num') { const a = 1 - Math.max(0, age - 0.6) / 0.4; ctx.globalAlpha = a; ctx.font = `700 ${f.head ? 20 : 16}px "JetBrains Mono", monospace`; ctx.textAlign = 'center';
+        ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.7)'; ctx.strokeText(f.val, s[0] + f.dx, s[1] - 30 * age); ctx.fillStyle = f.head ? '#ff9a2e' : '#ffffff'; ctx.fillText(f.val, s[0] + f.dx, s[1] - 30 * age); ctx.globalAlpha = 1; continue; }
+      if (f.k === 'spark') { ctx.strokeStyle = `rgba(255,${180 + Math.round(60 * (1 - age))},80,${1 - age})`; ctx.lineWidth = 1.5;
+        for (const [dx, dy] of f.dirs) { const L = 4 + 22 * age; ctx.beginPath(); ctx.moveTo(s[0] + dx * L * 0.3, s[1] + dy * L * 0.3); ctx.lineTo(s[0] + dx * L, s[1] + dy * L + age * 10); ctx.stroke(); } }
+      else { const d = Math.hypot(f.x, f.y - EYE, f.z), r = Math.max(2, (h / 2) / Math.tan(cam.fov * D2R / 2) * (0.15 + 0.45 * age) / d);
+        ctx.fillStyle = `rgba(140,122,90,${0.6 * (1 - age)})`; ctx.beginPath(); ctx.arc(s[0], s[1] - r * 0.3, r, 0, Math.PI * 2); ctx.fill(); }
+    }
+  }
+
+  /* ---------- draw a frame ---------- */
+  let CX = 0, CY = 0;
+  function fit(c, ctx2) {
+    const r = box.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
+    if (ctx2) ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [r.width, r.height, dpr];
+  }
+  function render3D(w, h, dpr, now) {
+    if (!ready) return;
+    renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
+    const hf = Math.min(120, Math.max(60, +$('r-fov').value || 90)) * D2R, aspect = w / h;
+    cam.aspect = aspect; cam.fov = 2 * Math.atan(Math.tan(hf / 2) / zoomNow() / aspect) / D2R; cam.updateProjectionMatrix();
+    cam.rotation.set(pitch * D2R, -yaw * D2R, 0);
+    for (const t of targets) poseBot(t, now);
+    poseGun(now);
+    gunCam.aspect = aspect; gunCam.updateProjectionMatrix();
+    renderer.autoClear = true; renderer.render(scene, cam);
+    renderer.autoClear = false; renderer.clearDepth(); renderer.render(gunScene, gunCam);
+  }
+  async function initRange() {
+    if (ready || loading) return; loading = true; drawRange();
+    try {
+      T = await import(THREE_URL);
+      renderer = new T.WebGLRenderer({ canvas: gl, antialias: true, powerPreference: 'high-performance' });
+      renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap; renderer.outputColorSpace = T.SRGBColorSpace;
+      renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+      buildWorld(); ready = true;
+    } catch (e) { console.error(e); loadErr = true; }
+    loading = false; if (state === 'menu') menu(); else drawRange();
+  }
+  let loadErr = false;
+
+  const HALF_W = 0.25;
+  function tAxes(t) { const L = Math.hypot(t.x, t.z) || 1, nx = -t.x / L, nz = -t.z / L; return { nx, nz, ux: nz, uz: -nx }; }
+  /* drills: where targets appear */
+  const DRILL = {
+    flick: { name: 'Pop-up flicks', dist: [10, 40], ang: 35 },
+    wide:  { name: 'Wide flicks',   dist: [8, 25],  ang: 80 },
+    micro: { name: 'Long range',    dist: [50, 100], ang: 10 },
+    track: { name: 'Tracking',      dist: [12, 25], ang: 30, track: true },
+  };
+  const SPEEDS = { slow: 1.3, normal: 2.2, fast: 3.4 };
+  const drill = () => DRILL[$('r-mode').value] || DRILL.flick;
+  // is the mannequin (chest and head) fully visible from the booth? posts, crates and walls must not be in the way
+  function clearShot(x, z) {
+    if (!ready) return true;
+    scene.updateMatrixWorld();
+    const from = new T.Vector3(0, EYE, 0);
+    for (const y of [1.15, 1.75, 2.2]) for (const dx of [-0.28, 0, 0.28]) {
+      const L = Math.hypot(x, z), ux = z / L, uz = -x / L, to = V(x + ux * dx, y, z + uz * dx), dir = to.clone().sub(from), len = dir.length();
+      const rc = new T.Raycaster(from, dir.normalize(), 0.3, len - 0.45);
+      if (rc.intersectObjects(SOLIDS, false).length) return false;
+    }
+    return true;
+  }
+  function pathClear(x, z, range) { // a moving target must stay visible along its whole run
+    const L = Math.hypot(x, z) || 1, ux = z / L, uz = -x / L;
+    for (const k of [-1, -0.5, 0, 0.5, 1]) if (!clearShot(x + ux * range * k, z + uz * range * k)) return false;
+    return true;
+  }
+  function spawn(now) {
+    const d = drill(), live = targets.filter(t => !t.hit);
+    const moving = d.track || $('r-move').value === 'on', range = d.track ? 6 : 2 + Math.random() * 2;
+    let a, r, x, z, tries = 0, ok;
+    do {
+      a = (Math.random() * 2 - 1) * d.ang; r = d.dist[0] + Math.random() * (d.dist[1] - d.dist[0]); tries++;
+      z = Math.max(4, r * Math.cos(a * D2R)); x = r * Math.sin(a * D2R);
+      const spacing = !live.some(t => Math.abs(t.ang - a) < Math.max(5, d.ang * 0.18)) && !(targets.lastAng !== undefined && Math.abs(a - targets.lastAng) < Math.min(8, d.ang * 0.35));
+      ok = (spacing || tries > 40) && Math.abs(x) < HALL_W / 2 - 2 && (moving ? pathClear(x, z, range) : clearShot(x, z));
+    } while (!ok && tries < 120);
+    targets.lastAng = a;
+    const host = !d.track && $('r-host').value === 'on' && live.length && Math.random() < 0.28;
+    const spd = SPEEDS[$('r-speed').value] || SPEEDS.normal;
+    const hpSet = +$('r-hp').value || 0, hpMax = d.track ? Math.max(300, hpSet) : (host ? 1 : (hpSet || 1));
+    const vanish = d.track ? 0 : (+$('r-vanish').value || 0) * 1000;
+    targets.push({ x, z, ang: a, tilt: Math.PI / 2, hit: false, head: false, kind: host ? 'host' : 'foe', born: now || performance.now(), firstShot: 0, shotsAt: 0,
+      dist: Math.round(Math.hypot(x, z)), hp: hpMax, hpMax, vanishAt: vanish ? (now || performance.now()) + vanish : 0,
+      vel: moving ? (Math.random() < 0.5 ? -1 : 1) * spd * (d.track ? 1.2 : 1) : 0, range, off: 0, wob: Math.random() * 6 });
+    engageReset();
+  }
+  function fillTargets(now) {
+    const want = drill().track ? 1 : (+$('r-count').value || 1);
+    while (targets.filter(t => !t.hit && t.kind === 'foe').length < want) spawn(now);
+  }
+
+  /* overshoot / undershoot: for each flick, did the crosshair go past the target, or stop short and creep in? */
+  const angTo = t => Math.atan2(t.x, t.z) / D2R;
+  const wrap = a => ((a + 540) % 360) - 180;
+  function engageReset() {
+    for (const t of targets) { if (t.hit) continue; const e = wrap(angTo(t) - yaw); t.eng = { s: Math.sign(e) || 1, e0: Math.abs(e), min: Infinity, stopMs: 0, short: false, moved: 0 }; }
+  }
+  function engageTrack(dt) {
+    const speed = Math.abs(yawVel);
+    for (const t of targets) {
+      if (t.hit || !t.eng) continue;
+      const g = t.eng, half = Math.atan(HALF_W / Math.hypot(t.x, t.z)) / D2R, se = g.s * wrap(angTo(t) - yaw);
+      g.min = Math.min(g.min, se); g.moved += speed * dt;
+      if (speed < 12 && g.moved > 2 && se > half) { g.stopMs += dt * 1000; if (g.stopMs > 70) g.short = true; } else g.stopMs = 0;
+    }
+  }
+  function engageScore(t) {
+    const g = t.eng; if (!g || g.e0 < 4 || drill().track || t.vel) return;
+    const half = Math.atan(HALF_W / Math.hypot(t.x, t.z)) / D2R;
+    if (g.min < -half) over++; else if (g.short) under++; else clean++;
+  }
+
+  function clearTargets() { for (const t of targets) dropBot(t); targets = Object.assign([], { lastAng: undefined }); }
+  /* ---------- sound ---------- */
+  let actx = null, noiseBuf = null;
+  function ac() {
+    if ($('r-snd').value !== 'on') return null;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate * 0.25, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3); }
+      return actx;
+    } catch (e) { return null; }
+  }
+  function tone(freqs, vol, len, type) {
+    const a = ac(); if (!a) return;
+    try {
+      const t0 = a.currentTime, g = a.createGain(); g.connect(a.destination);
+      g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t0 + len);
+      freqs.forEach(f => { const o = a.createOscillator(); o.type = type || 'sine'; o.frequency.value = f; o.connect(g); o.start(t0); o.stop(t0 + len + 0.02); });
+    } catch (e) {}
+  }
+  function ping(head) { tone(head ? [2350, 3520] : [1650, 2480], 0.08, 0.35); }
+  function shotSound() {
+    const a = ac(); if (!a) return;
+    try {
+      const t0 = a.currentTime, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+      s.buffer = noiseBuf; f.type = 'lowpass'; f.frequency.value = wpn().pistol ? 2600 : wpn().scope ? 1400 : 2000;
+      g.gain.value = 0.11; s.connect(f); f.connect(g); g.connect(a.destination); s.start(t0); s.stop(t0 + 0.22);
+    } catch (e) {}
+  }
+
+  function drawScope(w, h) {
+    if (!(wpn().scope && adsT > 0.85)) return;
+    const r = Math.min(w, h) * 0.46;
+    ctx.save(); ctx.fillStyle = '#050607'; ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.arc(CX, CY, r, 0, Math.PI * 2, true); ctx.fill('evenodd');
+    ctx.strokeStyle = '#050607'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(CX - r, CY); ctx.lineTo(CX + r, CY); ctx.moveTo(CX, CY - r); ctx.lineTo(CX, CY + r); ctx.stroke();
+    ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(CX - r, CY); ctx.lineTo(CX - r * 0.25, CY); ctx.moveTo(CX + r * 0.25, CY); ctx.lineTo(CX + r, CY); ctx.moveTo(CX, CY + r * 0.25); ctx.lineTo(CX, CY + r); ctx.stroke();
+    ctx.fillStyle = '#ff3b3b'; ctx.beginPath(); ctx.arc(CX, CY, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 14; ctx.beginPath(); ctx.arc(CX, CY, r - 7, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+
+  /* ---------- HUD ---------- */
+  function drawHUD(w, h, now) {
+    const cw = Math.min(420, w * 0.6), x0 = CX - cw / 2, span = 90, ppd = cw / span, heading = ((yaw % 360) + 360) % 360;
+    ctx.save(); ctx.beginPath(); ctx.rect(x0, 6, cw, 40); ctx.clip();
+    const g = ctx.createLinearGradient(x0, 0, x0 + cw, 0);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.15, 'rgba(0,0,0,.45)'); g.addColorStop(0.85, 'rgba(0,0,0,.45)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(x0, 8, cw, 26);
+    const names = { 0: 'N', 45: 'NE', 90: 'E', 135: 'SE', 180: 'S', 225: 'SW', 270: 'W', 315: 'NW' };
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let d = Math.floor((yaw - span / 2) / 5) * 5; d <= yaw + span / 2; d += 5) {
+      const x = CX + (d - yaw) * ppd, n = ((d % 360) + 360) % 360, edge = 1 - Math.min(1, Math.abs(d - yaw) / (span / 2));
+      ctx.globalAlpha = 0.25 + edge * 0.75;
+      if (n % 15 === 0) { const card = names[n] !== undefined; ctx.fillStyle = card ? '#ffe000' : '#dfe6ec'; ctx.font = `${card ? 700 : 600} 11px "JetBrains Mono", monospace`; ctx.fillText(card ? names[n] : String(n), x, 10); ctx.fillRect(x - 0.5, 24, 1, 8); }
+      else { ctx.fillStyle = '#9aa6b2'; ctx.fillRect(x - 0.5, 27, 1, 5); }
+    }
+    ctx.restore(); ctx.globalAlpha = 1;
+    ctx.fillStyle = '#0ff796'; ctx.beginPath(); ctx.moveTo(CX - 5, 38); ctx.lineTo(CX + 5, 38); ctx.lineTo(CX, 33); ctx.closePath(); ctx.fill();
+    ctx.font = '600 12px "JetBrains Mono", monospace'; ctx.textBaseline = 'top';
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(CX - 18, 40, 36, 16); ctx.fillStyle = '#e3ebf2'; ctx.fillText(String(Math.round(heading) % 360).padStart(3, '0'), CX, 42);
+
+    const W = wpn(), reloading = now < reloadUntil;
+    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = reloading ? '#ffe000' : (ammo <= Math.ceil(W.mag / 6) ? '#ff5a5a' : '#e3ebf2');
+    const inf = $('r-ammo').value === 'inf';
+    ctx.font = '700 30px "JetBrains Mono", monospace'; ctx.fillText(inf ? '∞' : reloading ? '--' : String(ammo), w - 62, h - 16);
+    ctx.fillStyle = '#c4ccd4'; ctx.font = '600 14px "JetBrains Mono", monospace'; ctx.fillText('/ ∞', w - 18, h - 18);
+    ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(reloading ? 'RELOADING' : `${W.name.toUpperCase()} · ${W.mode}`, w - 18, h - 50);
+    // points + live target distance
+    ctx.textAlign = 'left'; ctx.fillStyle = '#e3ebf2'; ctx.font = '700 18px "JetBrains Mono", monospace';
+    if (state === 'run') ctx.fillText(`${points}`, 16, h - 34);
+    ctx.fillStyle = '#c4ccd4'; ctx.font = '600 11px "Chakra Petch", sans-serif';
+    const live = targets.find(t => !t.hit && t.kind === 'foe');
+    ctx.fillText(state === 'run' ? `POINTS${live ? `  ·  TARGET ${live.dist} M` : ''}` : '', 16, h - 16);
+    if (state === 'run' && !free) { const left = Math.max(0, (endAt - now) / 1000); ctx.textAlign = 'right'; ctx.font = '700 16px "JetBrains Mono", monospace'; ctx.fillStyle = left < 5 ? '#ff5a5a' : '#e3ebf2'; ctx.fillText(`0:${String(Math.ceil(left)).padStart(2, '0')}`, w - 18, 70); }
+
+    if (state === 'run') {
+      const px = 16, py = 16, pw = 220, rows = [['Accuracy', shots ? Math.round(hitsN / shots * 100) + '%' : '—'], ['Headshot %', kills ? Math.round(heads / kills * 100) + '%' : '—'], ['Avg knock-down', killTimes.length ? (avg(killTimes) / 1000).toFixed(2) + ' s' : '—']];
+      ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 96); ctx.strokeStyle = '#0ff796'; ctx.lineWidth = 2;
+      [[px, py, 1, 1], [px + pw, py, -1, 1], [px, py + 96, 1, -1], [px + pw, py + 96, -1, -1]].forEach(([x, y, a, b]) => { ctx.beginPath(); ctx.moveTo(x + a * 12, y); ctx.lineTo(x, y); ctx.lineTo(x, y + b * 12); ctx.stroke(); });
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText('KNOCK-DOWNS', px + 12, py + 20); ctx.fillText('DAMAGE', px + 120, py + 20);
+      ctx.fillStyle = '#e3ebf2'; ctx.font = '700 20px "JetBrains Mono", monospace'; ctx.fillText(String(kills), px + 12, py + 42); ctx.fillText(String(dmgTotal || '—'), px + 120, py + 42);
+      ctx.font = '600 11px "IBM Plex Sans", sans-serif'; rows.forEach(([k2, v2], i) => { ctx.fillStyle = '#9fb0bf'; ctx.textAlign = 'left'; ctx.fillText(k2, px + 12, py + 60 + i * 13); ctx.fillStyle = '#e3ebf2'; ctx.textAlign = 'right'; ctx.fillText(v2, px + pw - 12, py + 60 + i * 13); });
+    }
+    // crosshair (hidden when scoped)
+    if (!(W.scope && adsT > 0.85)) {
+      const gap = 4 * (1 - adsT * 0.5);
+      ctx.strokeStyle = '#0ff796'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(CX - 11, CY); ctx.lineTo(CX - gap, CY); ctx.moveTo(CX + gap, CY); ctx.lineTo(CX + 11, CY);
+      ctx.moveTo(CX, CY - 11); ctx.lineTo(CX, CY - gap); ctx.moveTo(CX, CY + gap); ctx.lineTo(CX, CY + 11); ctx.stroke();
+      ctx.fillStyle = '#0ff796'; ctx.fillRect(CX - 1, CY - 1, 2, 2);
+    }
+    if (marker && now - marker.t < 200) {
+      ctx.strokeStyle = marker.bad ? '#ffe000' : marker.head ? '#ff5a5a' : '#ffffff'; ctx.lineWidth = 2; ctx.beginPath();
+      [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([a, b]) => { ctx.moveTo(CX + a * 6, CY + b * 6); ctx.lineTo(CX + a * 13, CY + b * 13); }); ctx.stroke();
+      if (marker.txt) { ctx.fillStyle = marker.bad ? '#ffe000' : '#ff5a5a'; ctx.font = '700 12px "Chakra Petch", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(marker.txt, CX, CY + 32); }
+    }
+    // countdown
+    if (state === 'count') {
+      const n = Math.ceil((countEnd - now) / 1000);
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#0ff796'; ctx.font = '700 96px "Chakra Petch", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(n > 0 ? String(n) : 'GO', CX, CY - 40);
+      ctx.fillStyle = '#e3ebf2'; ctx.font = '600 14px "Chakra Petch", sans-serif'; ctx.fillText(`${drill().name} · ${wpn().name}${free ? ' · free fire' : ''}`, CX, CY + 30);
+    }
+  }
+
+  function drawExtras(w, h) {
+    // health bars on armoured bots, arrow to off-screen targets
+    if (!ready) return;
+    for (const t of targets) {
+      if (t.hit || !(t.hpMax > 1) || t.hp >= t.hpMax || t.tilt > 0.2) continue;
+      const s = project(t.x, 2.15, t.z, w, h); if (!s) continue; const d = Math.hypot(t.x, t.z), bw = Math.max(24, 900 / d);
+      ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(s[0] - bw / 2, s[1] - 3, bw, 6); ctx.fillStyle = '#0ff796'; ctx.fillRect(s[0] - bw / 2 + 1, s[1] - 2, (bw - 2) * t.hp / t.hpMax, 4);
+    }
+    if (state !== 'run') return;
+    const pulse = 0.65 + 0.35 * Math.sin(performance.now() / 140);
+    // compass strip: a marker for every live target, pinned to the end of the strip if it's outside it
+    const cw = Math.min(420, w * 0.6), ppd = cw / 90;
+    for (const t of targets) {
+      if (t.hit || t.kind !== 'foe') continue;
+      const rel = wrap(angTo(t) - yaw), x = CX + Math.max(-45, Math.min(45, rel)) * ppd;
+      ctx.fillStyle = '#ff5a3c'; ctx.beginPath(); ctx.moveTo(x, 2); ctx.lineTo(x + 5, 7); ctx.lineTo(x, 12); ctx.lineTo(x - 5, 7); ctx.closePath(); ctx.fill();
+    }
+    // screen-edge markers for targets you can't see
+    for (const t of targets) {
+      if (t.hit || t.kind !== 'foe') continue;
+      const v = V(t.x, 1.6, t.z).applyMatrix4(cam.matrixWorldInverse), sp = project(t.x, 1.6, t.z, w, h);
+      if (!(v.z > 0 || !sp || sp[0] < 0 || sp[0] > w || sp[1] < 0 || sp[1] > h)) continue;
+      const rel = wrap(angTo(t) - yaw), right = rel > 0, ex = right ? w - 46 : 46;
+      const ey = Math.max(90, Math.min(h - 90, sp && v.z <= 0 ? sp[1] : CY));
+      ctx.save(); ctx.translate(ex, ey); ctx.globalAlpha = pulse;
+      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#ff5a3c'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#ff5a3c'; const d = right ? 1 : -1;
+      ctx.beginPath(); ctx.moveTo(d * 20, 0); ctx.lineTo(d * 2, -14); ctx.lineTo(d * 2, -6); ctx.lineTo(d * -14, -6); ctx.lineTo(d * -14, 6); ctx.lineTo(d * 2, 6); ctx.lineTo(d * 2, 14); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = 1; ctx.fillStyle = '#e3ebf2'; ctx.font = '700 12px "JetBrains Mono", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(`${Math.round(Math.abs(rel))}°`, 0, 36); ctx.fillText(`${t.dist}M`, 0, 50); ctx.restore();
+    }
+  }
+  function drawRange() {
+    const [w, h, dpr] = fit(hud, ctx); CX = w / 2; CY = h / 2;
+    const now = performance.now();
+    render3D(w, h, dpr, now);
+    ctx.clearRect(0, 0, w, h);
+    if (!ready) { ctx.fillStyle = '#0d131c'; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#7f90a3'; ctx.font = '600 14px "Chakra Petch", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(loadErr ? 'The 3D range could not load. Check your connection and refresh.' : 'Loading the range…', CX, CY + 70); return; }
+    drawFx(w, h, now);
+    drawExtras(w, h);
+    drawScope(w, h);
+    drawHUD(w, h, now);
+  }
+
+  /* ---------- shooting ---------- */
+  function fire(now) {
+    const W = wpn();
+    if (state !== 'run' || now < reloadUntil || now < nextShot) return;
+    if (ammo <= 0) { reloadUntil = now + W.reload; return; }
+    const infAmmo = $('r-ammo').value === 'inf';
+    nextShot = now + 60000 / W.rpm; if (!infAmmo) ammo--; else ammo = W.mag; shots++; kickT = now; flashT = now; shotSound();
+    if (ammo === 0) reloadUntil = now + W.reload;
+    for (const t of targets) if (!t.hit && !t.firstShot) t.firstShot = now;
+    const r0 = shootRay(), r = r0 && r0.t ? r0 : null;
+    if (r) {
+      const t = r.t; t.shotsAt++; hitsN++;
+      fx.push({ k: 'spark', x: r.p[0], y: r.p[1], z: r.p[2], t: now, life: 260, dirs: Array.from({ length: 6 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) });
+      if (t.kind === 'host') { t.hit = true; hostHits++; points = Math.max(0, points - 250); marker = { t: now, bad: true, txt: 'HOSTAGE −250' }; tone([300, 220], 0.09, 0.3, 'square'); afterKill(now); return; }
+      const dmg = t.hpMax <= 1 ? 1 : Math.round(wpn().dmg * (r.head ? 2 : 1)); t.hp -= dmg; t.flashT = now; dmgTotal += t.hpMax <= 1 ? 0 : Math.min(dmg, dmg + Math.min(0, t.hp));
+      if (t.hpMax > 1) fx.push({ k: 'num', val: String(dmg), head: r.head, x: r.p[0], y: r.p[1] + 0.2, z: r.p[2], t: now, life: 700, dx: (Math.random() - 0.5) * 20 });
+      if (t.hp <= 0) {
+        t.hit = true; t.head = r.head; kills++; if (r.head) heads++;
+        const kt = now - t.born; killTimes.push(kt); if (t.firstShot) reacts.push(t.firstShot - t.born); shotsPerKill.push(t.shotsAt);
+        const pts = 100 + (r.head ? 50 : 0) + Math.max(0, Math.round(150 - kt / 8));
+        points += pts; engageScore(t);
+        marker = { t: now, head: r.head, txt: r.head ? `HEADSHOT +${pts}` : `+${pts}` }; ping(r.head);
+        afterKill(now);
+      } else { marker = { t: now, head: r.head }; ping(false); }
+    } else {
+      const m = r0 && r0.miss; if (m) fx.push({ k: m[1] > 0.3 ? 'spark' : 'dust', x: m[0], y: m[1], z: m[2], t: now, life: m[1] > 0.3 ? 180 : 420, dirs: Array.from({ length: 4 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) });
+      for (const t of targets) if (!t.hit) t.shotsAt++;
+    }
+    updStats();
+  }
+  function afterKill(now) { setTimeout(() => { if (state === 'run') { fillTargets(performance.now()); engageReset(); } }, 110); }
+
+  /* ---------- game loop ---------- */
+  function step(now) {
+    const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now;
+    yawVel = frameYaw / Math.max(dt, 0.001); frameYaw = 0;
+    swayX += (-yawVel * 0.04 - swayX) * Math.min(1, dt * 10); swayX = Math.max(-30, Math.min(30, swayX));
+    swayY = Math.sin(now / 600) * 2;
+    adsT += ((ads ? 1 : 0) - adsT) * Math.min(1, dt * 14);
+    if (state === 'run' && fireHeld && wpn().mode === 'AUTO') fire(now);
+    if (reloadUntil && now >= reloadUntil) { ammo = wpn().mag; reloadUntil = 0; }
+    for (const t of targets) {
+      if (t.hit) t.tilt = Math.min(Math.PI / 2, t.tilt + dt * 7);
+      else if (t.tilt > 0) t.tilt = Math.max(0, t.tilt - dt * 10);
+      if (t.vel && !t.hit) {
+        const A = tAxes(t), v = drill().track ? t.vel * (0.7 + 0.5 * Math.sin(now / 700 + t.wob)) : t.vel;
+        t.x += A.ux * v * dt; t.z += A.uz * v * dt; t.off += v * dt;
+        if (Math.abs(t.off) > t.range || (drill().track && Math.random() < dt * 0.6)) { t.vel = -t.vel; t.off = Math.sign(t.off) * Math.min(Math.abs(t.off), t.range); }
+        t.ang = angTo(t);
+      }
+      if (state === 'run' && !t.hit && t.vanishAt && now > t.vanishAt) { t.hit = true; t.gone = true; if (t.kind === 'foe') missedT++; afterKill(now); }
+    }
+    if (state === 'run') engageTrack(dt);
+    const keep = [];
+    for (const t of targets) { if (t.hit && t.tilt >= Math.PI / 2 && (!t.downAt || now - t.downAt > 500)) dropBot(t); else { if (t.hit && t.tilt >= Math.PI / 2 && !t.downAt) t.downAt = now; keep.push(t); } }
+    targets = Object.assign(keep, { lastAng: targets.lastAng });
+  }
+  function loop() {
+    const now = performance.now();
+    step(now);
+    if (state === 'count' && now >= countEnd) { state = 'run'; endAt = free ? Infinity : now + (+$('r-len').value) * 1000; clearTargets(); fillTargets(now); lastT = now; }
+    if (state === 'run' && !free) { $('r-time').textContent = Math.ceil(Math.max(0, (endAt - now) / 1000)); if (now >= endAt) { finish(); return; } }
+    drawRange();
+    if (state === 'run' || state === 'count') raf = requestAnimationFrame(loop);
+  }
+
+  /* ---------- menus ---------- */
+  const ov = $('r-overlay'), ovBox = $('r-obox');
+  function overlay(html) { ovBox.innerHTML = html; ov.hidden = false; }
+  function menu() {
+    if (state !== 'menu' || !targets.length) idleTargets();
+    state = 'menu'; ads = false; fireHeld = false;
+    overlay(`<div class="t">Firing range</div>
+      <div class="sl-sub">${drill().name} · ${wpn().name} · sens ${(+$('r-sens').value).toFixed(2)} @ ${$('r-dpi').value} DPI (${(+$('r-cm').value).toFixed(1)} cm/360)</div>
+      <div class="obtns"><button class="btn" data-go="test">Start test</button><button class="sl-ghost" data-go="free">Free fire</button><button class="sl-ghost" data-go="records">Records</button><button class="sl-ghost" data-go="full">Fullscreen</button></div>
+      <div class="sl-sub small">Left click shoots, right click aims (ADS), R reloads, Esc pauses. Pale blue targets with hands up are hostages: don't shoot them.</div>`);
+    drawRange();
+  }
+  async function begin(isFree) {
+    free = isFree;
+    if (!rLocked && !(await lock(box))) { overlay(`<div class="t">Mouse lock was blocked</div><div class="sl-sub">Open this page in Chrome or Edge on a PC.</div><div class="obtns"><button class="sl-ghost" data-go="menu">Back</button></div>`); return; }
+    kills = heads = shots = hitsN = hostHits = missedT = points = over = under = clean = dmgTotal = 0; killTimes = []; reacts = []; shotsPerKill = [];
+    yaw = 0; pitch = 0; ammo = wpn().mag; reloadUntil = 0; nextShot = 0; marker = null; clearTargets(); fx = [];
+    ov.hidden = true; updStats();
+    state = 'count'; countEnd = performance.now() + 3000; lastT = performance.now();
+    [0, 1000, 2000].forEach(ms => setTimeout(() => { if (state === 'count') tone([880], 0.05, 0.12); }, ms));
+    setTimeout(() => { if (state === 'count' || state === 'run') tone([1320], 0.06, 0.2); }, 3000);
+    cancelAnimationFrame(raf); loop();
+  }
+  function pause() {
+    if (state !== 'run' && state !== 'count') return;
+    pausedAt = performance.now(); const was = state; state = 'paused'; cancelAnimationFrame(raf); fireHeld = false; ads = false;
+    pause.prev = was;
+    overlay(`<div class="t">Paused</div><div class="sl-sub">${kills} kills · ${points} points so far</div>
+      <div class="obtns"><button class="btn" data-go="resume">Resume</button><button class="sl-ghost" data-go="quit">Quit (not saved)</button></div>`);
+  }
+  async function resume() {
+    if (!(await lock(box))) return;
+    const gap = performance.now() - pausedAt; endAt += gap; countEnd += gap; for (const t of targets) { t.born += gap; if (t.vanishAt) t.vanishAt += gap; }
+    ov.hidden = true; state = pause.prev || 'run'; lastT = performance.now(); loop();
+  }
+  const RANKS = [['Bronze', 0, '#c08457'], ['Silver', 2500, '#c9d1d9'], ['Gold', 4500, '#ffd24a'], ['Platinum', 6500, '#7fe7e0'], ['Diamond', 8500, '#8ab4ff'], ['Elite', 10500, '#0ff796']];
+  function rankFor(ppm) { let r = RANKS[0]; for (const x of RANKS) if (ppm >= x[1]) r = x; return r; }
+  const avg = a => a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : 0;
+  let suggested = 0;
+  function finish() {
+    state = 'done'; cancelAnimationFrame(raf); fireHeld = false; ads = false; adsT = 0; clearTargets();
+    if (document.pointerLockElement === box) document.exitPointerLock();
+    const len = +$('r-len').value, ppm = Math.round(points * 60 / len), rk = rankFor(ppm), acc = shots ? Math.round(hitsN / shots * 100) : 0;
+    const hsr = kills ? Math.round(heads / kills * 100) : 0, spk = shotsPerKill.length ? (shotsPerKill.reduce((a, b) => a + b, 0) / shotsPerKill.length).toFixed(1) : '—';
+    const n = over + under + clean, sens = +$('r-sens').value;
+    let verdict = 'Not enough flicks to judge your sens yet. Do a full round of flicks with still targets.'; suggested = 0;
+    if (drill().track) verdict = 'Tracking rounds don\'t judge sens. Use a flick drill for a sens check.';
+    else if (n >= 5) {
+      const op = over / n, up = under / n;
+      if (op >= 0.5 && op > up * 1.5) { suggested = Math.max(0.01, Math.round(sens * 0.92 * 100) / 100); verdict = `You went <b>past the target</b> on ${Math.round(op * 100)}% of flicks. Your sens may be a bit high: try <b>${suggested.toFixed(2)}</b>.`; }
+      else if (up >= 0.5 && up > op * 1.5) { suggested = Math.round(sens * 1.08 * 100) / 100; verdict = `You <b>stopped short</b> and crept in on ${Math.round(up * 100)}% of flicks. Your sens may be a bit low: try <b>${suggested.toFixed(2)}</b>.`; }
+      else verdict = `Your flicks look balanced (${Math.round(op * 100)}% past, ${Math.round(up * 100)}% short). <b>Your sens looks about right.</b>`;
+    }
+    const isNew = !free && saveBest({ points, kills, heads, acc, avg: avg(killTimes), rank: rk[0], wpn: wpn().name, sens: sens.toFixed(2) });
+    showBest();
+    overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
+      <div class="t">${points.toLocaleString('en-GB')} points</div>
+      <div class="sl-res">
+        <div><span>Kills</span><b>${kills}</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Headshots</span><b>${hsr}%</b></div>
+        <div><span>Avg kill</span><b>${avg(killTimes)} ms</b></div><div><span>First shot</span><b>${reacts.length ? avg(reacts) + ' ms' : '—'}</b></div><div><span>Shots / kill</span><b>${spk}</b></div>
+        ${missedT ? `<div><span>Missed targets</span><b>${missedT}</b></div>` : ''}${hostHits ? `<div><span>Hostages hit</span><b class="bad">${hostHits}</b></div>` : ''}
+      </div>
+      <div class="sl-sub verdict">${verdict}</div>
+      <div class="obtns">${suggested ? `<button class="btn" data-go="retry">Retry with ${suggested.toFixed(2)}</button>` : ''}<button class="${suggested ? 'sl-ghost' : 'btn'}" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+    $('r-time').textContent = $('r-len').value; drawRange();
+  }
+  function records() {
+    const all = bestAll(), rows = Object.entries(all).sort();
+    overlay(`<div class="t">Records</div>
+      ${rows.length ? `<table class="rec"><thead><tr><th>Drill</th><th>Points</th><th>Rank</th><th>Kills</th><th>Acc</th><th>Gun · sens</th></tr></thead><tbody>${rows.map(([k, r]) => { const [d, l] = k.split('_'); return `<tr><td>${(DRILL[d] || {}).name || d} ${l}s</td><td>${(r.points || 0).toLocaleString('en-GB')}</td><td>${r.rank || '—'}</td><td>${r.kills ?? r.hits ?? 0}</td><td>${r.acc}%</td><td>${r.wpn || '—'} · ${r.sens || '—'}</td></tr>`; }).join('')}</tbody></table>` : '<div class="sl-sub">No records yet. Finish a test to set one.</div>'}
+      <div class="obtns"><button class="sl-ghost" data-go="menu">Back</button><button class="sl-ghost" data-go="reset">Reset records</button></div>`);
+  }
+  ov.addEventListener('click', e => {
+    const b = e.target.closest('[data-go]'); if (!b) return; e.stopPropagation();
+    const go = b.dataset.go;
+    if (go === 'test') begin(false); else if (go === 'free') begin(true); else if (go === 'records') records(); else if (go === 'menu') menu();
+    else if (go === 'resume') resume(); else if (go === 'quit') { if (document.pointerLockElement === box) document.exitPointerLock(); clearTargets(); menu(); }
+    else if (go === 'retry') { $('r-sens').value = suggested.toFixed(2); rFromSens(); begin(false); }
+    else if (go === 'reset') { try { localStorage.removeItem(BEST_KEY); } catch (e2) {} showBest(); records(); }
+    else if (go === 'full') { const el = box; (el.requestFullscreen ? el.requestFullscreen() : Promise.reject()).catch(() => {}); }
+  });
+  box.addEventListener('click', e => { if (e.target.closest('[data-go]')) return; if (state === 'menu') begin(false); });
+  box.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && state === 'menu') { e.preventDefault(); begin(false); } });
+  box.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('fullscreenchange', () => setTimeout(drawRange, 60));
+  document.addEventListener('pointerlockchange', () => {
+    const was = rLocked; rLocked = document.pointerLockElement === box;
+    box.classList.toggle('locked', rLocked);
+    if (!rLocked && was && (state === 'run' || state === 'count')) pause();
+  });
+  moveHandlers.push(list => {
+    if (!rLocked || (state !== 'run' && state !== 'count')) return;
+    const k = degPerCount();
+    for (const ev of list) { const d = ev.movementX * k; yaw += d; frameYaw += d; pitch = Math.max(-60, Math.min(60, pitch - ev.movementY * k)); }
+  });
+  document.addEventListener('mousedown', e => {
+    if (!rLocked || (state !== 'run' && state !== 'count')) return;
+    if (e.button === 0) { fireHeld = true; fire(performance.now()); }
+    if (e.button === 2) ads = true;
+  });
+  document.addEventListener('mouseup', e => { if (e.button === 0) fireHeld = false; if (e.button === 2) ads = false; });
+  document.addEventListener('keydown', e => { if (rLocked && state === 'run' && (e.key === 'r' || e.key === 'R') && $('r-ammo').value !== 'inf' && ammo < wpn().mag && !reloadUntil) reloadUntil = performance.now() + wpn().reload; });
+
+  /* ---------- stats + best scores ---------- */
+  function updStats() {
+    $('r-hits').textContent = kills; $('r-heads').textContent = heads; $('r-pts').textContent = points.toLocaleString('en-GB');
+    $('r-acc').textContent = shots ? Math.round(hitsN / shots * 100) + '%' : '—';
+    $('r-avg').textContent = killTimes.length ? avg(killTimes) + ' ms' : '—';
+  }
+  const BEST_KEY = 'senslab.best.v2';
+  function bestAll() { try { return JSON.parse(localStorage.getItem(BEST_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  const bestKey = () => $('r-mode').value + '_' + $('r-len').value;
+  function showBest() {
+    const b = bestAll()[bestKey()], name = `${drill().name}, ${$('r-len').value} s`;
+    $('r-best').innerHTML = b ? `Best for ${name}: <b>${(b.points || 0).toLocaleString('en-GB')}</b> points (${b.rank}) · <b>${b.kills}</b> kills · <b>${b.acc}%</b> · ${b.wpn} at ${b.sens}` : `No best score yet for ${name}.`;
+  }
+  function saveBest(r) {
+    const all = bestAll(), k = bestKey(), old = all[k];
+    if (r.points > 0 && (!old || r.points > (old.points || 0))) { all[k] = r; try { localStorage.setItem(BEST_KEY, JSON.stringify(all)); } catch (e) {} return true; }
+    return false;
+  }
+
+  /* ---------- settings ---------- */
+  function rFromSens() { const d = +$('r-dpi').value, s = +$('r-sens').value; if (d > 0 && s > 0) $('r-cm').value = dfCm(d, s).toFixed(1); if (state === 'menu') menu(); }
+  function rFromCm() { const d = +$('r-dpi').value, c = +$('r-cm').value; if (d > 0 && c > 0) $('r-sens').value = dfSens(d, c).toFixed(2); if (state === 'menu') menu(); }
+  $('r-sens').addEventListener('input', rFromSens); $('r-dpi').addEventListener('input', rFromSens); $('r-cm').addEventListener('input', rFromCm);
+  ['c-odpi', 'c-osens', 'c-ndpi'].forEach(id => $(id).addEventListener('input', () => { $('r-dpi').value = $('c-ndpi').value; $('r-sens').value = $('c-nsens').textContent; rFromSens(); }));
+  ['c-cm', 'c-cmdpi'].forEach(id => $(id).addEventListener('input', () => { $('r-cm').value = $('c-cm').value; $('r-dpi').value = $('c-cmdpi').value; rFromCm(); }));
+  ['r-mode', 'r-len', 'r-wpn', 'r-fov', 'r-count', 'r-move', 'r-speed', 'r-vanish', 'r-host', 'r-hp'].forEach(id => $(id).addEventListener('input', () => { showBest(); if (state === 'menu' || state === 'done') { if (state === 'menu') menu(); else drawRange(); } if (id === 'r-wpn') ammo = wpn().mag; }));
+  $('r-len').addEventListener('input', () => { $('r-time').textContent = $('r-len').value; });
+  window.addEventListener('resize', () => { if (!$('p-range').hidden) drawRange(); });
+  // saved range settings (per browser)
+  const RSET = 'senslab.range.v1', RIDS = ['r-dpi', 'r-sens', 'r-cm', 'r-fov', 'r-ads', 'r-mode', 'r-len', 'r-wpn', 'r-count', 'r-move', 'r-speed', 'r-vanish', 'r-host', 'r-hp', 'r-ammo', 'r-snd'];
+  try { const saved = JSON.parse(localStorage.getItem(RSET) || '{}'); RIDS.forEach(id => { if (saved[id] != null) $(id).value = saved[id]; }); } catch (e) {}
+  RIDS.forEach(id => $(id).addEventListener('change', () => { try { const o = {}; RIDS.forEach(i => o[i] = $(i).value); localStorage.setItem(RSET, JSON.stringify(o)); } catch (e) {} }));
+  function idleTargets() { clearTargets(); [{ x: -4, z: 16 }, { x: 6, z: 27 }, { x: -1, z: 48, vel: 1.2 }, { x: 9, z: 20, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
+  idleTargets();
+  ammo = wpn().mag; showBest(); updStats(); menu();
+})();
+
 </script>
 
 </body>
