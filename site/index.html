@@ -1513,6 +1513,18 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 
   /* while the mouse is locked (playing the range or the polling test), the scroll wheel must not move the page */
   window.addEventListener('wheel', e => { if (document.pointerLockElement) e.preventDefault(); }, { passive: false });
+  /* and the page itself is pinned in place while locked: no keys (space, shift+space, arrows, page up/down, home/end)
+     or anything else can scroll it, and nothing else on the page (like the zoom slider) keeps keyboard focus */
+  let pinY = null;
+  document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement) {
+      pinY = window.scrollY;
+      const a = document.activeElement; if (a && a !== document.body && !document.pointerLockElement.contains(a)) a.blur();
+    } else pinY = null;
+  });
+  window.addEventListener('scroll', () => { if (pinY != null && Math.abs(window.scrollY - pinY) > 0) window.scrollTo(window.scrollX, pinY); }, { passive: true });
+  const SCROLL_KEYS = ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', 'Tab'];
+  window.addEventListener('keydown', e => { if (document.pointerLockElement && SCROLL_KEYS.includes(e.code)) e.preventDefault(); });
 
   /* Delta Force turn rate. 0.022 degrees per mouse count at sens 1.00 is the figure sens converter sites use for Delta Force (a community estimate). */
   const DF_YAW = 0.022;
