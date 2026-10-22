@@ -1086,7 +1086,7 @@ function buildReels(){
 }
 const DRUM_A=24; // degrees between items on the drum
 function layout(k){
-  const st=state[k],s=$("#s-"+k),F=$("#f-"+k).clientHeight,cells=s.children;if(!cells.length)return;
+  const st=state[k],s=$("#s-"+k),F=$("#f-"+k).clientHeight,cells=s.children;if(!cells.length||!F)return;
   const h=cells[0].offsetHeight||F*.7,R=h/(2*Math.tan(DRUM_A*Math.PI/360));
   for(let i=0;i<cells.length;i++){
     const d=i-st.pos,c=cells[i],ad=Math.abs(d);
@@ -1482,7 +1482,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     bL.setAttribute("aria-selected",!sens);bS.setAttribute("aria-selected",sens);pL.hidden=sens;pS.hidden=!sens;
     if(!sens&&document.pointerLockElement)document.exitPointerLock();
     if(push)history.replaceState(null,"",sens?"#sens-lab":location.pathname+location.search);
-    if(sens){window.dispatchEvent(new Event("resize"));window.dispatchEvent(new Event("senslab:open"));}
+    window.dispatchEvent(new Event("resize"));if(sens)window.dispatchEvent(new Event("senslab:open"));
   }
   bL.onclick=()=>go("loadout",true);bS.onclick=()=>go("senslab",true);
   [bL,bS].forEach(b=>b.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();(b===bL?bS:bL).focus();(b===bL?bS:bL).click();}}));
