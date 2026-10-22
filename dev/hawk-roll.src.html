@@ -743,7 +743,7 @@ html.noribbon .ribnote{display:none}
             <select id="r-wpn"><option value="m4">M4A1 · auto</option><option value="akm">AKM · auto</option><option value="sr25">SR-25 · semi</option><option value="deagle">Desert Eagle · semi</option><option value="awm">AWM · bolt, scope</option></select></div>
           <div class="field"><label class="label" for="r-len">Length</label><select id="r-len"><option value="30">30 s</option><option value="60" selected>60 s</option></select></div>
           <div class="field"><label class="label" for="r-count">Targets at once</label><select id="r-count"><option>1</option><option>2</option><option>3</option></select></div>
-          <div class="field"><label class="label" for="r-move">Targets move</label><select id="r-move"><option value="off">No</option><option value="on">Yes</option></select></div>
+          <div class="field"><label class="label" for="r-move">Targets move</label><select id="r-move"><option value="on" selected>Yes</option><option value="off">No</option></select></div>
           <div class="field"><label class="label" for="r-speed">Move speed</label><select id="r-speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
           <div class="field"><label class="label" for="r-vanish">Targets vanish</label><select id="r-vanish"><option value="0">Never</option><option value="3">After 3 s</option><option value="2">After 2 s</option><option value="1.5">After 1.5 s</option></select></div>
           <div class="field"><label class="label" for="r-host">Hostages</label><select id="r-host"><option value="off">Off</option><option value="on">On</option></select></div>
@@ -2480,11 +2480,11 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   $('r-sens').addEventListener('input', rFromSens); $('r-dpi').addEventListener('input', rFromSens); $('r-cm').addEventListener('input', rFromCm);
   ['c-odpi', 'c-osens', 'c-ndpi'].forEach(id => $(id).addEventListener('input', () => { $('r-dpi').value = $('c-ndpi').value; $('r-sens').value = $('c-nsens').textContent; rFromSens(); }));
   ['c-cm', 'c-cmdpi'].forEach(id => $(id).addEventListener('input', () => { $('r-cm').value = $('c-cm').value; $('r-dpi').value = $('c-cmdpi').value; rFromCm(); }));
-  ['r-mode', 'r-len', 'r-wpn', 'r-fov', 'r-count', 'r-move', 'r-speed', 'r-vanish', 'r-host', 'r-hp'].forEach(id => $(id).addEventListener('input', () => { showBest(); if (state === 'menu' || state === 'done') { if (state === 'menu') menu(); else drawRange(); } if (id === 'r-wpn') ammo = wpn().mag; }));
+  ['r-mode', 'r-len', 'r-wpn', 'r-fov', 'r-count', 'r-speed', 'r-vanish', 'r-host', 'r-hp'].forEach(id => $(id).addEventListener('input', () => { showBest(); if (state === 'menu' || state === 'done') { if (state === 'menu') menu(); else drawRange(); } if (id === 'r-wpn') ammo = wpn().mag; }));
   $('r-len').addEventListener('input', () => { $('r-time').textContent = $('r-len').value; });
   window.addEventListener('resize', () => { if (!$('p-range').hidden) drawRange(); });
   // saved range settings (per browser)
-  const RSET = 'senslab.range.v1', RIDS = ['r-dpi', 'r-sens', 'r-cm', 'r-fov', 'r-ads', 'r-mode', 'r-len', 'r-wpn', 'r-count', 'r-move', 'r-speed', 'r-vanish', 'r-host', 'r-hp', 'r-ammo', 'r-snd'];
+  const RSET = 'senslab.range.v1', RIDS = ['r-dpi', 'r-sens', 'r-cm', 'r-fov', 'r-ads', 'r-mode', 'r-len', 'r-wpn', 'r-count', 'r-speed', 'r-vanish', 'r-host', 'r-hp', 'r-ammo', 'r-snd'];
   try { const saved = JSON.parse(localStorage.getItem(RSET) || '{}'); RIDS.forEach(id => { if (saved[id] != null) $(id).value = saved[id]; }); } catch (e) {}
   RIDS.forEach(id => $(id).addEventListener('change', () => { try { const o = {}; RIDS.forEach(i => o[i] = $(i).value); localStorage.setItem(RSET, JSON.stringify(o)); } catch (e) {} }));
   function idleTargets() { clearTargets(); [{ x: -4, z: 16 }, { x: 6, z: 27 }, { x: -1, z: 48, vel: 1.2 }, { x: 9, z: 20, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
