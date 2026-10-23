@@ -413,6 +413,12 @@ html.noribbon .ribnote{display:none}
 #senslab .drills { gap: 12px; }
 #senslab .dhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 #senslab .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+#senslab .sensjump { font: 600 13px var(--body); color: #14171a; background: var(--yellow); border: 0; border-radius: 6px; padding: 7px 12px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+#senslab .sensjump b { white-space: nowrap; font-family: var(--mono); font-weight: 600; background: rgba(0,0,0,.12); padding: 1px 6px; border-radius: 4px; }
+#senslab .sensjump:hover { filter: brightness(1.08); }
+#senslab .flash { animation: setupFlash 1.6s ease-out; }
+
+@keyframes setupFlash { 0%, 40% { box-shadow: 0 0 0 2px var(--yellow), 0 0 22px rgba(255,224,0,.35); } 100% { box-shadow: 0 0 0 0 transparent; } }
 #senslab .dsec { grid-column: 1 / -1; font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); margin-top: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 #senslab .dcard { text-align: left; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; padding: 0 0 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; color: var(--fg); font: inherit; transition: border-color .15s, transform .15s; }
 #senslab .dcard:hover { border-color: #2f4560; transform: translateY(-2px); }
@@ -745,11 +751,11 @@ html.noribbon .ribnote{display:none}
   <!-- ============ RANGE ============ -->
   <section class="panel" id="p-range" role="tabpanel" aria-labelledby="t-range">
     <div class="card drills">
-      <div class="dhead"><span class="label">Pick a drill</span></div>
+      <div class="dhead"><span class="label">Pick a drill</span><button type="button" class="sensjump" id="d-sens">First, set your Delta Force sens <b id="d-sensval">1.06 @ 1700 DPI</b> <span aria-hidden="true">▸</span></button></div>
       <div class="dgrid" id="d-grid"></div>
     </div>
     <div class="grid2">
-      <div class="card">
+      <div class="card" id="r-setup">
         <span class="label">Your setup</span>
         <div class="fields">
           <div class="field"><label class="label" for="r-dpi">DPI</label><input id="r-dpi" type="number" value="1700" min="50" step="50"></div>
@@ -3220,6 +3226,15 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
   $('r-len').addEventListener('input', drillCards);
+  // the "set your sens" button: shows your current sens and jumps to the setup box
+  const sensLabel = () => { $('d-sensval').textContent = `${(+$('r-sens').value || 0).toFixed(2)} @ ${$('r-dpi').value} DPI`; };
+  ['r-sens', 'r-dpi', 'r-cm'].forEach(id => $(id).addEventListener('input', sensLabel)); $('r-sens').addEventListener('change', sensLabel);
+  $('d-sens').addEventListener('click', () => {
+    const c = $('r-setup'); c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash');
+    setTimeout(() => { $('r-sens').focus({ preventScroll: true }); $('r-sens').select(); }, 450);
+  });
+  sensLabel();
   if (!DRILL[$('r-mode').value]) $('r-mode').value = 'flick';
   drillCards(); syncDrillUI();
   if (isGrid()) gridIdle(); else idleTargets();
