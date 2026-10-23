@@ -1657,7 +1657,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const WEAPONS = {
     m4:     { name: 'M4A1',         dmg: 34,  mode: 'AUTO', rpm: 750, mag: 30, reload: 2200, kick: 0.6, zoom: 1.4, armour: 2 },
     akm:    { name: 'AKM',          dmg: 38,  mode: 'AUTO', rpm: 600, mag: 30, reload: 2400, kick: 1.0, zoom: 1.4, armour: 2 },
-    sr25:   { name: 'SR-25',        dmg: 58,  mode: 'SEMI', rpm: 300, mag: 20, reload: 2600, kick: 1.2, zoom: 2.2, armour: 1 },
+    sr25:   { name: 'SR-25',        dmg: 58,  mode: 'SEMI', rpm: 300, mag: 20, reload: 2600, kick: 1.2, zoom: 2.2, armour: 1, scope: true },
     deagle: { name: 'Desert Eagle', dmg: 52,  mode: 'SEMI', rpm: 240, mag: 7,  reload: 2000, kick: 1.6, zoom: 1.25, armour: 2, pistol: true },
     awm:    { name: 'AWM',          dmg: 130, mode: 'BOLT', rpm: 45,  mag: 5,  reload: 3400, kick: 2.0, zoom: 4, armour: 1, scope: true },
   };
@@ -1824,9 +1824,10 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   let GUNS = {}, gunNow = null, flashSprite = null;
   function buildGun() {
     gunScene = new T.Scene();
-    gunScene.add(new T.HemisphereLight('#e8eef4', '#4a4236', 1.4));
-    const dl = new T.DirectionalLight('#fff3dd', 2.8); dl.position.set(-1.5, 2.5, 1.5); gunScene.add(dl);
-    const rim = new T.DirectionalLight('#bcd2ff', 1.1); rim.position.set(2, 0.6, -2); gunScene.add(rim);
+    gunScene.add(new T.HemisphereLight('#e8eef4', '#4a4236', 1.25));
+    const dl = new T.DirectionalLight('#fff3dd', 2.6); dl.position.set(-1.5, 2.5, 1.5); gunScene.add(dl);
+    const rim = new T.DirectionalLight('#bcd2ff', 1.3); rim.position.set(2, 0.8, -2); gunScene.add(rim);
+    const fill = new T.DirectionalLight('#ffffff', 0.5); fill.position.set(1, -0.5, 2); gunScene.add(fill);
     gunCam = new T.PerspectiveCamera(52, 16 / 9, 0.01, 10);
     // reflections for metal: a soft studio made on the fly
     try {
@@ -1835,145 +1836,357 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       const pm = new T.PMREMGenerator(renderer); gunScene.environment = pm.fromScene(env, 0.04).texture; pm.dispose();
     } catch (e) {}
 
-    // grime / wear for roughness so surfaces don't look plastic
-    const grime = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#8a8a8a', 0.35, 9000, 2); for (let i = 0; i < 50; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.12})`; g.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 10 + Math.random() * 40); } }, 3, 3);
+    /* ----- surface textures: wear for roughness, a fine grain bump, wood grain, grip stipple ----- */
+    const grime = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#8a8a8a', 0.35, 9000, 2); for (let i = 0; i < 50; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.12})`; g.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 10 + Math.random() * 30); } });
     grime.colorSpace = T.NoColorSpace;
-    const PBR = (color, metal, rough, extra) => new T.MeshStandardMaterial(Object.assign({ color, metalness: metal, roughness: rough, roughnessMap: grime }, extra || {}));
+    const grain = canvasTex(256, 256, (g, w, h) => noise(g, w, h, '#808080', 0.5, 14000, 1.5), 3, 3); grain.colorSpace = T.NoColorSpace;
+    const stipple = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 4) for (let x = (y / 4) % 2 * 2; x < w; x += 4) { g.fillStyle = '#c8c8c8'; g.fillRect(x, y, 2, 2); } }, 6, 6); stipple.colorSpace = T.NoColorSpace;
+    const woodTex = canvasTex(256, 64, (g, w, h) => {
+      g.fillStyle = '#7a4524'; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) { const y = Math.random() * h; g.strokeStyle = `rgba(${Math.random() < 0.5 ? '40,18,6' : '150,90,50'},${0.15 + Math.random() * 0.3})`; g.lineWidth = 0.6 + Math.random() * 1.6; g.beginPath(); g.moveTo(0, y); for (let x = 0; x <= w; x += 16) g.lineTo(x, y + Math.sin(x / 30 + i) * 2.5); g.stroke(); }
+    }, 4, 4);
+    const camo = canvasTex(256, 256, (g, w, h) => {
+      g.fillStyle = '#5b5f4a'; g.fillRect(0, 0, w, h);
+      [['#474b3b', 40], ['#6d6855', 30], ['#373a2f', 22]].forEach(([c, n]) => { g.fillStyle = c; for (let i = 0; i < n; i++) { g.beginPath(); const x = Math.random() * w, y = Math.random() * h; g.ellipse(x, y, 6 + Math.random() * 16, 4 + Math.random() * 9, Math.random() * 3, 0, 7); g.fill(); } });
+      noise(g, w, h, null, 0.12, 6000, 1.5);
+    }, 3, 3);
+    const PBR = (color, metal, rough, extra) => new T.MeshStandardMaterial(Object.assign({ color, metalness: metal, roughness: rough, roughnessMap: grime, bumpMap: grain, bumpScale: 0.25 }, extra || {}));
     const M = {
-      alu: PBR('#474c53', 0.25, 0.45), poly: PBR('#33373c', 0.05, 0.6), steel: PBR('#5a5e63', 0.45, 0.35), dark: PBR('#2a2d31', 0.2, 0.5),
-      wood: PBR('#6a3d1e', 0.0, 0.5), tan: PBR('#8a7a5a', 0.05, 0.7), olive: PBR('#4a5039', 0.05, 0.75),
-      glass: new T.MeshPhysicalMaterial({ color: '#a8d4ff', metalness: 0, roughness: 0.05, transmission: 0.2, transparent: true, opacity: 0.18, depthWrite: false }),
-      lens: PBR('#1a2a3a', 0.9, 0.1), glove: PBR('#24262a', 0.0, 0.85), gloveRed: PBR('#8c1f22', 0.0, 0.7), knuckle: PBR('#3a3d42', 0.2, 0.6), sleeve: PBR('#3e4234', 0.0, 0.95),
-      dot: new T.MeshBasicMaterial({ color: '#ff2a2a' }),
+      alu: PBR('#3d4247', 0.35, 0.42), alu2: PBR('#2f3337', 0.35, 0.45), poly: PBR('#2b2e31', 0.04, 0.62), polyTan: PBR('#7c6a4c', 0.03, 0.7),
+      steel: PBR('#55595e', 0.6, 0.32), blued: PBR('#25282c', 0.55, 0.38), bright: PBR('#8a8e93', 0.8, 0.25),
+      rubber: PBR('#1c1d1f', 0.0, 0.9), grip: PBR('#2a2c2f', 0.03, 0.75, { bumpMap: stipple, bumpScale: 0.6 }),
+      wood: new T.MeshStandardMaterial({ map: woodTex, color: '#ffffff', metalness: 0, roughness: 0.55, roughnessMap: grime }),
+      olive: PBR('#4d5440', 0.05, 0.72), od: PBR('#5a6047', 0.05, 0.8),
+      glass: new T.MeshPhysicalMaterial({ color: '#b8dcff', metalness: 0, roughness: 0.05, transparent: true, opacity: 0.16, depthWrite: false }),
+      lens: new T.MeshStandardMaterial({ color: '#16304a', metalness: 0.9, roughness: 0.08, emissive: '#06121e' }),
+      glove: PBR('#2a2c2e', 0.0, 0.88), glovePad: PBR('#3b3e42', 0.0, 0.7), gloveTan: PBR('#6e6250', 0.0, 0.85), sleeve: new T.MeshStandardMaterial({ map: camo, color: '#c8c8c8', metalness: 0, roughness: 0.95, bumpMap: grain, bumpScale: 0.4 }), cuff: PBR('#2f3229', 0.0, 0.9),
+      red: new T.MeshBasicMaterial({ color: '#ff2a2a' }), redDim: new T.MeshBasicMaterial({ color: '#ff3b3b', transparent: true, opacity: 0.9 }),
     };
-    // side profile (u = forward, v = up, in metres) pushed out to a thickness, with rounded edges
-    function side(pts, depth, mat, bevel = 0.003) {
-      const s = new T.Shape(); pts.forEach(([u, v], i) => i ? s.lineTo(u, v) : s.moveTo(u, v)); s.closePath();
-      const g = new T.ExtrudeGeometry(s, { depth: depth - bevel * 2, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 6 });
-      g.rotateY(Math.PI / 2); g.translate(-(depth - bevel * 2) / 2, 0, 0);
+
+    /* ----- building helpers (gun space: x right, y up, z back towards the eye; u = forward = -z, v = up) ----- */
+    // polygon with rounded corners
+    function rshape(pts, r = 0.002, S = T.Shape) {
+      const s = new S(), n = pts.length;
+      const P = i => pts[(i + n) % n];
+      for (let i = 0; i < n; i++) {
+        const [x, y] = P(i), [px, py] = P(i - 1), [nx, ny] = P(i + 1);
+        const l1 = Math.hypot(px - x, py - y), l2 = Math.hypot(nx - x, ny - y), rr = Math.min(r, l1 / 2.1, l2 / 2.1);
+        const ax = x + (px - x) / l1 * rr, ay = y + (py - y) / l1 * rr, bx = x + (nx - x) / l2 * rr, by = y + (ny - y) / l2 * rr;
+        if (i === 0) s.moveTo(ax, ay); else s.lineTo(ax, ay);
+        s.quadraticCurveTo(x, y, bx, by);
+      }
+      s.closePath(); return s;
+    }
+    // side profile (u, v) pushed out to a thickness, with rounded edges; holes optional
+    function side(pts, depth, mat, opt = {}) {
+      const bevel = opt.bevel ?? Math.min(0.003, depth * 0.2), s = rshape(pts, opt.r ?? 0.0025);
+      (opt.holes || []).forEach(h => s.holes.push(rshape(h, opt.hr ?? 0.003, T.Path)));
+      const g = new T.ExtrudeGeometry(s, { depth: Math.max(0.0005, depth - bevel * 2), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 2, curveSegments: 5 });
+      g.rotateY(Math.PI / 2); g.translate(-(depth - bevel * 2) / 2 + (opt.x || 0), 0, 0);
+      const m = new T.Mesh(g, mat); return m;
+    }
+    // cross-section (x, y) pushed along the gun from u0 to u1
+    function sect(pts, u0, u1, mat, opt = {}) {
+      const bevel = opt.bevel ?? 0.0015, s = rshape(pts, opt.r ?? 0.003);
+      (opt.holes || []).forEach(h => s.holes.push(rshape(h, opt.hr ?? 0.002, T.Path)));
+      const g = new T.ExtrudeGeometry(s, { depth: Math.max(0.0005, (u1 - u0) - bevel * 2), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 2, curveSegments: 6 });
+      g.translate(0, 0, -(u1 - bevel)); // extrude goes +z: put it from -u1 to -u0
       return new T.Mesh(g, mat);
     }
-    const put = (g, m, x, y, z, rx = 0, ry = 0, rz = 0) => { m.position.set(x, y, z); m.rotation.set(rx, ry, rz); g.add(m); return m; };
-    const box = (g, w, h, d, mat, x, y, z, rx = 0) => put(g, new T.Mesh(new T.BoxGeometry(w, h, d), mat), x, y, z, rx);
-    const tube = (g, r, len, mat, u, v, seg = 18, r2) => put(g, new T.Mesh(new T.CylinderGeometry(r2 ?? r, r, len, seg), mat), 0, v, -u, Math.PI / 2); // along the gun at forward position u
-    const rail = (g, u0, u1, v, w = 0.022) => { box(g, w, 0.006, u1 - u0, M.alu, 0, v, -(u0 + u1) / 2); for (let u = u0 + 0.004; u < u1; u += 0.01) box(g, w + 0.004, 0.004, 0.005, M.alu, 0, v + 0.004, -u); };
+    // turned part along the gun axis: profile of [u, radius]
+    function lathe(prof, v, mat, seg = 24, x = 0) {
+      const g = new T.LatheGeometry(prof.map(([u, r]) => new T.Vector2(r, u)), seg); g.rotateX(-Math.PI / 2); g.translate(x, v, 0);
+      return new T.Mesh(g, mat);
+    }
+    const addY = (g, m, y) => { m.position.y += y; g.add(m); return m; };
+    const add = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => { m.position.x += x; m.position.y += y; m.position.z += z; m.rotation.set(rx, ry, rz); g.add(m); return m; };
+    const box = (g, w, h, d, mat, x, y, z, rx = 0, ry = 0, rz = 0) => add(g, new T.Mesh(new T.BoxGeometry(w, h, d), mat), x, y, z, rx, ry, rz);
+    const cyl = (g, r, len, mat, x, y, z, rx = 0, ry = 0, rz = 0, seg = 16, r2) => add(g, new T.Mesh(new T.CylinderGeometry(r2 ?? r, r, len, seg), mat), x, y, z, rx, ry, rz);
+    // a rod between two points
+    function rod(g, a, b, r1, r2, mat, seg = 12) {
+      const d = new T.Vector3().subVectors(b, a), L = d.length();
+      const m = new T.Mesh(new T.CylinderGeometry(r2, r1, L, seg), mat);
+      m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize()); g.add(m); return m;
+    }
+    function caps(g, a, b, r, mat) {
+      const d = new T.Vector3().subVectors(b, a), L = Math.max(0.0005, d.length());
+      const m = new T.Mesh(new T.CapsuleGeometry(r, L, 3, 10), mat);
+      m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize()); g.add(m); return m;
+    }
+    // Picatinny rail along the top from u0 to u1, top surface at v
+    function pic(g, u0, u1, v, w = 0.021) {
+      g.add(sect([[-w / 2, v - 0.004], [w / 2, v - 0.004], [w / 2 + 0.002, v - 0.0015], [w / 2, v], [-w / 2, v], [-w / 2 - 0.002, v - 0.0015]], u0, u1, M.alu2, { r: 0.0006, bevel: 0.0004 }));
+      for (let u = u0 + 0.004; u < u1 - 0.003; u += 0.01) box(g, w, 0.003, 0.0052, M.alu2, 0, v + 0.0014, -u);
+    }
 
-    // gloved hands: palm, wrapped fingers, thumb, knuckle pad, sleeve going back off screen
-    function hand(g, x, y, z, opts) {
-      const h = new T.Group(); h.position.set(x, y, z); h.rotation.set(opts.rx || 0, opts.ry || 0, opts.rz || 0); g.add(h);
-      const palm = new T.Mesh(new T.BoxGeometry(0.03, 0.085, 0.075, 2, 2, 2), M.glove); h.add(palm);
-      const pal = palm.geometry.attributes.position; for (let i = 0; i < pal.count; i++) pal.setX(i, pal.getX(i) * (1 - 0.15 * Math.abs(pal.getY(i)) / 0.04)); palm.geometry.computeVertexNormals();
-      const back = new T.Mesh(new T.BoxGeometry(0.008, 0.06, 0.05), M.gloveRed); back.position.set(opts.side * 0.017, 0.005, 0); h.add(back);
-      const knk = new T.Mesh(new T.BoxGeometry(0.01, 0.018, 0.06), M.knuckle); knk.position.set(opts.side * 0.02, 0.035, -0.005); h.add(knk);
-      for (let f = 0; f < 4; f++) { // fingers curl round whatever the hand holds
-        const fg = new T.Group(); fg.position.set(-opts.side * 0.012, 0.03 - f * 0.021, -0.035); h.add(fg);
-        const a = new T.Mesh(new T.CapsuleGeometry(0.0085, 0.022, 3, 8), M.glove); a.rotation.x = Math.PI / 2; a.position.z = -0.012; fg.add(a);
-        const b = new T.Mesh(new T.CapsuleGeometry(0.008, 0.018, 3, 8), M.glove); b.position.set(-opts.side * 0.014, 0, -0.03); b.rotation.set(Math.PI / 2, 0, 0); b.rotation.y = -opts.side * 1.2; fg.add(b);
+    /* ----- hands: palm and fingers wrap round a bar (grip or handguard) ----- */
+    const V3 = (x, y, z) => new T.Vector3(x, y, z);
+    // c = point on the bar's axis, ax = bar direction, d0 = direction from the axis to the middle of the palm,
+    // turn = which way the fingers go round (+1/-1), R = bar radius, fingers = how many wrap, spread = gap between fingers along the bar
+    function wrapHand(g, o) {
+      const ax = o.ax.clone().normalize(), d0 = o.d0.clone().sub(ax.clone().multiplyScalar(o.d0.dot(ax))).normalize();
+      const rot = (v, a) => v.clone().applyAxisAngle(ax, a * o.turn);
+      const fr = 0.0085, R = o.R + fr * 0.9;
+      // palm: a squashed ball sitting against the bar
+      const palmC = o.c.clone().addScaledVector(d0, o.R + 0.016).addScaledVector(ax, (o.fingers - 1) * o.spread * 0.5 + (o.palmShift || 0));
+      const palm = new T.Mesh(new T.SphereGeometry(1, 18, 14), M.glove);
+      palm.scale.set(0.028, 0.045, 0.022);
+      palm.position.copy(palmC);
+      const m = new T.Matrix4().makeBasis(rot(d0, Math.PI / 2), ax, d0); palm.quaternion.setFromRotationMatrix(m); g.add(palm);
+      const pad = palm.clone(); pad.material = M.glovePad; pad.scale.set(0.02, 0.035, 0.012); pad.position.addScaledVector(d0, 0.012); g.add(pad);
+      // fingers: three bones following the bar round
+      for (let f = 0; f < o.fingers; f++) {
+        const along = o.c.clone().addScaledVector(ax, f * o.spread);
+        let prev = along.clone().addScaledVector(rot(d0, 0.45), R + 0.004);
+        const arcs = o.arc || [1.05, 1.75, 2.35];
+        arcs.forEach((a, k) => {
+          const p = along.clone().addScaledVector(rot(d0, a + f * 0.04), R);
+          caps(g, prev, p, fr * (1 - k * 0.07), M.glove); prev = p;
+        });
+        caps(g, prev, prev.clone().addScaledVector(rot(d0, (arcs[2] + 0.4)), 0.0001), fr * 0.82, M.gloveTan);
       }
-      const th = new T.Mesh(new T.CapsuleGeometry(0.009, 0.03, 3, 8), M.glove); th.position.set(opts.side * 0.005, 0.045, -0.03); th.rotation.set(0.4, 0, opts.side * 0.9); h.add(th);
-      const cuff = new T.Mesh(new T.CylinderGeometry(0.03, 0.032, 0.03, 12), M.glove); cuff.rotation.x = Math.PI / 2; cuff.position.set(0, -0.01, 0.05); h.add(cuff);
-      const arm = new T.Mesh(new T.CylinderGeometry(0.03, 0.034, 0.12, 12), M.sleeve); arm.rotation.x = Math.PI / 2 - 0.9; arm.position.set(opts.side * 0.006, -0.05, 0.1); h.add(arm);
-      return h;
+      // thumb: wraps the other way round, at the top end of the hand
+      if (o.thumb !== false) {
+        const top = o.c.clone().addScaledVector(ax, o.thumbAt ?? -o.spread * 0.6);
+        let prev = top.clone().addScaledVector(rot(d0, -0.4), R + 0.012);
+        (o.thumbArc || [-1.0, -1.6]).forEach(a => { const p = top.clone().addScaledVector(rot(d0, a), R + 0.002).addScaledVector(ax, o.thumbReach || 0); caps(g, prev, p, 0.0095, M.glove); prev = p; });
+      }
+      // wrist and sleeve going off towards the elbow
+      const wrist = palmC.clone().addScaledVector(ax, -(o.fingers * o.spread * 0.5 + 0.03)).addScaledVector(d0, 0.004);
+      if (o.wrist) wrist.add(o.wrist);
+      caps(g, palmC.clone().addScaledVector(ax, -0.02), wrist, 0.021, M.glove);
+      const cuffEnd = wrist.clone().lerp(o.elbow, 0.12);
+      rod(g, wrist, cuffEnd, 0.024, 0.027, M.cuff, 14);
+      rod(g, cuffEnd, o.elbow, 0.03, 0.04, M.sleeve, 14);
+      return palmC;
     }
-    function holo(g, u, v) { // holographic sight with a hood; returns the eye point
-      box(g, 0.034, 0.012, 0.075, M.alu, 0, v + 0.006, -u);                       // base
-      box(g, 0.044, 0.03, 0.05, M.dark, 0, v + 0.027, -u + 0.01);                // body
-      const fr = 0.036; [[-1], [1]].forEach(([sd]) => box(g, 0.004, 0.034, 0.045, M.dark, sd * fr / 2 + sd * 0.004, v + 0.06, -u - 0.012)); // hood sides
-      box(g, 0.044, 0.004, 0.045, M.dark, 0, v + 0.078, -u - 0.012);             // hood top
-      put(g, new T.Mesh(new T.PlaneGeometry(0.034, 0.03), M.glass), 0, v + 0.06, -u - 0.03);
-      put(g, new T.Mesh(new T.CircleGeometry(0.0009, 10), M.dot), 0, v + 0.06, -u - 0.031);
-      return new T.Vector3(0, v + 0.06, -u + 0.02);
+    // trigger finger along the side of the gun onto the trigger
+    function triggerFinger(g, from, knuckle, tip) { caps(g, from, knuckle, 0.0088, M.glove); caps(g, knuckle, tip, 0.0082, M.glove); caps(g, tip, tip.clone().add(V3(-0.004, -0.004, -0.002)), 0.0075, M.gloveTan); }
+
+    /* ----- optics ----- */
+    // EOTech-style holographic sight sitting on a rail at forward position u, rail top at v. Returns the eye point.
+    function holo(g, u, v) {
+      box(g, 0.026, 0.008, 0.072, M.alu2, 0, v + 0.004, -u);                                 // base
+      box(g, 0.006, 0.01, 0.014, M.alu2, 0.016, v + 0.004, -u + 0.01);                       // cross-bolt knob
+      cyl(g, 0.0045, 0.006, M.alu2, 0.019, v + 0.004, -u + 0.01, 0, 0, Math.PI / 2, 12);
+      addY(g, sect([[-0.017, 0], [0.017, 0], [0.019, 0.006], [0.019, 0.016], [-0.019, 0.016], [-0.019, 0.006]], u - 0.036, u + 0.02, M.alu, { r: 0.003 }), v + 0.008); // body
+      // hood with the window
+      const hood = sect([[-0.0235, 0], [0.0235, 0], [0.0235, 0.043], [-0.0235, 0.043]], u - 0.012, u + 0.036, M.alu, { r: 0.007, holes: [[[-0.0175, 0.008], [0.0175, 0.008], [0.0175, 0.038], [-0.0175, 0.038]]], hr: 0.004 });
+      hood.position.y = v + 0.012; g.add(hood);
+      box(g, 0.012, 0.007, 0.016, M.rubber, -0.021, v + 0.02, -u + 0.026);                   // buttons
+      box(g, 0.012, 0.007, 0.016, M.rubber, 0.021, v + 0.02, -u + 0.026);
+      const wy = v + 0.012 + 0.023;
+      add(g, new T.Mesh(new T.PlaneGeometry(0.035, 0.03), M.glass), 0, wy, -u - 0.012);
+      // reticle: 68 MOA ring + 1 MOA dot
+      add(g, new T.Mesh(new T.RingGeometry(0.00175, 0.0021, 40), M.redDim), 0, wy, -u - 0.0115);
+      add(g, new T.Mesh(new T.CircleGeometry(0.00045, 12), M.red), 0, wy, -u - 0.0114);
+      return V3(0, wy, -u + 0.04);
     }
-    function scope(g, u, v, len, big) { // riflescope: tube, bells, turrets, rings
-      tube(g, 0.016, len, M.dark, u, v, 24);
-      tube(g, big ? 0.03 : 0.024, 0.06, M.dark, u + len / 2 + 0.02, v, 24, big ? 0.018 : 0.016);   // objective bell
-      tube(g, 0.022, 0.07, M.dark, u - len / 2 - 0.03, v, 24, 0.016);                                // eyepiece
-      put(g, new T.Mesh(new T.CircleGeometry(big ? 0.027 : 0.021, 24), M.lens), 0, v, -(u + len / 2 + 0.05));
-      box(g, 0.022, 0.022, 0.02, M.dark, 0, v + 0.022, -u); box(g, 0.022, 0.022, 0.02, M.dark, 0.022, v, -u);  // turrets
-      [-0.06, 0.06].forEach(du => { tube(g, 0.02, 0.016, M.alu, u + du, v, 18); box(g, 0.02, 0.02, 0.016, M.alu, 0, v - 0.024, -(u + du)); });
-      return new T.Vector3(0, v, -(u - len / 2 - 0.075));
+    // riflescope on rings; returns the eye point
+    function scope(g, u, v, len, big) {
+      const ob = big ? 0.028 : 0.023, mid = len / 2;
+      g.add(lathe([[u - mid - 0.07, 0.0], [u - mid - 0.07, 0.021], [u - mid - 0.035, 0.021], [u - mid - 0.02, 0.0155], [u + mid, 0.0155], [u + mid + 0.03, ob], [u + mid + 0.07, ob], [u + mid + 0.07, 0.0]], v, M.blued, 32));
+      add(g, new T.Mesh(new T.CircleGeometry(ob - 0.003, 28), M.lens), 0, v, -(u + mid + 0.0705), 0, 0, 0);
+      add(g, new T.Mesh(new T.CircleGeometry(0.018, 24), M.lens), 0, v, -(u - mid - 0.0705), 0, Math.PI, 0);
+      cyl(g, 0.012, 0.024, M.blued, 0, v + 0.025, -u, 0, 0, 0, 20);                         // elevation turret
+      cyl(g, 0.012, 0.024, M.blued, 0.025, v, -u, 0, 0, Math.PI / 2, 20);                  // windage turret
+      cyl(g, 0.013, 0.018, M.blued, -0.016, v, -u, 0, 0, Math.PI / 2, 20);                 // parallax
+      [-0.06, 0.06].forEach(du => { g.add(lathe([[u + du - 0.009, 0], [u + du - 0.009, 0.019], [u + du + 0.009, 0.019], [u + du + 0.009, 0]], v, M.alu2, 24)); box(g, 0.022, v - 0.004 - (g.userData.railTop || 0.05), 0.016, M.alu2, 0, (v + (g.userData.railTop || 0.05)) / 2 - 0.008, -(u + du)); });
+      return V3(0, v, -(u - mid - 0.13));
     }
 
-    function ar({ wood = false, long = false, optic = 'holo', mag = 'stanag' }) {
-      const g = new T.Group(), furn = wood ? M.wood : M.poly;
-      // upper receiver with ejection port, forward assist and charging handle
-      g.add(side([[-0.1, 0], [0.17, 0], [0.17, 0.052], [-0.1, 0.052]], 0.044, M.alu));
-      box(g, 0.002, 0.016, 0.05, M.dark, 0.023, 0.028, -0.06);
-      put(g, new T.Mesh(new T.CylinderGeometry(0.008, 0.008, 0.02, 12), M.alu), 0.026, 0.035, 0.02, 0, 0, Math.PI / 2);
-      box(g, 0.03, 0.008, 0.02, M.alu, 0, 0.05, 0.1);
-      rail(g, -0.095, 0.17, 0.055);
-      // lower receiver with mag well, trigger guard and pistol grip
-      g.add(side([[-0.08, 0], [0.13, 0], [0.13, -0.022], [0.095, -0.03], [0.095, -0.075], [0.025, -0.075], [0.025, -0.04], [-0.02, -0.042], [-0.08, -0.03]], 0.04, M.alu));
-      g.add(side([[0.0, -0.042], [0.022, -0.042], [0.02, -0.07], [-0.01, -0.07], [-0.02, -0.06]], 0.012, M.alu, 0.001));
-      g.add(side([[-0.025, -0.035], [-0.06, -0.035], [-0.095, -0.15], [-0.07, -0.158], [-0.05, -0.15], [-0.03, -0.06]], 0.03, furn));
-      // magazine (curved)
-      const magPts = mag === 'ak' ? [[0.03, -0.07], [0.09, -0.07], [0.135, -0.16], [0.16, -0.25], [0.105, -0.26], [0.08, -0.17]] : [[0.03, -0.07], [0.09, -0.07], [0.105, -0.16], [0.12, -0.235], [0.065, -0.24], [0.045, -0.16]];
-      g.add(side(magPts, 0.026, mag === 'ak' ? M.alu : M.poly));
+    /* ----- M4A1 / SR-25 (AR family) ----- */
+    function ar({ long = false, optic = 'holo' }) {
+      const g = new T.Group(); g.userData.railTop = 0.05;
+      const K = long ? 1.08 : 1; // SR-25 is the bigger AR-10 size
+      // upper receiver
+      g.add(side([[-0.1, 0.004], [0.168, 0.004], [0.17, 0.036], [0.16, 0.046], [-0.09, 0.046], [-0.1, 0.04]], 0.026, M.alu, { r: 0.003 }));
+      g.add(side([[-0.065, 0.012], [0.0, 0.012], [0.0, 0.034], [-0.065, 0.034]], 0.0015, M.alu2, { x: 0.0135, r: 0.002, bevel: 0.0004 }));    // ejection port cover
+      g.add(side([[-0.09, 0.022], [-0.07, 0.022], [-0.068, 0.04], [-0.09, 0.04]], 0.008, M.alu, { x: 0.015, r: 0.003 }));               // brass deflector
+      cyl(g, 0.0065, 0.016, M.alu2, 0.017, 0.03, 0.078, 0, 0, Math.PI / 2 - 0.25, 14);                                                    // forward assist
+      cyl(g, 0.006, 0.006, M.steel, 0.026, 0.028, 0.078, 0, 0, Math.PI / 2 - 0.25, 14);
+      pic(g, -0.098, 0.168, 0.05);
+      box(g, 0.03, 0.006, 0.012, M.alu2, 0, 0.04, 0.106); box(g, 0.012, 0.006, 0.006, M.alu2, -0.019, 0.04, 0.104);                     // charging handle + latch
+      // lower receiver, mag well, trigger guard, trigger
+      g.add(side([[-0.085, 0.004], [0.13, 0.004], [0.13, -0.012], [0.118, -0.018], [0.112, -0.03], [0.112, -0.064], [0.03, -0.064], [0.03, -0.034], [-0.03, -0.032], [-0.07, -0.03], [-0.085, -0.016]], 0.024, M.alu, { r: 0.003 }));
+      g.add(side([[0.028, -0.058], [0.116, -0.058], [0.118, -0.072], [0.026, -0.072]], 0.029, M.alu, { r: 0.002 }));                     // flared mag well
+      g.add(side([[-0.03, -0.031], [0.03, -0.031], [0.03, -0.04], [0.016, -0.062], [-0.024, -0.062], [-0.03, -0.05]], 0.008, M.alu, { holes: [[[-0.022, -0.036], [0.023, -0.036], [0.011, -0.056], [-0.018, -0.056]]], r: 0.004 }));
+      g.add(side([[-0.005, -0.031], [0.002, -0.031], [0.0, -0.044], [-0.007, -0.052], [-0.01, -0.05], [-0.005, -0.043]], 0.005, M.steel, { r: 0.0015, bevel: 0.0008 }));
+      box(g, 0.003, 0.006, 0.016, M.alu2, -0.013, -0.012, 0.042, 0.3);                                                                     // selector
+      cyl(g, 0.0045, 0.004, M.alu2, 0.014, -0.02, -0.03, 0, 0, Math.PI / 2, 12);                                                           // mag release
+      box(g, 0.003, 0.014, 0.01, M.alu2, -0.013, -0.004, -0.004);                                                                          // bolt catch
+      // pistol grip with finger bumps
+      g.add(side([[-0.028, -0.03], [-0.064, -0.03], [-0.068, -0.04], [-0.1, -0.148], [-0.092, -0.158], [-0.068, -0.156], [-0.058, -0.14], [-0.056, -0.12], [-0.05, -0.108], [-0.048, -0.09], [-0.042, -0.078], [-0.04, -0.06], [-0.032, -0.045]], 0.03, M.grip, { r: 0.005 }));
+      // magazine
+      if (long) {
+        g.add(side([[0.036, -0.06], [0.11, -0.06], [0.112, -0.2], [0.104, -0.21], [0.044, -0.21], [0.036, -0.2]], 0.026, M.poly, { r: 0.004 }));
+        box(g, 0.03, 0.01, 0.08, M.poly, 0, -0.212, -0.074);
+      } else {
+        const mp = [[0.038, -0.06], [0.106, -0.06], [0.11, -0.12], [0.121, -0.18], [0.136, -0.232], [0.08, -0.248], [0.066, -0.19], [0.052, -0.12]];
+        g.add(side(mp, 0.022, M.poly, { r: 0.004 }));
+        g.add(side([[0.078, -0.243], [0.138, -0.228], [0.141, -0.238], [0.081, -0.256]], 0.026, M.poly, { r: 0.003 }));                    // floorplate
+        for (let k = 0; k < 4; k++) { const t = 0.35 + k * 0.12; const a = [0.052 + (0.066 - 0.052) * t * 1.6, -0.12 - 0.07 * t * 1.6]; g.add(side([[a[0] - 0.002, a[1]], [a[0] + 0.05, a[1] - 0.008 + 0.00], [a[0] + 0.05, a[1] - 0.012], [a[0] - 0.002, a[1] - 0.004]], 0.025, M.poly, { r: 0.0015, bevel: 0.0008 })); }
+      }
       // buffer tube + stock
-      tube(g, 0.015, 0.2, M.alu, -0.2, 0.03);
-      g.add(side(wood ? [[-0.1, 0.045], [-0.33, 0.03], [-0.36, -0.08], [-0.33, -0.09], [-0.12, -0.03]] : [[-0.17, 0.05], [-0.33, 0.05], [-0.345, 0.04], [-0.345, -0.07], [-0.32, -0.075], [-0.28, 0.0], [-0.17, 0.0]], 0.04, furn));
-      // handguard (M-LOK slots), barrel, muzzle brake
-      const hgEnd = long ? 0.5 : 0.44;
-      const hg = tube(g, 0.029, hgEnd - 0.17, furn, (0.17 + hgEnd) / 2, 0.026, 8); hg.rotation.y = Math.PI / 8;
-      if (!wood) for (let u = 0.2; u < hgEnd - 0.02; u += 0.032) for (const sd of [-1, 1]) box(g, 0.004, 0.009, 0.02, M.dark, sd * 0.027, 0.018, -u);
-      rail(g, 0.17, hgEnd, 0.058);
-      tube(g, 0.0095, long ? 0.24 : 0.17, M.steel, hgEnd + (long ? 0.12 : 0.085), 0.026);
-      const mz = hgEnd + (long ? 0.24 : 0.17);
-      tube(g, 0.015, 0.06, M.dark, mz + 0.03, 0.026, 12);
-      for (let k = 0; k < 3; k++) for (const sd of [-1, 1]) box(g, 0.004, 0.012, 0.006, M.steel, sd * 0.014, 0.026, -(mz + 0.012 + k * 0.016));
+      g.add(lathe([[-0.084, 0], [-0.084, 0.0175], [-0.096, 0.0175], [-0.096, 0.0145], [-0.29, 0.0145], [-0.29, 0]], 0.03, M.alu2, 20));
+      g.add(side([[-0.175, 0.047], [-0.34, 0.047], [-0.352, 0.04], [-0.355, -0.072], [-0.345, -0.082], [-0.33, -0.078], [-0.282, -0.012], [-0.262, 0.0], [-0.18, 0.004], [-0.172, 0.02]], 0.044, M.poly, { r: 0.006, holes: [[[-0.3, -0.004], [-0.336, -0.004], [-0.338, -0.056]]], hr: 0.004 }));
+      g.add(side([[-0.352, 0.045], [-0.364, 0.045], [-0.368, -0.08], [-0.356, -0.083]], 0.048, M.rubber, { r: 0.004 }));
+      box(g, 0.01, 0.02, 0.05, M.poly, 0, -0.004, 0.2);                                                                                     // adjust lever
+      // free-float M-LOK handguard, barrel, gas block, muzzle
+      const hgEnd = long ? 0.52 : 0.43, bEnd = long ? 0.74 : 0.58;
+      const hg = new T.Mesh(new T.CylinderGeometry(0.026, 0.026, hgEnd - 0.168, 8), M.alu); hg.rotation.set(Math.PI / 2, 0, 0); hg.position.set(0, 0.022, -(0.168 + hgEnd) / 2);
+      hg.geometry.rotateY(Math.PI / 8); g.add(hg);
+      g.add(lathe([[0.164, 0], [0.164, 0.028], [0.178, 0.028], [0.178, 0]], 0.022, M.alu2, 8));
+      for (let u = 0.2; u < hgEnd - 0.025; u += 0.036) {
+        for (const sd of [-1, 1]) {
+          box(g, 0.004, 0.0075, 0.022, M.blued, sd * 0.0235, 0.022, -u);
+          box(g, 0.004, 0.0075, 0.022, M.blued, sd * 0.0167, 0.0053, -u, 0, 0, sd * Math.PI / 4);
+        }
+        box(g, 0.0075, 0.004, 0.022, M.blued, 0, -0.0015, -u);
+      }
+      pic(g, 0.17, hgEnd, 0.05);
+      g.add(lathe([[0.17, 0], [0.17, 0.0095], [bEnd, 0.0085], [bEnd, 0]], 0.022, M.steel, 18));
+      box(g, 0.022, 0.024, 0.022, M.blued, 0, 0.022, -(hgEnd + 0.02));                                                                     // gas block
+      if (long) { // muzzle brake
+        g.add(lathe([[bEnd, 0], [bEnd, 0.014], [bEnd + 0.07, 0.014], [bEnd + 0.07, 0.006], [bEnd + 0.072, 0]], 0.022, M.blued, 16));
+        for (let k = 0; k < 3; k++) for (const sd of [-1, 1]) box(g, 0.006, 0.012, 0.008, M.rubber, sd * 0.012, 0.022, -(bEnd + 0.014 + k * 0.02));
+      } else { // A2 birdcage flash hider
+        g.add(lathe([[bEnd, 0], [bEnd, 0.0115], [bEnd + 0.008, 0.0115], [bEnd + 0.01, 0.0105], [bEnd + 0.045, 0.0105], [bEnd + 0.046, 0.0065], [bEnd + 0.047, 0]], 0.022, M.blued, 18));
+        for (let k = 0; k < 5; k++) { const a = -Math.PI / 2 + k * Math.PI / 4 - Math.PI / 2; if (k === 2) continue; box(g, 0.0035, 0.0035, 0.026, M.rubber, Math.cos(a + Math.PI) * 0.0098, 0.022 + Math.sin(a + Math.PI) * 0.0098, -(bEnd + 0.03), 0, 0, a); }
+      }
+      // folded back-up iron sights
+      box(g, 0.02, 0.009, 0.022, M.alu2, 0, 0.055, 0.085); box(g, 0.016, 0.01, 0.018, M.alu2, 0, 0.055, -(hgEnd - 0.02));
       // optic
       let eye;
-      if (optic === 'holo') eye = holo(g, 0.035, 0.058);
-      else eye = scope(g, 0.05, 0.1, 0.22, optic === 'big');
-      if (optic !== 'holo') { box(g, 0.022, 0.03, 0.02, M.alu, 0, 0.073, -0.0); box(g, 0.022, 0.03, 0.02, M.alu, 0, 0.073, -0.11); }
+      if (optic === 'holo') eye = holo(g, 0.04, 0.052);
+      else eye = scope(g, 0.045, 0.095, 0.22, true);
       // hands
-      hand(g, 0.012, -0.075, -0.06, { side: 1, rx: -0.35, rz: 0.12 });                 // trigger hand on the grip
-      hand(g, -0.02, 0.0, -(0.3 + (long ? 0.04 : 0)), { side: -1, rx: 0.1, rz: -1.1 });    // support hand on the handguard
-      g.userData.sight = eye; g.userData.muzzle = new T.Vector3(0, 0.026, -(mz + 0.07));
+      wrapHand(g, { c: V3(0, -0.06, 0.05), ax: V3(0, -0.11, 0.04), d0: V3(0.55, 0, 1), turn: -1, R: 0.016, fingers: 3, spread: 0.021, thumbAt: -0.026, thumbArc: [-1.2, -2.1], thumbReach: -0.004, elbow: V3(0.12, -0.33, 0.42), arc: [1.1, 1.85, 2.5] });
+      triggerFinger(g, V3(0.017, -0.045, 0.045), V3(0.017, -0.046, 0.022), V3(0.006, -0.046, 0.002));
+      const sup = (long ? 0.36 : 0.32);
+      wrapHand(g, { c: V3(0, 0.022, -sup), ax: V3(0, 0, -1), d0: V3(-1, -0.55, 0), turn: -1, R: 0.026, fingers: 4, spread: 0.019, thumbAt: -0.02, thumbArc: [-1.0, -1.7], thumbReach: -0.012, elbow: V3(-0.16, -0.32, -sup + 0.42), arc: [0.95, 1.7, 2.35] });
+      g.userData.sight = eye; g.userData.muzzle = V3(0, 0.022, -(bEnd + (long ? 0.08 : 0.055)));
+      g.scale.setScalar(K); g.userData.sight = eye.clone().multiplyScalar(K); g.userData.muzzle.multiplyScalar(K);
       return g;
     }
-    function awm() {
+
+    /* ----- AKM ----- */
+    function akm() {
       const g = new T.Group();
-      g.add(side([[-0.12, 0.0], [0.2, 0.0], [0.2, 0.05], [-0.12, 0.05]], 0.046, M.dark));                        // action
-      g.add(side([[-0.12, 0], [0.42, 0.0], [0.42, -0.04], [0.12, -0.05], [0.05, -0.045], [-0.03, -0.06], [-0.06, -0.16], [-0.1, -0.16], [-0.08, -0.05], [-0.42, -0.06], [-0.44, -0.11], [-0.47, -0.11], [-0.47, 0.06], [-0.2, 0.045]], 0.05, M.olive)); // chassis + stock
-      box(g, 0.03, 0.08, 0.06, M.dark, 0, -0.08, -0.08);                                                          // magazine
-      put(g, new T.Mesh(new T.CylinderGeometry(0.006, 0.006, 0.07, 10), M.steel), 0.045, 0.03, 0.08, 0, 0, Math.PI / 2 - 0.3); // bolt handle
-      put(g, new T.Mesh(new T.SphereGeometry(0.011, 12, 10), M.steel), 0.08, 0.02, 0.08);
-      tube(g, 0.012, 0.5, M.steel, 0.45, 0.025); tube(g, 0.02, 0.08, M.dark, 0.73, 0.025, 12);
-      for (let k = 0; k < 4; k++) for (const sd of [-1, 1]) box(g, 0.004, 0.014, 0.008, M.steel, sd * 0.019, 0.025, -(0.7 + k * 0.016));
-      const eye = scope(g, 0.04, 0.105, 0.3, true);
-      hand(g, 0.012, -0.08, 0.03, { side: 1, rx: -0.4, rz: 0.1 }); hand(g, -0.02, -0.02, -0.3, { side: -1, rx: 0.1, rz: -1.1 });
-      g.userData.sight = eye; g.userData.muzzle = new T.Vector3(0, 0.025, -0.8);
+      // stamped receiver + ribbed dust cover
+      g.add(side([[-0.11, 0.0], [0.15, 0.0], [0.152, 0.036], [-0.11, 0.036]], 0.03, M.blued, { r: 0.002 }));
+      addY(g, sect([[-0.0145, 0], [0.0145, 0], [0.0145, 0.012], [0.009, 0.02], [-0.009, 0.02], [-0.0145, 0.012]], -0.12, 0.138, M.blued, { r: 0.004 }), 0.034);
+      for (let u = -0.1; u < 0.13; u += 0.024) box(g, 0.022, 0.002, 0.006, M.blued, 0, 0.0545, -u);
+      box(g, 0.002, 0.012, 0.07, M.rubber, 0.0152, 0.024, -0.06);                                                                              // ejection port
+      g.add(side([[-0.07, 0.03], [0.09, 0.022], [0.092, 0.016], [-0.06, 0.022], [-0.075, 0.018], [-0.078, 0.028]], 0.003, M.steel, { x: 0.0165, r: 0.002, bevel: 0.0006 })); // selector lever
+      cyl(g, 0.005, 0.012, M.steel, 0.02, 0.026, -0.08, 0, 0, Math.PI / 2, 12);                                                                  // charging handle
+      // rear sight block + leaf
+      g.add(side([[0.14, 0.036], [0.19, 0.036], [0.19, 0.052], [0.15, 0.06], [0.14, 0.055]], 0.024, M.blued, { r: 0.003 }));
+      box(g, 0.012, 0.004, 0.05, M.blued, 0, 0.062, -0.17);
+      // gas tube with upper wood, lower wood handguard
+      g.add(lathe([[0.19, 0], [0.19, 0.009], [0.39, 0.009], [0.39, 0]], 0.05, M.blued, 16));
+      addY(g, sect([[-0.016, -0.006], [0.016, -0.006], [0.016, 0.006], [0.009, 0.015], [-0.009, 0.015], [-0.016, 0.006]], 0.19, 0.31, M.wood, { r: 0.006 }), 0.05);
+      g.add(side([[0.152, 0.042], [0.36, 0.042], [0.37, 0.034], [0.37, 0.002], [0.358, -0.012], [0.165, -0.012], [0.152, 0.0]], 0.042, M.wood, { r: 0.008 }));
+      for (let u = 0.2; u < 0.34; u += 0.03) for (const sd of [-1, 1]) box(g, 0.002, 0.026, 0.004, M.rubber, sd * 0.0205, 0.018, -u);
+      // barrel, gas block, front sight, slant brake
+      g.add(lathe([[0.15, 0], [0.15, 0.0095], [0.6, 0.0085], [0.6, 0]], 0.022, M.blued, 18));
+      g.add(side([[0.38, 0.0], [0.41, 0.0], [0.41, 0.06], [0.39, 0.06], [0.38, 0.05]], 0.022, M.blued, { r: 0.004 }));
+      g.add(side([[0.52, 0.012], [0.55, 0.012], [0.55, 0.05], [0.545, 0.06], [0.525, 0.06], [0.52, 0.05]], 0.022, M.blued, { r: 0.003, holes: [[[0.527, 0.038], [0.543, 0.038], [0.543, 0.056], [0.527, 0.056]]], hr: 0.002 }));
+      box(g, 0.003, 0.016, 0.003, M.blued, 0, 0.046, -0.535);
+      g.add(lathe([[0.6, 0], [0.6, 0.013], [0.64, 0.013], [0.645, 0.008], [0.645, 0]], 0.022, M.blued, 18));
+      box(g, 0.02, 0.006, 0.03, M.rubber, 0, 0.033, -0.625, 0.35);
+      // magazine: curved steel with ribs
+      const mag = [[0.04, -0.0], [0.106, 0.0], [0.114, -0.06], [0.137, -0.14], [0.172, -0.222], [0.112, -0.248], [0.086, -0.162], [0.058, -0.08]];
+      g.add(side(mag, 0.026, M.blued, { r: 0.004 }));
+      g.add(side([[0.065, -0.03], [0.09, -0.03], [0.108, -0.1], [0.135, -0.18], [0.122, -0.186], [0.094, -0.106], [0.074, -0.04]], 0.03, M.blued, { r: 0.004, bevel: 0.001 }));
+      // trigger guard + trigger
+      g.add(side([[-0.025, -0.0], [0.04, 0.0], [0.04, -0.008], [0.025, -0.03], [-0.02, -0.03], [-0.028, -0.012]], 0.008, M.blued, { holes: [[[-0.018, -0.004], [0.034, -0.004], [0.02, -0.025], [-0.014, -0.025]]], r: 0.004 }));
+      g.add(side([[0.0, 0.0], [0.006, 0.0], [0.004, -0.012], [-0.002, -0.019], [-0.005, -0.017], [0.0, -0.011]], 0.005, M.steel, { r: 0.0015, bevel: 0.0008 }));
+      // wood grip and stock
+      g.add(side([[-0.022, 0.0], [-0.058, 0.0], [-0.094, -0.118], [-0.088, -0.13], [-0.064, -0.128], [-0.034, -0.03]], 0.03, M.wood, { r: 0.006 }));
+      g.add(side([[-0.108, 0.036], [-0.15, 0.036], [-0.4, 0.014], [-0.405, -0.1], [-0.38, -0.104], [-0.3, -0.07], [-0.15, -0.014], [-0.108, 0.0]], 0.036, M.wood, { r: 0.008 }));
+      g.add(side([[-0.398, 0.016], [-0.41, 0.016], [-0.414, -0.104], [-0.402, -0.106]], 0.038, M.blued, { r: 0.003 }));
+      // red dot on a side-mount over the dust cover
+      g.add(side([[-0.02, 0.01], [0.07, 0.01], [0.07, 0.03], [-0.02, 0.03]], 0.006, M.blued, { x: -0.018, r: 0.003 }));
+      box(g, 0.03, 0.03, 0.04, M.blued, -0.012, 0.05, -0.025); box(g, 0.026, 0.006, 0.07, M.alu2, 0, 0.068, -0.025);
+      const eye = holo(g, 0.025, 0.071);
+      // hands
+      wrapHand(g, { c: V3(0, -0.04, 0.05), ax: V3(0, -0.11, 0.035), d0: V3(0.55, 0, 1), turn: -1, R: 0.015, fingers: 3, spread: 0.021, thumbAt: -0.026, thumbArc: [-1.2, -2.1], elbow: V3(0.12, -0.33, 0.42), arc: [1.1, 1.85, 2.5] });
+      triggerFinger(g, V3(0.017, -0.022, 0.045), V3(0.017, -0.022, 0.02), V3(0.005, -0.012, 0.001));
+      wrapHand(g, { c: V3(0, 0.016, -0.3), ax: V3(0, 0, -1), d0: V3(-1, -0.55, 0), turn: -1, R: 0.024, fingers: 4, spread: 0.019, thumbAt: -0.02, thumbArc: [-1.0, -1.7], thumbReach: -0.012, elbow: V3(-0.16, -0.32, 0.12), arc: [0.95, 1.7, 2.35] });
+      g.userData.sight = eye; g.userData.muzzle = V3(0, 0.022, -0.66);
       return g;
     }
+
+    /* ----- AWM ----- */
+    function awm() {
+      const g = new T.Group(); g.userData.railTop = 0.06;
+      g.add(lathe([[-0.13, 0], [-0.13, 0.019], [0.2, 0.019], [0.2, 0]], 0.03, M.blued, 24));                                               // round action
+      pic(g, -0.12, 0.2, 0.054, 0.02);
+      // chassis with thumbhole stock, cheek riser and butt
+      g.add(side([[-0.13, 0.012], [0.44, 0.012], [0.45, 0.002], [0.45, -0.03], [0.43, -0.04], [0.12, -0.045], [0.06, -0.042], [-0.02, -0.05], [-0.07, -0.05], [-0.14, -0.02], [-0.42, -0.05], [-0.45, -0.12], [-0.48, -0.12], [-0.49, 0.07], [-0.4, 0.075], [-0.3, 0.04], [-0.2, 0.03]], 0.05, M.od, { r: 0.008, holes: [[[-0.14, 0.0], [-0.27, 0.01], [-0.36, -0.03], [-0.33, -0.05], [-0.19, -0.03]]], hr: 0.008 }));
+      g.add(side([[-0.49, 0.07], [-0.505, 0.07], [-0.505, -0.12], [-0.49, -0.12]], 0.054, M.rubber, { r: 0.004 }));
+      g.add(side([[-0.07, -0.04], [-0.035, -0.04], [-0.06, -0.16], [-0.095, -0.155]], 0.032, M.grip, { r: 0.006 }));                       // grip
+      g.add(side([[-0.03, -0.045], [0.04, -0.045], [0.03, -0.072], [-0.022, -0.072]], 0.008, M.blued, { holes: [[[-0.022, -0.049], [0.032, -0.049], [0.024, -0.066], [-0.017, -0.066]]], r: 0.004 }));
+      box(g, 0.004, 0.016, 0.006, M.steel, 0, -0.055, -0.0);
+      g.add(side([[0.02, -0.045], [0.11, -0.045], [0.108, -0.11], [0.022, -0.11]], 0.03, M.blued, { r: 0.004 }));                         // magazine
+      // bolt handle
+      rod(g, V3(0.015, 0.03, 0.09), V3(0.06, 0.005, 0.1), 0.0055, 0.0055, M.steel); add(g, new T.Mesh(new T.SphereGeometry(0.012, 14, 12), M.rubber), 0.064, 0.003, 0.1);
+      // fluted barrel + big muzzle brake
+      g.add(lathe([[0.2, 0], [0.2, 0.014], [0.7, 0.011], [0.7, 0]], 0.03, M.blued, 20));
+      for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; box(g, 0.003, 0.003, 0.2, M.rubber, Math.cos(a) * 0.012, 0.03 + Math.sin(a) * 0.012, -0.55, 0, 0, a); }
+      g.add(lathe([[0.7, 0], [0.7, 0.019], [0.79, 0.019], [0.79, 0.009], [0.792, 0]], 0.03, M.blued, 20));
+      for (let k = 0; k < 4; k++) for (const sd of [-1, 1]) box(g, 0.008, 0.02, 0.01, M.rubber, sd * 0.016, 0.03, -(0.72 + k * 0.018));
+      const eye = scope(g, 0.035, 0.105, 0.3, true);
+      wrapHand(g, { c: V3(0, -0.075, 0.07), ax: V3(0, -0.12, 0.03), d0: V3(0.55, 0, 1), turn: -1, R: 0.016, fingers: 3, spread: 0.021, thumbAt: -0.028, thumbArc: [-1.2, -2.1], elbow: V3(0.12, -0.34, 0.44), arc: [1.1, 1.85, 2.5] });
+      triggerFinger(g, V3(0.018, -0.052, 0.05), V3(0.018, -0.052, 0.025), V3(0.006, -0.056, 0.002));
+      wrapHand(g, { c: V3(0, -0.012, -0.3), ax: V3(0, 0, -1), d0: V3(-1, -0.6, 0), turn: -1, R: 0.03, fingers: 4, spread: 0.019, thumbAt: -0.02, thumbArc: [-1.0, -1.6], thumbReach: -0.012, elbow: V3(-0.17, -0.33, 0.12), arc: [0.95, 1.65, 2.3] });
+      g.userData.sight = eye; g.userData.muzzle = V3(0, 0.03, -0.81);
+      return g;
+    }
+
+    /* ----- Desert Eagle ----- */
     function deagle() {
       const g = new T.Group();
-      g.add(side([[-0.05, 0.0], [0.17, 0.0], [0.17, 0.034], [-0.045, 0.036]], 0.034, M.steel));                // slide
-      for (let k = 0; k < 8; k++) for (const sd of [-1, 1]) box(g, 0.002, 0.026, 0.003, M.dark, sd * 0.0175, 0.017, -(-0.035 + k * 0.007));
-      g.add(side([[-0.04, 0], [0.16, 0], [0.16, -0.022], [0.05, -0.024], [0.04, -0.05], [0.0, -0.05], [-0.02, -0.03], [-0.04, -0.03]], 0.03, M.steel)); // frame + trigger guard
-      g.add(side([[-0.04, -0.025], [0.0, -0.025], [-0.025, -0.135], [-0.065, -0.13]], 0.034, M.poly));           // grip
-      box(g, 0.006, 0.01, 0.008, M.dark, 0, 0.04, -0.16); box(g, 0.022, 0.01, 0.008, M.dark, 0, 0.04, 0.035);   // sights
-      hand(g, 0.012, -0.075, 0.02, { side: 1, rx: -0.3, rz: 0.12 }); hand(g, -0.012, -0.085, 0.015, { side: -1, rx: -0.3, rz: -0.3 });
-      g.userData.sight = new T.Vector3(0, 0.045, 0.04); g.userData.muzzle = new T.Vector3(0, 0.017, -0.18);
+      // slide with serrations, and the triangular barrel on top running to the muzzle
+      g.add(side([[-0.05, 0.0], [0.07, 0.0], [0.07, 0.03], [-0.04, 0.032], [-0.05, 0.026]], 0.032, M.blued, { r: 0.003 }));
+      for (let k = 0; k < 9; k++) for (const sd of [-1, 1]) box(g, 0.0015, 0.022, 0.0025, M.rubber, sd * 0.0162, 0.015, -(-0.04 + k * 0.006));
+      addY(g, sect([[-0.016, 0], [0.016, 0], [0.016, 0.022], [0.006, 0.036], [-0.006, 0.036], [-0.016, 0.022]], 0.06, 0.17, M.blued, { r: 0.003 }), 0.0);
+      add(g, new T.Mesh(new T.CircleGeometry(0.006, 16), M.rubber), 0, 0.017, -0.1712);
+      box(g, 0.012, 0.004, 0.11, M.blued, 0, 0.0375, -0.115);                                                                                  // top rail
+      box(g, 0.004, 0.009, 0.006, M.blued, 0, 0.044, -0.165); box(g, 0.018, 0.009, 0.006, M.blued, 0, 0.04, 0.035);                            // sights
+      box(g, 0.012, 0.016, 0.012, M.blued, 0, 0.022, 0.054, -0.4);                                                                             // hammer
+      // frame, trigger guard, trigger, grip
+      g.add(side([[-0.045, 0.0], [0.15, 0.0], [0.15, -0.018], [0.05, -0.02], [0.046, -0.032], [-0.03, -0.03], [-0.045, -0.016]], 0.028, M.blued, { r: 0.003 }));
+      g.add(side([[-0.005, -0.02], [0.05, -0.02], [0.05, -0.028], [0.038, -0.052], [-0.008, -0.052], [-0.012, -0.03]], 0.008, M.blued, { holes: [[[-0.003, -0.025], [0.044, -0.025], [0.032, -0.047], [-0.004, -0.047]]], r: 0.004 }));
+      g.add(side([[0.004, -0.02], [0.01, -0.02], [0.008, -0.03], [0.002, -0.037], [-0.001, -0.035], [0.004, -0.029]], 0.005, M.steel, { r: 0.0012, bevel: 0.0008 }));
+      g.add(side([[-0.01, -0.02], [-0.046, -0.016], [-0.072, -0.13], [-0.064, -0.138], [-0.03, -0.136], [-0.022, -0.12]], 0.036, M.grip, { r: 0.006 }));
+      box(g, 0.004, 0.006, 0.012, M.steel, -0.015, -0.008, 0.02);                                                                              // safety
+      // two-handed grip
+      wrapHand(g, { c: V3(0, -0.04, 0.03), ax: V3(0, -0.11, 0.028), d0: V3(0.55, 0, 1), turn: -1, R: 0.017, fingers: 3, spread: 0.021, thumbAt: -0.026, thumbArc: [-1.3, -2.2], thumbReach: -0.006, elbow: V3(0.26, -0.3, 0.3), arc: [1.1, 1.85, 2.5] });
+      triggerFinger(g, V3(0.017, -0.026, 0.028), V3(0.017, -0.026, 0.008), V3(0.006, -0.03, -0.006));
+      wrapHand(g, { c: V3(-0.004, -0.06, 0.042), ax: V3(0, -0.11, 0.028), d0: V3(-0.9, -0.1, 0.4), turn: 1, R: 0.03, fingers: 3, spread: 0.02, thumb: true, thumbAt: -0.03, thumbArc: [-0.9, -1.5], thumbReach: -0.01, elbow: V3(-0.25, -0.31, 0.28), arc: [1.0, 1.7, 2.3] });
+      g.userData.sight = V3(0, 0.046, 0.04); g.userData.muzzle = V3(0, 0.017, -0.18);
       return g;
     }
-    GUNS = { m4: ar({}), akm: ar({ wood: true, mag: 'ak' }), sr25: ar({ long: true, optic: 'scope' }), awm: awm(), deagle: deagle() };
+
+    GUNS = { m4: ar({}), akm: akm(), sr25: ar({ long: true, optic: 'scope' }), awm: awm(), deagle: deagle() };
     Object.values(GUNS).forEach(g => { g.visible = false; g.traverse(o => { if (o.isMesh) o.renderOrder = 1; }); gunScene.add(g); });
     const fc = document.createElement('canvas'); fc.width = fc.height = 64; const fg = fc.getContext('2d'); const gr = fg.createRadialGradient(32, 32, 2, 32, 32, 30);
     gr.addColorStop(0, 'rgba(255,255,220,1)'); gr.addColorStop(0.35, 'rgba(255,200,80,.9)'); gr.addColorStop(1, 'rgba(255,140,30,0)'); fg.fillStyle = gr; fg.fillRect(0, 0, 64, 64);
-    flashSprite = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(fc), blending: T.AdditiveBlending, depthWrite: false, transparent: true })); flashSprite.scale.set(0.16, 0.16, 1); gunScene.add(flashSprite);
+    flashSprite = new T.Sprite(new T.SpriteMaterial({ map: new T.CanvasTexture(fc), blending: T.AdditiveBlending, depthWrite: false, transparent: true })); flashSprite.scale.set(0.14, 0.14, 1); gunScene.add(flashSprite);
   }
   function poseGun(now) {
     const W = wpn(), key = $('r-wpn').value, g = GUNS[key] || GUNS.m4;
     Object.entries(GUNS).forEach(([k, o]) => o.visible = k === key && !(W.scope && adsT > 0.85));
     gunNow = g;
     const k = Math.max(0, 1 - (now - kickT) / 110), s = g.userData.sight;
-    const hip = new T.Vector3(W.pistol ? 0.13 : 0.15, W.pistol ? -0.15 : -0.17, W.pistol ? -0.36 : -0.4);
-    const ad = new T.Vector3(-s.x, -s.y, -s.z - (W.pistol ? 0.3 : 0.14));
+    const hip = new T.Vector3(W.pistol ? 0.11 : 0.13, W.pistol ? -0.14 : -0.165, W.pistol ? -0.42 : -0.47);
+    const ad = new T.Vector3(-s.x, -s.y, -s.z - (W.pistol ? 0.44 : 0.14));
     g.position.lerpVectors(hip, ad, adsT);
     g.position.x += -swayX * 0.0012 * (1 - adsT * 0.85); g.position.y += swayY * 0.001 * (1 - adsT * 0.85) - k * 0.004 * W.kick;
     g.position.z += k * 0.03 * W.kick;
-    g.rotation.set(k * 0.05 * W.kick, (1 - adsT) * 0.05, (1 - adsT) * -0.02);
+    g.rotation.set(k * 0.05 * W.kick + (1 - adsT) * 0.015, (1 - adsT) * 0.06, (1 - adsT) * -0.035);
     const show = now - flashT < 45 && g.visible;
     flashSprite.visible = show;
     if (show) { const m = g.userData.muzzle.clone(); g.localToWorld(m); flashSprite.position.copy(m); flashSprite.material.rotation = Math.random() * 6; }
