@@ -424,6 +424,7 @@ html.noribbon .ribnote{display:none}
 #senslab .chip:hover { color: var(--fg); }
 #senslab .chip[aria-selected="true"] { color: #062014; background: var(--green); border-color: var(--green); }
 #senslab .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+#senslab .dsec { grid-column: 1 / -1; font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); margin-top: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 #senslab .dcard { text-align: left; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; padding: 0 0 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; color: var(--fg); font: inherit; transition: border-color .15s, transform .15s; }
 #senslab .dcard:hover { border-color: #2f4560; transform: translateY(-2px); }
 #senslab .dcard[aria-pressed="true"] { border-color: var(--green); box-shadow: 0 0 0 1px var(--green), 0 0 18px rgba(15,247,150,.18); }
@@ -758,7 +759,7 @@ html.noribbon .ribnote{display:none}
   <!-- ============ RANGE ============ -->
   <section class="panel" id="p-range" role="tabpanel" aria-labelledby="t-range">
     <div class="card drills">
-      <div class="dhead"><span class="label">Pick a drill</span><div class="chips" id="d-chips" role="tablist" aria-label="Drill type"></div></div>
+      <div class="dhead"><span class="label">Pick a drill</span></div>
       <div class="dgrid" id="d-grid"></div>
     </div>
     <div class="grid2">
@@ -3204,7 +3205,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   /* ---------- drill picker cards ---------- */
   const CATS = [['all', 'All'], ['df', 'Delta Force range'], ['flick', 'Flicking'], ['click', 'Precision'], ['track', 'Tracking'], ['switch', 'Switching'], ['setup', 'Sens finder']];
   const CATNAME = { flick: 'Flicking', click: 'Precision', track: 'Tracking', switch: 'Switching', setup: 'Setup' };
-  const ORDER = ['sensfind', 'flick', 'wide', 'micro', 'track', 'multi', 'grid', 'spider', 'reflex', 'orb', 'switch'];
+  const ORDER = ['sensfind', 'grid', 'spider', 'reflex', 'orb', 'switch', 'flick', 'wide', 'micro', 'track', 'multi'];
   const ICON = {
     flick: '<svg viewBox="0 0 64 50"><circle cx="14" cy="30" r="3" fill="#0ff796"/><path d="M17 28 L44 14" stroke="#0ff796" stroke-width="2" stroke-dasharray="3 3"/><circle cx="48" cy="12" r="7" fill="none" stroke="#ff9f1a" stroke-width="2.5"/><circle cx="48" cy="12" r="2.5" fill="#ff9f1a"/></svg>',
     click: '<svg viewBox="0 0 64 50"><circle cx="32" cy="25" r="16" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="9" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="3" fill="#ff5a7a"/><path d="M32 3v8M32 39v8M10 25h8M46 25h8" stroke="#0ff796" stroke-width="2"/></svg>',
@@ -3214,12 +3215,13 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   };
   let dCat = 'all';
   function drillCards() {
-    const chips = $('d-chips'), grid = $('d-grid'); if (!chips || !grid) return;
-    chips.innerHTML = CATS.map(([k, n]) => `<button type="button" class="chip" role="tab" aria-selected="${k === dCat}" data-cat="${k}">${n}</button>`).join('');
+    const grid = $('d-grid'); if (!grid) return;
     const best = bestAll(), cur = $('r-mode').value;
-    grid.innerHTML = ORDER.filter(k => DRILL[k] && (dCat === 'all' || (dCat === 'df' ? !DRILL[k].env : DRILL[k].cat === dCat))).map(k => {
+    let lastDf = null;
+    grid.innerHTML = ORDER.filter(k => DRILL[k]).map(k => {
+      const head = (!DRILL[k].env) !== lastDf ? `<div class="dsec">${!DRILL[k].env ? 'Delta Force range: realistic bots and guns' : 'Aim trainer: quick drills in a clean room'}</div>` : ''; lastDf = !DRILL[k].env;
       const d = DRILL[k], df = !d.env, b = best[k + '_' + $('r-len').value];
-      return `<button type="button" class="dcard${df ? ' df' : ''}" data-drill="${k}" aria-pressed="${k === cur}">
+      return head + `<button type="button" class="dcard${df ? ' df' : ''}" data-drill="${k}" aria-pressed="${k === cur}">
         <span class="thumb">${ICON[d.cat] || ICON.flick}</span>
         <span class="tag">${df ? 'Delta Force range' : 'Aim trainer'} · ${CATNAME[d.cat] || ''}</span>
         <span class="nm">${d.name}</span><span class="ds">${d.desc || ''}</span>
@@ -3231,7 +3233,6 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const g = isGrid(); document.querySelectorAll('#p-range .df-only').forEach(el => el.classList.toggle('dim', g)); $('r-gridnote').hidden = !g;
     document.querySelectorAll('#d-grid .dcard').forEach(c => c.setAttribute('aria-pressed', c.dataset.drill === $('r-mode').value));
   }
-  $('d-chips').addEventListener('click', e => { const c = e.target.closest('[data-cat]'); if (!c) return; dCat = c.dataset.cat; drillCards(); });
   $('d-grid').addEventListener('click', e => {
     const c = e.target.closest('[data-drill]'); if (!c || state === 'run' || state === 'count') return;
     $('r-mode').value = c.dataset.drill; $('r-mode').dispatchEvent(new Event('input')); $('r-mode').dispatchEvent(new Event('change'));
