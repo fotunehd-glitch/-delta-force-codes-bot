@@ -1708,8 +1708,8 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     scene = new T.Scene();
     scene.background = new T.Color('#0d1013');
     scene.fog = new T.Fog('#1b2025', 40, 110);
-    scene.add(new T.HemisphereLight('#b9c2ca', '#3a352d', 0.95));
-    const key = new T.DirectionalLight('#e6eef5', 1.5); key.position.set(10, 30, 20); key.castShadow = true;
+    scene.add(new T.HemisphereLight('#b9c2ca', '#3a352d', 0.78));
+    const key = new T.DirectionalLight('#e6eef5', 1.8); key.position.set(10, 30, 20); key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -20, right: 20, top: 40, bottom: -40, near: 1, far: 90 }); key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0006;
     key.target.position.set(0, 0, -32); scene.add(key, key.target);
     const std = o => new T.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, o));
@@ -1769,103 +1769,146 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   let BOTTEX = null;
   function botTextures() {
     if (BOTTEX) return BOTTEX;
-    const camo = canvasTex(256, 256, (g, w, h) => {
-      g.fillStyle = '#8a7f62'; g.fillRect(0, 0, w, h);
-      [['#6b6a4c', 34], ['#a09378', 26], ['#4f523c', 22], ['#5e5040', 12]].forEach(([c, n]) => { g.fillStyle = c; for (let i = 0; i < n; i++) { g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 8 + Math.random() * 22, 5 + Math.random() * 12, Math.random() * 3, 0, 7); g.fill(); } });
-      noise(g, w, h, null, 0.1, 5000, 1.5);
+    // multicam-style uniform: soft layered blobs, then a fine weave
+    const camo = canvasTex(512, 512, (g, w, h) => {
+      g.fillStyle = '#958866'; g.fillRect(0, 0, w, h);
+      const blob = (c, n, s1, s2, blur) => { g.filter = `blur(${blur}px)`; g.fillStyle = c; for (let i = 0; i < n; i++) { g.beginPath(); const x = Math.random() * w, y = Math.random() * h; for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2, r = s1 + Math.random() * s2; k ? g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r * 0.7) : g.moveTo(x + r, y); } g.closePath(); g.fill(); } };
+      blob('#7d7052', 60, 14, 26, 3); blob('#5f6744', 50, 10, 20, 2); blob('#4b3d2c', 34, 6, 12, 1.5); blob('#b8aa86', 26, 5, 10, 1.5); blob('#2f2b21', 22, 3, 6, 1);
+      g.filter = 'none';
+      for (let y = 0; y < h; y += 2) { g.fillStyle = `rgba(0,0,0,${0.03 + Math.random() * 0.03})`; g.fillRect(0, y, w, 1); }
+      for (let x = 0; x < w; x += 2) { g.fillStyle = 'rgba(255,255,255,0.025)'; g.fillRect(x, 0, 1, h); }
     }, 2, 2);
-    const fabric = canvasTex(128, 128, (g, w, h) => { noise(g, w, h, '#808080', 0.35, 5000, 1.2); for (let y = 0; y < h; y += 3) { g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(0, y, w, 1); } }, 4, 4);
-    fabric.colorSpace = T.NoColorSpace;
-    const denim = canvasTex(128, 128, (g, w, h) => { noise(g, w, h, '#3c4f6e', 0.25, 4000, 1.2); for (let x = 0; x < w; x += 2) { g.fillStyle = 'rgba(255,255,255,.04)'; g.fillRect(x, 0, 1, h); } }, 3, 3);
-    BOTTEX = { camo, fabric, denim }; return BOTTEX;
+    const weave = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 2) for (let x = (y / 2) % 2; x < w; x += 2) { g.fillStyle = Math.random() < 0.5 ? '#9a9a9a' : '#6a6a6a'; g.fillRect(x, y, 1, 1); } noise(g, w, h, null, 0.25, 2000, 2); }, 6, 6);
+    weave.colorSpace = T.NoColorSpace;
+    // MOLLE webbing on the plate carrier / chest rig
+    const molle = canvasTex(256, 256, (g, w, h) => {
+      g.fillStyle = '#76684c'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.12, 4000, 1.5);
+      for (let y = 18; y < h; y += 32) { g.fillStyle = '#5c5039'; g.fillRect(0, y, w, 14); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, y + 14, w, 2); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(0, y, w, 1); for (let x = 0; x < w; x += 24) { g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(x, y, 2, 14); } }
+    }, 1, 1);
+    const pouch = canvasTex(128, 128, (g, w, h) => { g.fillStyle = '#6e6046'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.14, 3000, 1.3); g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(0, 34, w, 3); g.strokeStyle = 'rgba(30,24,16,.5)'; g.setLineDash([3, 3]); g.strokeRect(4, 4, w - 8, h - 8); }, 1, 1);
+    const denim = canvasTex(128, 128, (g, w, h) => { noise(g, w, h, '#3c4f6e', 0.25, 4000, 1.2); for (let x = 0; x < w; x += 2) { g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(x, 0, 1, h); } }, 3, 3);
+    const shadow = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); const gr = x.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(0.6, 'rgba(0,0,0,.25)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new T.CanvasTexture(c); })();
+    BOTTEX = { camo, weave, molle, pouch, denim, shadow }; return BOTTEX;
   }
   function makeBot(kind, armour) {
     const host = kind === 'host', X = botTextures();
     const mats = [];
-    const mat = (o) => { const m = new T.MeshStandardMaterial(Object.assign({ roughness: 0.85, metalness: 0, bumpMap: X.fabric, bumpScale: 0.3 }, o)); mats.push(m); return m; };
-    const uni = host ? mat({ color: '#a9c6e6' }) : mat({ map: X.camo, color: '#ffffff' });         // shirt / uniform top
-    const pants = host ? mat({ map: X.denim, color: '#ffffff' }) : mat({ map: X.camo, color: '#e6e6e6' });
-    const boot = mat({ color: host ? '#3a3027' : '#2a2620', roughness: 0.7 });
-    const glove = mat({ color: '#1f2022', roughness: 0.8 });
-    const face = host ? mat({ color: '#c99a7a', roughness: 0.6, bumpMap: null }) : mat({ color: '#1c1d1f', roughness: 0.9 });  // skin or balaclava
-    const hair = mat({ color: '#2b1e14', roughness: 0.9 });
-    const gear = mat({ color: '#6f6248', roughness: 0.9 });                                       // coyote chest rig / plate carrier
-    const gearDk = mat({ color: '#4a4231', roughness: 0.9 });
-    const helmM = mat({ color: '#4a4f3c', roughness: 0.65, bumpMap: null });
-    const gunM = mat({ color: '#1e2023', roughness: 0.5, metalness: 0.4, bumpMap: null });
-    const lensM = mat({ color: '#0e1114', roughness: 0.2, metalness: 0.6, bumpMap: null });
+    const mat = (o) => { const m = new T.MeshStandardMaterial(Object.assign({ roughness: 0.88, metalness: 0, bumpMap: X.weave, bumpScale: 0.35 }, o)); mats.push(m); return m; };
+    const tint = new T.Color().setHSL(0.11 + (Math.random() - 0.5) * 0.03, 0.12, 0.66 + (Math.random() - 0.5) * 0.08);
+    const uni = host ? mat({ color: '#9fbfe0' }) : mat({ map: X.camo, color: tint });
+    const pants = host ? mat({ map: X.denim, color: '#ffffff' }) : mat({ map: X.camo, color: tint.clone().multiplyScalar(0.92) });
+    const boot = mat({ color: host ? '#e8e4dc' : '#5a4a35', roughness: 0.75 }), sole = mat({ color: '#1b1a18', roughness: 0.9, bumpMap: null });
+    const glove = mat({ color: '#2a2a28', roughness: 0.8 }), gloveTan = mat({ color: '#6f6450', roughness: 0.8 });
+    const skin = mat({ color: '#c49478', roughness: 0.62, bumpMap: null });
+    const face = host ? skin : mat({ color: '#232322', roughness: 0.95 });
+    const hair = mat({ color: '#2b1e14', roughness: 0.95 });
+    const plate = mat({ map: X.molle, color: '#ffffff', roughness: 0.9 });
+    const pouchM = mat({ map: X.pouch, color: '#ffffff', roughness: 0.9 });
+    const strap = mat({ color: '#4d4332', roughness: 0.9 });
+    const helmM = mat({ map: X.camo, color: '#c8c8c8', roughness: 0.8 });
+    const hard = mat({ color: '#2a2c2e', roughness: 0.5, metalness: 0.3, bumpMap: null });
+    const lens = mat({ color: '#0b0f14', roughness: 0.08, metalness: 0.9, bumpMap: null, envMapIntensity: 2 });
+    const gunM = mat({ color: '#222427', roughness: 0.45, metalness: 0.45, bumpMap: null });
     const root = new T.Group(), fall = new T.Group(); root.add(fall);
-    const cast = o => { o.castShadow = true; return o; };
+    const sh = new T.Mesh(new T.PlaneGeometry(1.3, 1.3), new T.MeshBasicMaterial({ map: X.shadow, transparent: true, depthWrite: false })); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.012; root.add(sh); mats.push(sh.material);
+    const cast = o => { o.castShadow = true; o.receiveShadow = true; return o; };
     const M = (geo, m, x, y, z, parent) => { const o = cast(new T.Mesh(geo, m)); o.position.set(x, y, z); (parent || fall).add(o); return o; };
     const G = (x, y, z, parent) => { const g = new T.Group(); g.position.set(x, y, z); (parent || fall).add(g); return g; };
+    // a limb or body part turned on a lathe: prof = [[y, radius], ...] top to bottom, squashed front-to-back by sz
+    const lath = (prof, m, parent, sx = 1, sz = 1, seg = 16) => { const g = new T.LatheGeometry(prof.slice().sort((a, b) => a[0] - b[0]).map(([y, r]) => new T.Vector2(Math.max(0.0001, r), y)), seg); const o = M(g, m, 0, 0, 0, parent); o.scale.set(sx, 1, sz); return o; };
+    const rbox = (w, h, d, r, m, x, y, z, parent) => { const s = new T.Shape(), a = w / 2 - r, b = h / 2 - r; s.moveTo(-a, -h / 2); s.lineTo(a, -h / 2); s.quadraticCurveTo(w / 2, -h / 2, w / 2, -b); s.lineTo(w / 2, b); s.quadraticCurveTo(w / 2, h / 2, a, h / 2); s.lineTo(-a, h / 2); s.quadraticCurveTo(-w / 2, h / 2, -w / 2, b); s.lineTo(-w / 2, -b); s.quadraticCurveTo(-w / 2, -h / 2, -a, -h / 2);
+      const g = new T.ExtrudeGeometry(s, { depth: Math.max(0.001, d - r * 1.2), bevelEnabled: true, bevelThickness: r * 0.6, bevelSize: r * 0.6, bevelSegments: 2, curveSegments: 4 }); g.translate(0, 0, -(d - r * 1.2) / 2); return M(g, m, x, y, z, parent); };
     const HIP = 0.95;
-    // pelvis -> legs (thigh group at the hip, knee group below, boot at the bottom)
+    // ---- pelvis and legs ----
     const pelvis = G(0, HIP, 0);
-    M(new T.BoxGeometry(0.32, 0.16, 0.2), pants, 0, 0, 0, pelvis);
-    M(new T.BoxGeometry(0.34, 0.04, 0.22), gearDk, 0, 0.07, 0, pelvis);                               // belt
+    lath([[0.08, 0.12], [0.02, 0.15], [-0.06, 0.16], [-0.1, 0.12]], pants, pelvis, 1.12, 0.78);
+    M(new T.CylinderGeometry(0.168, 0.168, 0.045, 18), host ? mat({ color: '#2a1f17', roughness: 0.6 }) : strap, 0, 0.06, 0, pelvis).scale.set(1.12, 1, 0.8); // belt
+    if (!host) { rbox(0.07, 0.09, 0.05, 0.01, pouchM, 0.15, 0.02, -0.06, pelvis); rbox(0.07, 0.09, 0.05, 0.01, pouchM, -0.16, 0.02, 0.0, pelvis); }
     const legs = [];
     for (const sd of [-1, 1]) {
-      const th = G(sd * 0.095, -0.04, 0, pelvis);
-      M(new T.CapsuleGeometry(0.075, 0.3, 4, 10), pants, 0, -0.2, 0, th);
-      if (!host) M(new T.BoxGeometry(0.06, 0.1, 0.11), gearDk, sd * 0.07, -0.18, 0.0, th);           // thigh pocket
+      const th = G(sd * 0.09, -0.05, 0, pelvis);
+      lath([[0.03, 0.08], [-0.06, 0.09], [-0.2, 0.078], [-0.36, 0.062], [-0.44, 0.055]], pants, th, 1, 0.95);
+      if (!host) rbox(0.035, 0.13, 0.12, 0.012, pants, sd * 0.085, -0.22, 0.0, th);                             // cargo pocket
       const kn = G(0, -0.43, 0, th);
-      if (!host) M(new T.SphereGeometry(0.06, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), gearDk, 0, 0, -0.035, kn).rotation.x = -Math.PI / 2; // knee pad
-      M(new T.CapsuleGeometry(0.065, 0.3, 4, 10), pants, 0, -0.2, 0, kn);
-      const bt = M(new T.BoxGeometry(0.11, 0.1, 0.24), boot, 0, -0.42, -0.04, kn);
+      if (!host) { const kp = M(new T.SphereGeometry(0.06, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), hard, 0, -0.02, -0.04, kn); kp.rotation.x = -Math.PI / 2; kp.scale.set(1, 1, 0.55); M(new T.TorusGeometry(0.06, 0.008, 6, 16), strap, 0, -0.04, 0, kn).rotation.x = Math.PI / 2; }
+      lath([[0.0, 0.056], [-0.1, 0.064], [-0.22, 0.054], [-0.34, 0.045], [-0.38, 0.05]], pants, kn, 1, 0.95);
+      // boot: upper + sole
+      lath([[-0.3, 0.052], [-0.38, 0.056], [-0.44, 0.058]], boot, kn, 1, 1.05);
+      rbox(0.105, 0.07, 0.25, 0.025, boot, 0, -0.44, -0.05, kn);
+      rbox(0.11, 0.025, 0.27, 0.01, sole, 0, -0.48, -0.05, kn);
       legs.push({ th, kn, sd });
     }
-    // torso (spine pivots at the pelvis), chest rig or plate carrier
-    const spine = G(0, 0.05, 0, pelvis);
-    const torso = M(new T.CapsuleGeometry(0.16, 0.26, 6, 14), uni, 0, 0.27, 0, spine); torso.scale.set(1.15, 1, 0.7);
+    // ---- torso ----
+    const spine = G(0, 0.06, 0, pelvis);
+    lath([[0.52, 0.06], [0.5, 0.12], [0.46, 0.165], [0.38, 0.18], [0.26, 0.17], [0.14, 0.15], [0.02, 0.135]], uni, spine, 1.18, 0.7, 20);
     if (!host) {
-      if (armour) {
-        M(new T.BoxGeometry(0.38, 0.38, 0.27), gear, 0, 0.3, 0, spine);                               // plate carrier
-        for (let i = -1; i <= 1; i++) M(new T.BoxGeometry(0.095, 0.13, 0.07), gearDk, i * 0.115, 0.2, -0.16, spine); // mag pouches
-        M(new T.BoxGeometry(0.16, 0.1, 0.06), gearDk, 0, 0.4, -0.15, spine);                          // admin pouch
-        for (const sd of [-1, 1]) M(new T.BoxGeometry(0.1, 0.06, 0.2), gear, sd * 0.17, 0.48, 0, spine); // shoulder straps
-      } else {
-        M(new T.BoxGeometry(0.34, 0.2, 0.25), gear, 0, 0.22, 0, spine);                               // light chest rig
-        for (let i = -1; i <= 1; i++) M(new T.BoxGeometry(0.09, 0.11, 0.06), gearDk, i * 0.105, 0.2, -0.145, spine);
-        for (const sd of [-1, 1]) M(new T.BoxGeometry(0.05, 0.3, 0.05), gearDk, sd * 0.1, 0.4, -0.11, spine);
-      }
+      const front = armour ? 0.13 : 0.11;
+      // carrier front and back panels with webbing, cummerbund round the sides
+      rbox(0.33, armour ? 0.34 : 0.22, 0.05, 0.02, plate, 0, armour ? 0.3 : 0.23, -front, spine);
+      if (armour) rbox(0.33, 0.36, 0.05, 0.02, plate, 0, 0.3, 0.13, spine);
+      const cb = M(new T.CylinderGeometry(0.2, 0.19, armour ? 0.2 : 0.12, 20, 1, true), plate, 0, 0.2, 0, spine); cb.scale.set(1.08, 1, 0.78);
+      // pouches
+      const pY = armour ? 0.2 : 0.2;
+      for (let i = -1; i <= 1; i++) { rbox(0.085, 0.12, 0.055, 0.012, pouchM, i * 0.1, pY, -front - 0.045, spine); rbox(0.088, 0.035, 0.06, 0.008, pouchM, i * 0.1, pY + 0.065, -front - 0.045, spine); }
+      if (armour) { rbox(0.16, 0.08, 0.05, 0.012, pouchM, 0, 0.4, -front - 0.04, spine); rbox(0.07, 0.1, 0.05, 0.01, pouchM, 0.19, 0.25, -0.02, spine); M(new T.CylinderGeometry(0.004, 0.004, 0.3, 6), hard, 0.2, 0.42, 0.02, spine); rbox(0.2, 0.3, 0.07, 0.03, pouchM, 0, 0.3, 0.19, spine); } // admin, radio + antenna, hydration
+      for (const sd of [-1, 1]) { rbox(0.07, 0.03, 0.26, 0.01, strap, sd * 0.11, 0.47, 0, spine); }
+    } else {
+      M(new T.TorusGeometry(0.06, 0.015, 8, 16), uni, 0, 0.5, -0.01, spine).rotation.x = Math.PI / 2 - 0.3; // collar
     }
     // neck and head
-    M(new T.CylinderGeometry(0.05, 0.055, 0.08, 10), face, 0, 0.52, 0, spine);
+    lath([[0.6, 0.048], [0.55, 0.052], [0.5, 0.058]], face, spine);
     const headG = G(0, 0.66, 0, spine);
-    const head = M(new T.SphereGeometry(0.1, 18, 14), face, 0, 0, 0, headG); head.scale.set(0.92, 1.1, 1.0);
+    const head = M(new T.SphereGeometry(0.1, 22, 18), face, 0, 0, 0, headG); head.scale.set(0.9, 1.12, 1.0);
+    M(new T.SphereGeometry(0.035, 10, 8), face, 0, -0.06, -0.06, headG).scale.set(1.3, 0.8, 1);           // jaw / chin
     if (host) {
-      M(new T.SphereGeometry(0.104, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), hair, 0, 0.02, 0.01, headG).scale.set(0.95, 1.1, 1.05);
-    } else if (armour) {
-      const hel = M(new T.SphereGeometry(0.125, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.52), helmM, 0, 0.025, 0.005, headG); hel.scale.set(1, 0.95, 1.05);
-      for (const sd of [-1, 1]) { M(new T.BoxGeometry(0.03, 0.05, 0.11), helmM, sd * 0.118, 0.02, 0.0, headG); M(new T.CylinderGeometry(0.035, 0.035, 0.03, 12), gearDk, sd * 0.11, -0.02, 0.005, headG).rotation.z = Math.PI / 2; } // rails + ear pro
-      M(new T.BoxGeometry(0.06, 0.05, 0.04), gunM, 0, 0.085, -0.11, headG);                           // NVG mount
-      M(new T.BoxGeometry(0.15, 0.04, 0.04), lensM, 0, 0.015, -0.1, headG);                           // goggles
+      M(new T.SphereGeometry(0.104, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.5), hair, 0, 0.018, 0.012, headG).scale.set(0.95, 1.12, 1.05);
+      M(new T.SphereGeometry(0.016, 8, 6), skin, 0, -0.01, -0.1, headG);                                // nose
+      for (const sd of [-1, 1]) { M(new T.SphereGeometry(0.009, 8, 6), hair, sd * 0.033, 0.02, -0.09, headG); M(new T.SphereGeometry(0.02, 8, 6), skin, sd * 0.09, 0, 0, headG).scale.set(0.5, 1, 0.8); } // eyes, ears
     } else {
-      M(new T.CylinderGeometry(0.115, 0.11, 0.06, 16), uni, 0, 0.06, 0, headG);                       // field cap
-      M(new T.BoxGeometry(0.16, 0.012, 0.09), uni, 0, 0.035, -0.1, headG);                            // peak
-      M(new T.BoxGeometry(0.12, 0.03, 0.03), lensM, 0, 0.005, -0.09, headG);                          // shades
+      if (armour) {
+        const hel = M(new T.SphereGeometry(0.128, 22, 14, 0, Math.PI * 2, 0, Math.PI * 0.5), helmM, 0, 0.02, 0.005, headG); hel.scale.set(1, 1.02, 1.08);
+        M(new T.CylinderGeometry(0.13, 0.132, 0.03, 22, 1, true), helmM, 0, 0.015, 0.005, headG).scale.set(1, 1, 1.08);
+        for (const sd of [-1, 1]) { rbox(0.02, 0.04, 0.12, 0.006, hard, sd * 0.125, 0.04, 0.01, headG); M(new T.CylinderGeometry(0.042, 0.042, 0.035, 16), hard, sd * 0.112, -0.02, 0.005, headG).rotation.z = Math.PI / 2; }
+        M(new T.TorusGeometry(0.115, 0.01, 6, 20, Math.PI), hard, 0, 0.0, 0.005, headG).rotation.set(0, Math.PI / 2, 0);   // headset band
+        rbox(0.06, 0.04, 0.03, 0.008, hard, 0, 0.1, -0.11, headG);                                          // NVG shroud
+        rbox(0.08, 0.05, 0.04, 0.01, pouchM, 0, 0.06, 0.13, headG);                                        // counterweight
+      } else {
+        lath([[0.08, 0.02], [0.075, 0.09], [0.04, 0.112], [0.02, 0.114]], uni, headG, 1, 1.05);              // field cap
+        rbox(0.15, 0.012, 0.09, 0.004, uni, 0, 0.03, -0.1, headG).rotation.x = -0.12;                      // peak
+      }
+      // goggles / glasses with a strap
+      rbox(0.15, 0.045, 0.03, 0.012, lens, 0, 0.012, -0.093, headG);
+      M(new T.TorusGeometry(0.1, 0.007, 6, 20, Math.PI), strap, 0, 0.012, 0.0, headG).rotation.set(Math.PI / 2, 0, 0);
     }
-    // arms: shoulder -> upper arm -> elbow -> forearm -> glove
+    // ---- arms ----
     const arms = [];
     for (const sd of [-1, 1]) {
-      const sh = G(sd * 0.215, 0.45, 0, spine);
-      M(new T.SphereGeometry(0.06, 10, 8), uni, 0, 0, 0, sh);
-      M(new T.CapsuleGeometry(0.052, 0.22, 4, 8), uni, 0, -0.15, 0, sh);
-      const el = G(0, -0.3, 0, sh);
-      M(new T.CapsuleGeometry(0.047, 0.2, 4, 8), uni, 0, -0.13, 0, el);
-      M(new T.SphereGeometry(0.045, 10, 8), host ? face : glove, 0, -0.29, 0, el).scale.set(0.9, 1.2, 0.8);
-      arms.push({ sh, el, sd });
+      const shG = G(sd * 0.205, 0.44, 0, spine);
+      M(new T.SphereGeometry(0.065, 14, 10), uni, 0, 0, 0, shG).scale.set(1, 0.95, 0.9);                     // deltoid
+      lath([[0.0, 0.058], [-0.08, 0.057], [-0.2, 0.05], [-0.29, 0.046]], uni, shG);
+      if (!host) rbox(0.04, 0.06, 0.07, 0.01, uni, sd * 0.055, -0.1, 0, shG);                                // sleeve pocket
+      const el = G(0, -0.3, 0, shG);
+      lath([[0.0, 0.047], [-0.08, 0.05], [-0.2, 0.04], [-0.25, 0.035]], host ? skin : uni, el);
+      // gloved hand
+      const hd = G(0, -0.29, 0, el);
+      M(new T.SphereGeometry(0.04, 12, 10), host ? skin : glove, 0, 0, 0, hd).scale.set(0.8, 1.15, 0.6);
+      M(new T.CapsuleGeometry(0.014, 0.03, 3, 8), host ? skin : glove, -sd * 0.03, 0.0, -0.02, hd).rotation.z = sd * 0.6;
+      if (!host) M(new T.BoxGeometry(0.045, 0.03, 0.02), gloveTan, 0, 0.02, 0.025, hd);
+      arms.push({ sh: shG, el, sd });
     }
-    // rifle held at the low ready (foes only)
+    // ---- rifle at the low ready ----
     let rifle = null;
     if (!host) {
       rifle = G(0.05, 0.22, -0.2, spine);
-      M(new T.BoxGeometry(0.05, 0.08, 0.36), gunM, 0, 0, 0, rifle);
-      M(new T.BoxGeometry(0.035, 0.06, 0.24), gunM, 0, 0.0, -0.3, rifle);
-      M(new T.CylinderGeometry(0.012, 0.012, 0.22, 8), gunM, 0, 0.01, -0.5, rifle).rotation.x = Math.PI / 2;
-      M(new T.BoxGeometry(0.035, 0.12, 0.06), gunM, 0, -0.09, -0.05, rifle).rotation.x = 0.25;        // mag
-      M(new T.BoxGeometry(0.04, 0.1, 0.18), gunM, 0, -0.01, 0.25, rifle);                            // stock
-      M(new T.BoxGeometry(0.035, 0.04, 0.07), lensM, 0, 0.06, 0.0, rifle);                           // optic
+      rbox(0.045, 0.07, 0.3, 0.008, gunM, 0, 0, 0.0, rifle);
+      M(new T.CylinderGeometry(0.025, 0.025, 0.26, 8), gunM, 0, 0.005, -0.27, rifle).rotation.x = Math.PI / 2;
+      M(new T.CylinderGeometry(0.01, 0.01, 0.2, 8), gunM, 0, 0.005, -0.5, rifle).rotation.x = Math.PI / 2;
+      M(new T.CylinderGeometry(0.014, 0.014, 0.05, 8), gunM, 0, 0.005, -0.62, rifle).rotation.x = Math.PI / 2;
+      rbox(0.03, 0.13, 0.065, 0.01, gunM, 0, -0.09, -0.06, rifle).rotation.x = 0.2;                        // mag
+      rbox(0.03, 0.09, 0.035, 0.01, gunM, 0, -0.07, 0.07, rifle).rotation.x = -0.3;                        // grip
+      rbox(0.04, 0.09, 0.2, 0.015, gunM, 0, -0.01, 0.24, rifle);                                           // stock
+      rbox(0.035, 0.045, 0.07, 0.008, hard, 0, 0.06, 0.0, rifle); M(new T.PlaneGeometry(0.025, 0.025), lens, 0, 0.06, -0.036, rifle).rotation.y = Math.PI; // optic
+      rbox(0.012, 0.012, 0.36, 0.003, gunM, 0, 0.04, -0.2, rifle);                                          // rail
       rifle.rotation.set(-0.45, -0.12, 0);
     }
     // invisible hit boxes, attached so they follow crouching and falling
@@ -1874,7 +1917,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const hBody = new T.Mesh(new T.BoxGeometry(0.56, 0.62, 0.34), hb); hBody.userData.part = 'body'; hBody.position.set(0, 0.27, 0); spine.add(hBody);
     const hLegs = new T.Mesh(new T.BoxGeometry(0.34, 1, 0.26), hb); hLegs.userData.part = 'body'; fall.add(hLegs);
     scene.add(root);
-    return { root, fall, pelvis, spine, headG, legs, arms, rifle, host, mats, hit: [hHead, hBody, hLegs], hLegs, phase: Math.random() * 6, fallDir: null };
+    return { root, fall, pelvis, spine, headG, legs, arms, rifle, host, mats, shadow: sh, hit: [hHead, hBody, hLegs], hLegs, phase: Math.random() * 6, fallDir: null };
   }
   function dropBot(t) { if (!t.bot) return; scene.remove(t.bot.root); t.bot.mats.forEach(m => m.dispose()); t.bot = null; }
   const ease = p => p < 0 ? 0 : p > 1 ? 1 : 1 - Math.pow(1 - p, 3);
