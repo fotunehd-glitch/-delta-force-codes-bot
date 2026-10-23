@@ -410,6 +410,30 @@ html.noribbon .ribnote{display:none}
 #senslab .panel { display: grid; gap: 18px; }
 #senslab .label { font-family: var(--display); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 #senslab h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; letter-spacing: .03em; }
+#senslab .drills { gap: 12px; }
+#senslab .dhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+#senslab .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+#senslab .chip { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer; }
+#senslab .chip:hover { color: var(--fg); }
+#senslab .chip[aria-selected="true"] { color: #062014; background: var(--green); border-color: var(--green); }
+#senslab .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+#senslab .dcard { text-align: left; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; padding: 0 0 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; color: var(--fg); font: inherit; transition: border-color .15s, transform .15s; }
+#senslab .dcard:hover { border-color: #2f4560; transform: translateY(-2px); }
+#senslab .dcard[aria-pressed="true"] { border-color: var(--green); box-shadow: 0 0 0 1px var(--green), 0 0 18px rgba(15,247,150,.18); }
+#senslab .dcard .thumb { height: 74px; display: grid; place-items: center; background: radial-gradient(120% 120% at 50% 0%, #1d2a3b, #0c1118); border-bottom: 1px solid var(--line); }
+#senslab .dcard.df .thumb { background: radial-gradient(120% 120% at 50% 0%, #2b2f2a, #12140f); }
+#senslab .dcard .thumb svg { width: 64px; height: 50px; }
+#senslab .dcard .tag { padding: 0 12px; font-family: var(--display); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); }
+#senslab .dcard.df .tag { color: var(--yellow); }
+#senslab .dcard .nm { padding: 0 12px; font-family: var(--display); font-weight: 700; font-size: 16px; }
+#senslab .dcard .ds { padding: 0 12px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+#senslab .dcard .ft { padding: 0 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--muted); }
+#senslab .dcard .lv { display: inline-flex; gap: 3px; }
+#senslab .dcard .lv i { width: 14px; height: 4px; border-radius: 2px; background: var(--line); }
+#senslab .dcard .lv i.on { background: var(--green); }
+#senslab .dcard .bs b { color: var(--fg); }
+#senslab .df-only.dim { opacity: .35; }
+#senslab .gridnote { margin: 0; flex-basis: 100%; }
 #senslab .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
 #senslab .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
 #senslab .fields { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -723,6 +747,10 @@ html.noribbon .ribnote{display:none}
 
   <!-- ============ RANGE ============ -->
   <section class="panel" id="p-range" role="tabpanel" aria-labelledby="t-range">
+    <div class="card drills">
+      <div class="dhead"><span class="label">Pick a drill</span><div class="chips" id="d-chips" role="tablist" aria-label="Drill type"></div></div>
+      <div class="dgrid" id="d-grid"></div>
+    </div>
     <div class="grid2">
       <div class="card">
         <span class="label">Your setup</span>
@@ -735,20 +763,21 @@ html.noribbon .ribnote{display:none}
         </div>
       </div>
       <div class="card">
-        <span class="label">Drill</span>
+        <span class="label">Range settings</span>
         <div class="fields">
-          <div class="field"><label class="label" for="r-mode">Drill</label>
-            <select id="r-mode"><option value="flick">Pop-up flicks (6–20 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (25–38 m)</option><option value="track">Tracking</option></select></div>
-          <div class="field"><label class="label" for="r-wpn">Weapon</label>
+          <div class="field" hidden><label class="label" for="r-mode">Drill</label>
+            <select id="r-mode"><option value="flick">Pop-up flicks (6–20 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (25–38 m)</option><option value="track">Tracking</option><option value="multi">Bot switching</option><option value="grid">Grid Blitz</option><option value="spider">Centre Flick</option><option value="reflex">Reflex Pop</option><option value="orb">Orb Track</option><option value="switch">Orb Switch</option><option value="sensfind">Sens Finder</option></select></div>
+          <div class="field df-only"><label class="label" for="r-wpn">Weapon</label>
             <select id="r-wpn"><option value="m4">M4A1 · auto</option><option value="akm">AKM · auto</option><option value="sr25">SR-25 · semi</option><option value="deagle">Desert Eagle · semi</option><option value="awm">AWM · bolt, scope</option></select></div>
           <div class="field"><label class="label" for="r-len">Length</label><select id="r-len"><option value="30">30 s</option><option value="60" selected>60 s</option></select></div>
-          <div class="field"><label class="label" for="r-count">Targets at once</label><select id="r-count"><option>1</option><option>2</option><option>3</option></select></div>
-          <div class="field"><label class="label" for="r-move">Targets move</label><select id="r-move"><option value="on" selected>Yes</option><option value="off">No</option></select></div>
-          <div class="field"><label class="label" for="r-speed">Move speed</label><select id="r-speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
-          <div class="field"><label class="label" for="r-vanish">Targets vanish</label><select id="r-vanish"><option value="0">Never</option><option value="3">After 3 s</option><option value="2">After 2 s</option><option value="1.5">After 1.5 s</option></select></div>
-          <div class="field"><label class="label" for="r-host">Hostages</label><select id="r-host"><option value="off">Off</option><option value="on">On</option></select></div>
-          <div class="field"><label class="label" for="r-hp">Target HP</label><select id="r-hp"><option value="0">One shot</option><option value="100">100</option><option value="200">200 (armour)</option><option value="300">300 (armour)</option></select></div>
-          <div class="field"><label class="label" for="r-ammo">Ammo</label><select id="r-ammo"><option value="inf">Unlimited (no reload)</option><option value="mag">Magazine + reload</option></select></div>
+          <div class="field df-only"><label class="label" for="r-count">Targets at once</label><select id="r-count"><option>1</option><option>2</option><option>3</option></select></div>
+          <div class="field df-only"><label class="label" for="r-move">Targets move</label><select id="r-move"><option value="on" selected>Yes</option><option value="off">No</option></select></div>
+          <div class="field df-only"><label class="label" for="r-speed">Move speed</label><select id="r-speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
+          <div class="field df-only"><label class="label" for="r-vanish">Targets vanish</label><select id="r-vanish"><option value="0">Never</option><option value="3">After 3 s</option><option value="2">After 2 s</option><option value="1.5">After 1.5 s</option></select></div>
+          <div class="field df-only"><label class="label" for="r-host">Hostages</label><select id="r-host"><option value="off">Off</option><option value="on">On</option></select></div>
+          <div class="field df-only"><label class="label" for="r-hp">Target HP</label><select id="r-hp"><option value="0">One shot</option><option value="100">100</option><option value="200">200 (armour)</option><option value="300">300 (armour)</option></select></div>
+          <div class="field df-only"><label class="label" for="r-ammo">Ammo</label><select id="r-ammo"><option value="inf">Unlimited (no reload)</option><option value="mag">Magazine + reload</option></select></div>
+          <p class="sl-sub gridnote" id="r-gridnote" hidden>Aim trainer drills use a plain room and a crosshair, so the weapon and target settings above only apply to Delta Force range drills.</p>
           <div class="field"><label class="label" for="r-snd">Sound</label><select id="r-snd"><option value="on">On</option><option value="off">Off</option></select></div>
         </div>
       </div>
@@ -1652,7 +1681,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   let kills = 0, heads = 0, shots = 0, hitsN = 0, hostHits = 0, missedT = 0, points = 0, killTimes = [], reacts = [], shotsPerKill = [];
   let over = 0, under = 0, clean = 0;
   let ammo = 30, reloadUntil = 0, nextShot = 0, fireHeld = false, ads = false, adsT = 0, kickT = 0, flashT = 0;
-  let yawVel = 0, frameYaw = 0, swayX = 0, swayY = 0;
+  let yawVel = 0, frameYaw = 0, swayX = 0, swayY = 0, sensMul = 1;
 
   const WEAPONS = {
     m4:     { name: 'M4A1',         dmg: 34,  mode: 'AUTO', rpm: 750, mag: 30, reload: 2200, kick: 0.6, zoom: 1.4, armour: 2 },
@@ -1664,7 +1693,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const wpn = () => WEAPONS[$('r-wpn').value] || WEAPONS.m4;
   function zoomNow() { return 1 + (wpn().zoom - 1) * adsT; }
   function degPerCount() {
-    const dpi = +$('r-dpi').value || 800, cm = +$('r-cm').value || 30, base = 360 / (cm / 2.54 * dpi);
+    const dpi = +$('r-dpi').value || 800, cm = +$('r-cm').value || 30, base = 360 / (cm / 2.54 * dpi) * sensMul;
     return ads ? base / zoomNow() * (+$('r-ads').value || 1) : base;
   }
   // my world: x right, y up, z down range.  three.js: same but z flipped
@@ -2481,6 +2510,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const hf = Math.min(120, Math.max(60, +$('r-fov').value || 90)) * D2R, aspect = w / h;
     cam.aspect = aspect; cam.fov = 2 * Math.atan(Math.tan(hf / 2) / zoomNow() / aspect) / D2R; cam.updateProjectionMatrix();
     cam.rotation.set(pitch * D2R, -yaw * D2R, 0);
+    if (isGrid()) { if (!gScene) buildGrid(); poseGrid(now); renderer.autoClear = true; renderer.render(gScene, cam); return; }
     for (const t of targets) poseBot(t, now);
     poseGun(now);
     gunCam.aspect = aspect; gunCam.updateProjectionMatrix();
@@ -2511,6 +2541,176 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   };
   const SPEEDS = { slow: 1.3, normal: 2.2, fast: 3.4 };
   const drill = () => DRILL[$('r-mode').value] || DRILL.flick;
+  /* ---------- aim trainer drills: a plain grid room with simple targets, plus the sens finder ---------- */
+  Object.assign(DRILL.flick, { cat: 'flick', lvl: 2, desc: 'Soldiers pop up around the range. Flick to them and drop them fast.' });
+  Object.assign(DRILL.wide, { cat: 'flick', lvl: 1, desc: 'Close bots spread wide left and right. Big, fast flicks.' });
+  Object.assign(DRILL.micro, { cat: 'click', lvl: 3, desc: 'Far bots at 25–38 m with tiny heads. Slow down and be precise.' });
+  Object.assign(DRILL.track, { cat: 'track', lvl: 2, desc: 'One tough bot strafes side to side. Stay on him until he drops.' });
+  Object.assign(DRILL, {
+    multi: { name: 'Bot switching', dist: [6, 18], ang: 40, count: 3, move: true, cat: 'switch', lvl: 2, desc: 'Three strafing bots at once. Drop one, snap to the next.' },
+    grid: { name: 'Grid Blitz', env: 'grid', cat: 'flick', lvl: 1, desc: 'Three tiles on a wall. Shoot one and another pops up somewhere new.' },
+    spider: { name: 'Centre Flick', env: 'grid', cat: 'flick', lvl: 2, desc: 'Flick out to a target, then back to the middle one. Over and over.' },
+    reflex: { name: 'Reflex Pop', env: 'grid', cat: 'click', lvl: 3, desc: 'Small targets show up for under a second. Hit them before they vanish.' },
+    orb: { name: 'Orb Track', env: 'grid', cat: 'track', lvl: 2, desc: 'Keep your crosshair on the moving orb. Scores your time on target.' },
+    switch: { name: 'Orb Switch', env: 'grid', cat: 'switch', lvl: 2, desc: 'Four moving orbs. Clear them one after another as fast as you can.' },
+    sensfind: { name: 'Sens Finder', env: 'grid', cat: 'setup', lvl: 1, desc: 'Five short rounds, each at a secretly different speed. Tells you which sens you aim best with.' },
+  });
+  const isGrid = () => !!drill().env;
+  let gScene = null, gTargets = [], gS = {}, gNext = 0, sf = null, sfBest = 0;
+  const G_BOX = { x0: -6, x1: 6, y0: 0.9, y1: 5.6, z: 14 };
+  let gGeo = null, gMat = null;
+  function buildGrid() {
+    gScene = new T.Scene(); gScene.background = new T.Color('#0b0f15');
+    gScene.add(new T.HemisphereLight('#dce6f5', '#2a3140', 2.2)); gScene.add(new T.AmbientLight('#ffffff', 0.5));
+    const d = new T.DirectionalLight('#ffffff', 1.8); d.position.set(-3, 8, 6); gScene.add(d);
+    const gridTex = (base, line, major, rx, ry) => canvasTex(512, 512, (g, w, h) => { g.fillStyle = base; g.fillRect(0, 0, w, h); g.strokeStyle = line; g.lineWidth = 2; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * 64, 0); g.lineTo(i * 64, h); g.moveTo(0, i * 64); g.lineTo(w, i * 64); g.stroke(); } g.strokeStyle = major; g.lineWidth = 4; g.strokeRect(0, 0, w, h); }, rx, ry);
+    const room = new T.Mesh(new T.BoxGeometry(40, 14, 34), [
+      new T.MeshStandardMaterial({ map: gridTex('#212b39', '#2e3d52', '#3d5270', 8, 3), side: T.BackSide, roughness: 0.9 }), new T.MeshStandardMaterial({ map: gridTex('#212b39', '#2e3d52', '#3d5270', 8, 3), side: T.BackSide, roughness: 0.9 }),
+      new T.MeshStandardMaterial({ color: '#0e131a', side: T.BackSide, roughness: 1 }), new T.MeshStandardMaterial({ map: gridTex('#1a222d', '#283444', '#34465e', 10, 8), side: T.BackSide, roughness: 0.85 }),
+      new T.MeshStandardMaterial({ map: gridTex('#212b39', '#2e3d52', '#3d5270', 10, 4), side: T.BackSide, roughness: 0.9 }), new T.MeshStandardMaterial({ map: gridTex('#212b39', '#2e3d52', '#3d5270', 10, 4), side: T.BackSide, roughness: 0.9 })]);
+    room.position.copy(V(0, 7, 11)); gScene.add(room);
+    // the target wall: a lighter panel with its own grid
+    const wall = new T.Mesh(new T.PlaneGeometry(15, 7), new T.MeshStandardMaterial({ map: gridTex('#2a374a', '#3d5170', '#55709a', 3, 1.4), roughness: 0.8 }));
+    wall.position.copy(V(0, 3.25, G_BOX.z + 0.6)); gScene.add(wall);
+    const edge = new T.Mesh(new T.PlaneGeometry(15.2, 7.2), new T.MeshBasicMaterial({ color: '#0ff796', transparent: true, opacity: 0.25 })); edge.position.copy(V(0, 3.25, G_BOX.z + 0.62)); gScene.add(edge);
+    const floorLine = new T.Mesh(new T.PlaneGeometry(40, 0.04), new T.MeshBasicMaterial({ color: '#0ff796', transparent: true, opacity: 0.4 })); floorLine.rotation.x = -Math.PI / 2; floorLine.position.copy(V(0, 0.01, 2)); gScene.add(floorLine);
+    gGeo = { sphere: new T.SphereGeometry(1, 28, 20), tile: new T.BoxGeometry(1, 1, 0.18) };
+    gMat = c => new T.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.8, roughness: 0.35, metalness: 0.1 });
+  }
+  const gColor = () => ({ orb: '#2ee6ff', switch: '#ffd24a', reflex: '#ff5a7a' })[$('r-mode').value] || '#ff9f1a';
+  function gAdd(o) {
+    const geo = o.shape === 'tile' ? gGeo.tile : gGeo.sphere, m = new T.Mesh(geo, gMat(o.color || gColor()));
+    gScene.add(m); const t = Object.assign({ born: performance.now(), vx: 0, vy: 0, mesh: m }, o); m.userData.g = t; gTargets.push(t); return t;
+  }
+  function gDel(t) { gScene.remove(t.mesh); t.mesh.material.dispose(); gTargets = gTargets.filter(x => x !== t); }
+  function gClear() { gTargets.slice().forEach(gDel); }
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function gFreeCell() { // 5 x 5 cells on the wall, never one already in use
+    for (let k = 0; k < 50; k++) { const c = Math.floor(Math.random() * 25); if (!gTargets.some(t => t.cell === c) && c !== gS.lastCell) return c; } return 12;
+  }
+  function gSpawn(kind) {
+    const mode = $('r-mode').value;
+    if (mode === 'grid') { const c = gFreeCell(); gS.lastCell = c; return gAdd({ shape: 'tile', cell: c, x: (c % 5 - 2) * 1.6, y: 1.1 + Math.floor(c / 5) * 1.05, z: G_BOX.z, r: 0.45 }); }
+    if (mode === 'spider' || mode === 'sensfind') {
+      if (kind === 'centre') return gAdd({ centre: true, x: 0, y: 2.6, z: G_BOX.z, r: 0.3, color: '#0ff796' });
+      const a = Math.random() * Math.PI * 2, d = rnd(1.8, 5.2); return gAdd({ x: Math.max(G_BOX.x0, Math.min(G_BOX.x1, Math.cos(a) * d)), y: Math.max(G_BOX.y0, Math.min(G_BOX.y1, 2.6 + Math.sin(a) * d * 0.55)), z: G_BOX.z, r: 0.32 });
+    }
+    if (mode === 'reflex') return gAdd({ x: rnd(G_BOX.x0, G_BOX.x1), y: rnd(G_BOX.y0, G_BOX.y1), z: G_BOX.z, r: 0.24, life: 850 });
+    if (mode === 'orb') return gAdd({ x: 0, y: 2.6, z: G_BOX.z - 1, r: 0.45, turnAt: 0 });
+    if (mode === 'switch') { const a = Math.random() * Math.PI * 2, s = rnd(1, 2.2); return gAdd({ x: rnd(G_BOX.x0, G_BOX.x1), y: rnd(G_BOX.y0, G_BOX.y1), z: G_BOX.z - rnd(0, 2), r: 0.35, vx: Math.cos(a) * s, vy: Math.sin(a) * s }); }
+  }
+  function gridIdle() { if (!ready) return; if (!gScene) buildGrid(); gClear(); gS = {}; const mode = $('r-mode').value; const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && (mode === 'spider' || mode === 'sensfind') ? 'centre' : 'out'); }
+  function gridStart(now) {
+    if (!gScene) buildGrid(); gClear(); gNext = 0;
+    gS = { hits: 0, misses: 0, timeouts: 0, onTime: 0, totTime: 0, times: [] };
+    const mode = $('r-mode').value; sensMul = 1;
+    if (mode === 'sensfind') {
+      const ms = [0.8, 0.9, 1.0, 1.12, 1.25].sort(() => Math.random() - 0.5);
+      sf = { i: 0, rounds: ms.map(m => ({ m, hits: 0, misses: 0, times: [] })), phase: 'play', until: now + 12000 }; sensMul = sf.rounds[0].m; endAt = Infinity;
+      gSpawn('centre');
+    } else { sf = null; const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && mode === 'spider' ? 'centre' : 'out'); }
+  }
+  function gridShift(gap) { gTargets.forEach(t => { t.born += gap; if (t.turnAt) t.turnAt += gap; }); if (gNext) gNext += gap; if (sf) sf.until += gap; }
+  function gridStep(now, dt) {
+    const mode = $('r-mode').value;
+    if (sf) {
+      if (now >= sf.until) {
+        if (sf.phase === 'play') { sf.phase = 'gap'; sf.until = now + 1800; gClear(); sensMul = 1; }
+        else { sf.i++; if (sf.i >= sf.rounds.length) { finish(); return; } sf.phase = 'play'; sf.until = now + 12000; sensMul = sf.rounds[sf.i].m; gSpawn('centre'); }
+      }
+      if (sf.phase === 'gap') return;
+    }
+    for (const t of gTargets.slice()) {
+      if (mode === 'orb') {
+        if (now > t.turnAt) { const a = Math.random() * Math.PI * 2, s = rnd(1.8, 4.2); t.vx = Math.cos(a) * s; t.vy = Math.sin(a) * s * 0.6; t.turnAt = now + rnd(350, 1100); }
+      }
+      if (t.vx || t.vy) {
+        t.x += t.vx * dt; t.y += t.vy * dt;
+        if (t.x < G_BOX.x0 || t.x > G_BOX.x1) { t.vx = -t.vx; t.x = Math.max(G_BOX.x0, Math.min(G_BOX.x1, t.x)); }
+        if (t.y < G_BOX.y0 || t.y > G_BOX.y1) { t.vy = -t.vy; t.y = Math.max(G_BOX.y0, Math.min(G_BOX.y1, t.y)); }
+      }
+      if (t.life && now - t.born > t.life) { gDel(t); gS.timeouts++; gNext = now + 220; }
+    }
+    if (mode === 'reflex' && !gTargets.length && gNext && now >= gNext) { gNext = 0; gSpawn(); }
+    if (mode === 'orb') { // time with the crosshair on the orb
+      gS.totTime += dt; const t = gTargets[0];
+      if (t) { poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld(); t.on = ray().intersectObject(t.mesh, false).length > 0; if (t.on) { gS.onTime += dt; points = Math.round(gS.onTime * 150); } }
+    }
+  }
+  function poseGrid(now) {
+    for (const t of gTargets) {
+      t.mesh.position.copy(V(t.x, t.y, t.z));
+      let s = t.r; if (t.life) s *= Math.max(0.35, 1 - (now - t.born) / t.life * 0.6);
+      if (t.shape === 'tile') t.mesh.scale.set(t.r * 2, t.r * 2, 1); else t.mesh.scale.setScalar(s);
+      t.mesh.material.emissiveIntensity = t.on ? 1.6 : 0.8;
+    }
+  }
+  function gridShot(now) {
+    const mode = $('r-mode').value;
+    if (sf && sf.phase !== 'play') return;
+    poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld();
+    const hit = ray().intersectObjects(gTargets.map(t => t.mesh), false)[0];
+    const R = sf ? sf.rounds[sf.i] : null;
+    if (!hit) { gS.misses++; if (R) R.misses++; for (const t of gTargets) t.missed = (t.missed || 0) + 1; tone([420], 0.02, 0.04, 'triangle'); return; }
+    const t = hit.object.userData.g, took = now - t.born, p = hit.point;
+    gS.hits++; hitsN++; kills++; killTimes.push(took); gS.times.push(took); if (R) { R.hits++; R.times.push(took); }
+    points += 60 + Math.max(0, Math.round(60 * (1 - (took - 150) / 800)));
+    fx.push({ k: 'spark', x: p.x, y: p.y, z: -p.z, t: now, life: 220, dirs: Array.from({ length: 6 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) });
+    marker = { t: now }; ping(false);
+    gDel(t);
+    if (mode === 'grid' || mode === 'switch') gSpawn();
+    else if (mode === 'spider' || mode === 'sensfind') gSpawn(t.centre ? 'out' : 'centre');
+    else if (mode === 'reflex') gNext = now + 200;
+  }
+  function gridFinish() {
+    state = 'done'; cancelAnimationFrame(raf); fireHeld = false; ads = false; adsT = 0; sensMul = 1;
+    if (document.pointerLockElement === box) document.exitPointerLock();
+    const mode = $('r-mode').value, sens = +$('r-sens').value, cm = +$('r-cm').value;
+    if (mode === 'sensfind' && sf) {
+      // score each round: hits per minute, scaled by accuracy and speed
+      const rows = sf.rounds.map(r => { const acc = r.hits / Math.max(1, r.hits + r.misses), avgT = r.times.length ? avg(r.times) : 1500; return { ...r, acc, avgT, score: Math.round(r.hits * 5 * acc * Math.min(1.3, 650 / Math.max(250, avgT)) * 10) }; }).sort((a, b) => a.m - b.m);
+      // fit a curve through the scores and take its peak (stays within the range tested)
+      let bestM = rows.reduce((a, b) => b.score > a.score ? b : a).m;
+      try { const xs = rows.map(r => Math.log(r.m)), ys = rows.map(r => r.score), n = xs.length; let s0 = n, s1 = 0, s2 = 0, s3 = 0, s4 = 0, t0 = 0, t1 = 0, t2 = 0; xs.forEach((x, i) => { s1 += x; s2 += x * x; s3 += x ** 3; s4 += x ** 4; t0 += ys[i]; t1 += x * ys[i]; t2 += x * x * ys[i]; });
+        const det = (a, b, c, d, e, f, g, h, k) => a * (e * k - f * h) - b * (d * k - f * g) + c * (d * h - e * g), D = det(s4, s3, s2, s3, s2, s1, s2, s1, s0);
+        const A = det(t2, s3, s2, t1, s2, s1, t0, s1, s0) / D, B = det(s4, t2, s2, s3, t1, s1, s2, t0, s0) / D;
+        if (A < 0) { const xv = -B / (2 * A); bestM = Math.exp(Math.max(Math.log(0.8), Math.min(Math.log(1.25), xv))); } } catch (e) {}
+      sfBest = Math.max(0.01, Math.round(sens * bestM * 100) / 100);
+      const verdict = Math.abs(bestM - 1) < 0.05 ? 'Your current sens is already about right.' : bestM > 1 ? 'You aimed better a little <b>faster</b> than your current sens.' : 'You aimed better a little <b>slower</b> than your current sens.';
+      overlay(`<div class="t">Sens Finder</div>
+        <div class="sl-sub">Your best sens</div><div class="rank" style="color:#0ff796">${sfBest.toFixed(2)}</div>
+        <div class="sl-sub">Delta Force sens at ${$('r-dpi').value} DPI · about ${(cm / bestM).toFixed(1)} cm/360 (now ${sens.toFixed(2)})</div>
+        <table class="rec"><thead><tr><th>Sens</th><th>Hits</th><th>Accuracy</th><th>Avg time</th><th>Score</th></tr></thead><tbody>${rows.map(r => `<tr${r.m === rows.reduce((a, b) => b.score > a.score ? b : a).m ? ' style="color:#0ff796"' : ''}><td>${(sens * r.m).toFixed(2)}</td><td>${r.hits}</td><td>${Math.round(r.acc * 100)}%</td><td>${r.times.length ? avg(r.times) + ' ms' : '—'}</td><td>${r.score}</td></tr>`).join('')}</tbody></table>
+        <div class="sl-sub verdict">${verdict} Do it two or three times: the answer gets more reliable each go.</div>
+        <div class="obtns"><button class="btn" data-go="usesens">Use ${sfBest.toFixed(2)}</button><button class="sl-ghost" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+      sf = null; gClear(); drawRange(); return;
+    }
+    const len = +$('r-len').value, ppm = Math.round(points * 60 / len), rk = rankFor(ppm), acc = shots ? Math.round(gS.hits / shots * 100) : 0;
+    const onPct = gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) : 0;
+    const isNew = !free && saveBest({ points, kills: mode === 'orb' ? onPct + '%' : gS.hits, heads: 0, acc: mode === 'orb' ? onPct : acc, avg: avg(gS.times), rank: rk[0], wpn: 'Aim trainer', sens: sens.toFixed(2) });
+    showBest(); drillCards(); syncDrillUI();
+    const cells = mode === 'orb' ? `<div><span>On target</span><b>${onPct}%</b></div><div><span>Time on target</span><b>${gS.onTime.toFixed(1)} s</b></div>`
+      : `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Avg time</span><b>${gS.times.length ? avg(gS.times) + ' ms' : '—'}</b></div><div><span>Misses</span><b>${gS.misses}</b></div>${gS.timeouts ? `<div><span>Too slow</span><b class="bad">${gS.timeouts}</b></div>` : ''}`;
+    overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
+      <div class="t">${points.toLocaleString('en-GB')} points</div><div class="sl-res">${cells}</div>
+      <div class="obtns"><button class="btn" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+    gClear(); gridIdle(); $('r-time').textContent = $('r-len').value; drawRange();
+  }
+  function drawGridHUD(w, h, now) {
+    if (state !== 'run') return;
+    const mode = $('r-mode').value, px = 16, py = 16, pw = 270;
+    ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 70);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif';
+    const rows = mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
+      : [['HITS', String(gS.hits)], ['ACCURACY', shots ? Math.round(gS.hits / shots * 100) + '%' : '—'], ['AVG TIME', gS.times.length ? avg(gS.times) + ' ms' : '—']];
+    rows.forEach(([k, v], i) => { ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(k, px + 12 + i * 88, py + 22); ctx.fillStyle = '#e3ebf2'; ctx.font = '700 18px "JetBrains Mono", monospace'; ctx.fillText(v, px + 12 + i * 88, py + 48); });
+    if (sf) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#ffe000'; ctx.font = '700 14px "Chakra Petch", sans-serif';
+      ctx.fillText(`ROUND ${sf.i + 1} OF ${sf.rounds.length}${sf.phase === 'play' ? '  ·  ' + Math.ceil(Math.max(0, sf.until - now) / 1000) + ' s' : ''}`, CX, 82);
+      if (sf.phase === 'gap') { ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#e3ebf2'; ctx.font = '700 28px "Chakra Petch", sans-serif'; ctx.fillText(sf.i + 1 < sf.rounds.length ? 'Next round: new speed' : 'Working out your sens…', CX, CY - 30); ctx.font = '600 13px "IBM Plex Sans", sans-serif'; ctx.fillStyle = '#9fb0bf'; ctx.fillText('Shoot the green centre target, then the orange one, as fast as you can', CX, CY); }
+    }
+  }
+
   // is the mannequin (chest and head) fully visible from the booth? posts, crates and walls must not be in the way
   function clearShot(x, z) {
     if (!ready) return true;
@@ -2550,7 +2750,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   }
   function spawn(now) {
     const d = drill(), live = targets.filter(t => !t.hit);
-    const moving = d.track || $('r-move').value === 'on', range = d.track ? 6 : 2 + Math.random() * 2;
+    const moving = d.track || d.move || $('r-move').value === 'on', range = d.track ? 6 : 2 + Math.random() * 2;
     let a, r, x, z, tries = 0, ok, fb = null;
     do {
       a = (Math.random() * 2 - 1) * d.ang; r = d.dist[0] + Math.random() * (d.dist[1] - d.dist[0]); tries++;
@@ -2574,7 +2774,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     engageReset();
   }
   function fillTargets(now) {
-    const want = drill().track ? 1 : (+$('r-count').value || 1);
+    const want = drill().track ? 1 : (drill().count || +$('r-count').value || 1);
     while (targets.filter(t => !t.hit && t.kind === 'foe').length < want) spawn(now);
   }
 
@@ -2659,12 +2859,13 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(CX - 18, 40, 36, 16); ctx.fillStyle = '#e3ebf2'; ctx.fillText(String(Math.round(heading) % 360).padStart(3, '0'), CX, 42);
 
     const W = wpn(), reloading = now < reloadUntil;
-    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+    if (isGrid()) { drawGridHUD(w, h, now); }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; if (!isGrid()) {
     ctx.fillStyle = reloading ? '#ffe000' : (ammo <= Math.ceil(W.mag / 6) ? '#ff5a5a' : '#e3ebf2');
     const inf = $('r-ammo').value === 'inf';
     ctx.font = '700 30px "JetBrains Mono", monospace'; ctx.fillText(inf ? '∞' : reloading ? '--' : String(ammo), w - 62, h - 16);
     ctx.fillStyle = '#c4ccd4'; ctx.font = '600 14px "JetBrains Mono", monospace'; ctx.fillText('/ ∞', w - 18, h - 18);
-    ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(reloading ? 'RELOADING' : `${W.name.toUpperCase()} · ${W.mode}`, w - 18, h - 50);
+    ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(reloading ? 'RELOADING' : `${W.name.toUpperCase()} · ${W.mode}`, w - 18, h - 50); }
     // points + live target distance
     ctx.textAlign = 'left'; ctx.fillStyle = '#e3ebf2'; ctx.font = '700 18px "JetBrains Mono", monospace';
     if (state === 'run') ctx.fillText(`${points}`, 16, h - 34);
@@ -2673,7 +2874,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     ctx.fillText(state === 'run' ? `POINTS${live ? `  ·  TARGET ${live.dist} M` : ''}` : '', 16, h - 16);
     if (state === 'run' && !free) { const left = Math.max(0, (endAt - now) / 1000); ctx.textAlign = 'right'; ctx.font = '700 16px "JetBrains Mono", monospace'; ctx.fillStyle = left < 5 ? '#ff5a5a' : '#e3ebf2'; ctx.fillText(`0:${String(Math.ceil(left)).padStart(2, '0')}`, w - 18, 70); }
 
-    if (state === 'run') {
+    if (state === 'run' && !isGrid()) {
       const px = 16, py = 16, pw = 220, rows = [['Accuracy', shots ? Math.round(hitsN / shots * 100) + '%' : '—'], ['Headshot %', kills ? Math.round(heads / kills * 100) + '%' : '—'], ['Avg knock-down', killTimes.length ? (avg(killTimes) / 1000).toFixed(2) + ' s' : '—']];
       ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 96); ctx.strokeStyle = '#0ff796'; ctx.lineWidth = 2;
       [[px, py, 1, 1], [px + pw, py, -1, 1], [px, py + 96, 1, -1], [px + pw, py + 96, -1, -1]].forEach(([x, y, a, b]) => { ctx.beginPath(); ctx.moveTo(x + a * 12, y); ctx.lineTo(x, y); ctx.lineTo(x, y + b * 12); ctx.stroke(); });
@@ -2700,7 +2901,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = '#0ff796'; ctx.font = '700 96px "Chakra Petch", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(n > 0 ? String(n) : 'GO', CX, CY - 40);
-      ctx.fillStyle = '#e3ebf2'; ctx.font = '600 14px "Chakra Petch", sans-serif'; ctx.fillText(`${drill().name} · ${wpn().name}${free ? ' · free fire' : ''}`, CX, CY + 30);
+      ctx.fillStyle = '#e3ebf2'; ctx.font = '600 14px "Chakra Petch", sans-serif'; ctx.fillText(`${drill().name}${isGrid() ? '' : ' · ' + wpn().name}${free ? ' · free fire' : ''}`, CX, CY + 30);
     }
   }
 
@@ -2752,6 +2953,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 
   /* ---------- shooting ---------- */
   function fire(now) {
+    if (isGrid()) { if (state !== 'run' || now < nextShot || $('r-mode').value === 'orb') return; nextShot = now + 80; shots++; gridShot(now); updStats(); return; }
     const W = wpn();
     if (state !== 'run' || now < reloadUntil || now < nextShot) return;
     if (ammo <= 0) { reloadUntil = now + W.reload; return; }
@@ -2788,6 +2990,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     yawVel = frameYaw / Math.max(dt, 0.001); frameYaw = 0;
     swayX += (-yawVel * 0.04 - swayX) * Math.min(1, dt * 10); swayX = Math.max(-30, Math.min(30, swayX));
     swayY = Math.sin(now / 600) * 2;
+    if (isGrid()) { ads = false; adsT = 0; if (state === 'run') gridStep(now, dt); return; }
     adsT += ((ads ? 1 : 0) - adsT) * Math.min(1, dt * 14);
     if (state === 'run' && fireHeld && wpn().mode === 'AUTO') fire(now);
     if (reloadUntil && now >= reloadUntil) { ammo = wpn().mag; reloadUntil = 0; }
@@ -2825,7 +3028,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function loop() {
     const now = performance.now();
     step(now);
-    if (state === 'count' && now >= countEnd) { state = 'run'; endAt = free ? Infinity : now + (+$('r-len').value) * 1000; clearTargets(); fillTargets(now); lastT = now; }
+    if (state === 'count' && now >= countEnd) { state = 'run'; endAt = free ? Infinity : now + (+$('r-len').value) * 1000; if (isGrid()) gridStart(now); else { clearTargets(); fillTargets(now); } lastT = now; }
     if (state === 'run' && !free) { $('r-time').textContent = Math.ceil(Math.max(0, (endAt - now) / 1000)); if (now >= endAt) { finish(); return; } }
     drawRange();
     if (state === 'run' || state === 'count') raf = requestAnimationFrame(loop);
@@ -2835,8 +3038,17 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const ov = $('r-overlay'), ovBox = $('r-obox');
   function overlay(html) { ovBox.innerHTML = html; ov.hidden = false; }
   function menu() {
-    if (state !== 'menu' || !targets.length) idleTargets();
+    if (isGrid()) gridIdle(); else if (state !== 'menu' || !targets.length) idleTargets();
     state = 'menu'; ads = false; fireHeld = false;
+    if (isGrid()) {
+      const d = drill(), sf0 = $('r-mode').value === 'sensfind';
+      overlay(`<div class="t">${d.name} <span class="beta">BETA</span></div>
+        <div class="sl-sub">${d.desc}</div>
+        <div class="sl-sub">Aim trainer · sens ${(+$('r-sens').value).toFixed(2)} @ ${$('r-dpi').value} DPI (${(+$('r-cm').value).toFixed(1)} cm/360)${sf0 ? ' · 5 rounds of 12 s' : ''}</div>
+        <div class="obtns"><button class="btn" data-go="test">${sf0 ? 'Find my sens' : 'Start'}</button>${sf0 ? '' : '<button class="sl-ghost" data-go="free">Free play</button>'}<button class="sl-ghost" data-go="records">Records</button><button class="sl-ghost" data-go="full">Fullscreen</button></div>
+        <div class="sl-sub small">${$('r-mode').value === 'orb' ? 'No need to click: just keep your crosshair on the orb.' : sf0 ? 'Each round secretly uses a different sens. Shoot the green centre target, then the orange one, as fast and clean as you can. Esc pauses.' : 'Left click shoots. Esc pauses.'}</div>`);
+      drawRange(); return;
+    }
     overlay(`<div class="t">Firing range <span class="beta">BETA</span></div>
       <div class="betanote">The test range is still in beta, so things may change and the guns and targets are getting better.</div>
       <div class="sl-sub">${drill().name} · ${wpn().name} · sens ${(+$('r-sens').value).toFixed(2)} @ ${$('r-dpi').value} DPI (${(+$('r-cm').value).toFixed(1)} cm/360)</div>
@@ -2864,7 +3076,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   }
   async function resume() {
     if (!(await lock(box))) return;
-    const gap = performance.now() - pausedAt; endAt += gap; countEnd += gap; for (const t of targets) { t.born += gap; if (t.vanishAt) t.vanishAt += gap; }
+    const gap = performance.now() - pausedAt; endAt += gap; countEnd += gap; gridShift(gap); for (const t of targets) { t.born += gap; if (t.vanishAt) t.vanishAt += gap; }
     ov.hidden = true; state = pause.prev || 'run'; lastT = performance.now(); loop();
   }
   const RANKS = [['Bronze', 0, '#c08457'], ['Silver', 2500, '#c9d1d9'], ['Gold', 4500, '#ffd24a'], ['Platinum', 6500, '#7fe7e0'], ['Diamond', 8500, '#8ab4ff'], ['Elite', 10500, '#0ff796']];
@@ -2872,6 +3084,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const avg = a => a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : 0;
   let suggested = 0;
   function finish() {
+    if (isGrid()) return gridFinish();
     state = 'done'; cancelAnimationFrame(raf); fireHeld = false; ads = false; adsT = 0; clearTargets();
     if (document.pointerLockElement === box) document.exitPointerLock();
     const len = +$('r-len').value, ppm = Math.round(points * 60 / len), rk = rankFor(ppm), acc = shots ? Math.round(hitsN / shots * 100) : 0;
@@ -2886,7 +3099,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       else verdict = `Your flicks look balanced (${Math.round(op * 100)}% past, ${Math.round(up * 100)}% short). <b>Your sens looks about right.</b>`;
     }
     const isNew = !free && saveBest({ points, kills, heads, acc, avg: avg(killTimes), rank: rk[0], wpn: wpn().name, sens: sens.toFixed(2) });
-    showBest();
+    showBest(); drillCards(); syncDrillUI();
     overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
       <div class="t">${points.toLocaleString('en-GB')} points</div>
       <div class="sl-res">
@@ -2909,6 +3122,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const go = b.dataset.go;
     if (go === 'test') begin(false); else if (go === 'free') begin(true); else if (go === 'records') records(); else if (go === 'menu') menu();
     else if (go === 'resume') resume(); else if (go === 'quit') { if (document.pointerLockElement === box) document.exitPointerLock(); clearTargets(); menu(); }
+    else if (go === 'usesens') { $('r-sens').value = sfBest.toFixed(2); rFromSens(); $('r-sens').dispatchEvent(new Event('change')); menu(); }
     else if (go === 'retry') { $('r-sens').value = suggested.toFixed(2); rFromSens(); begin(false); }
     else if (go === 'reset') { try { localStorage.removeItem(BEST_KEY); } catch (e2) {} showBest(); records(); }
     else if (go === 'full') { const el = box; (el.requestFullscreen ? el.requestFullscreen() : Promise.reject()).catch(() => {}); }
@@ -2968,7 +3182,48 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   try { const saved = JSON.parse(localStorage.getItem(RSET) || '{}'); RIDS.forEach(id => { if (saved[id] != null) $(id).value = saved[id]; }); } catch (e) {}
   RIDS.forEach(id => $(id).addEventListener('change', () => { try { const o = {}; RIDS.forEach(i => o[i] = $(i).value); localStorage.setItem(RSET, JSON.stringify(o)); } catch (e) {} }));
   function idleTargets() { clearTargets(); [{ x: -3, z: 10 }, { x: 4, z: 15 }, { x: -1, z: 24, vel: 1.2 }, { x: 6, z: 12.5, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
-  idleTargets();
+
+  /* ---------- drill picker cards ---------- */
+  const CATS = [['all', 'All'], ['df', 'Delta Force range'], ['flick', 'Flicking'], ['click', 'Precision'], ['track', 'Tracking'], ['switch', 'Switching'], ['setup', 'Sens finder']];
+  const CATNAME = { flick: 'Flicking', click: 'Precision', track: 'Tracking', switch: 'Switching', setup: 'Setup' };
+  const ORDER = ['sensfind', 'flick', 'wide', 'micro', 'track', 'multi', 'grid', 'spider', 'reflex', 'orb', 'switch'];
+  const ICON = {
+    flick: '<svg viewBox="0 0 64 50"><circle cx="14" cy="30" r="3" fill="#0ff796"/><path d="M17 28 L44 14" stroke="#0ff796" stroke-width="2" stroke-dasharray="3 3"/><circle cx="48" cy="12" r="7" fill="none" stroke="#ff9f1a" stroke-width="2.5"/><circle cx="48" cy="12" r="2.5" fill="#ff9f1a"/></svg>',
+    click: '<svg viewBox="0 0 64 50"><circle cx="32" cy="25" r="16" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="9" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="3" fill="#ff5a7a"/><path d="M32 3v8M32 39v8M10 25h8M46 25h8" stroke="#0ff796" stroke-width="2"/></svg>',
+    track: '<svg viewBox="0 0 64 50"><path d="M6 34 C18 10, 30 44, 42 20 S58 18, 60 14" fill="none" stroke="#2ee6ff" stroke-width="2" stroke-dasharray="4 3"/><circle cx="42" cy="20" r="7" fill="#2ee6ff" opacity=".9"/><path d="M42 9v5M42 26v5M31 20h5M48 20h5" stroke="#0ff796" stroke-width="1.5"/></svg>',
+    switch: '<svg viewBox="0 0 64 50"><circle cx="12" cy="16" r="6" fill="#ffd24a"/><circle cx="34" cy="34" r="6" fill="#ffd24a"/><circle cx="54" cy="14" r="6" fill="#ffd24a"/><path d="M17 19 L29 30 M39 31 L49 18" stroke="#0ff796" stroke-width="2"/></svg>',
+    setup: '<svg viewBox="0 0 64 50"><path d="M8 40 h48" stroke="#3a5070" stroke-width="2"/><path d="M12 40 v-8 M22 40 v-16 M32 40 v-26 M42 40 v-14 M52 40 v-6" stroke="#0ff796" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="10" r="3" fill="#ffe000"/></svg>',
+  };
+  let dCat = 'all';
+  function drillCards() {
+    const chips = $('d-chips'), grid = $('d-grid'); if (!chips || !grid) return;
+    chips.innerHTML = CATS.map(([k, n]) => `<button type="button" class="chip" role="tab" aria-selected="${k === dCat}" data-cat="${k}">${n}</button>`).join('');
+    const best = bestAll(), cur = $('r-mode').value;
+    grid.innerHTML = ORDER.filter(k => DRILL[k] && (dCat === 'all' || (dCat === 'df' ? !DRILL[k].env : DRILL[k].cat === dCat))).map(k => {
+      const d = DRILL[k], df = !d.env, b = best[k + '_' + $('r-len').value];
+      return `<button type="button" class="dcard${df ? ' df' : ''}" data-drill="${k}" aria-pressed="${k === cur}">
+        <span class="thumb">${ICON[d.cat] || ICON.flick}</span>
+        <span class="tag">${df ? 'Delta Force range' : 'Aim trainer'} · ${CATNAME[d.cat] || ''}</span>
+        <span class="nm">${d.name}</span><span class="ds">${d.desc || ''}</span>
+        <span class="ft"><span class="lv" title="Difficulty">${[1, 2, 3].map(i => `<i class="${i <= (d.lvl || 1) ? 'on' : ''}"></i>`).join('')}</span><span class="bs">${k === 'sensfind' ? 'About 1½ min' : b ? `Best <b>${(b.points || 0).toLocaleString('en-GB')}</b>` : 'No score yet'}</span></span>
+      </button>`;
+    }).join('');
+  }
+  function syncDrillUI() {
+    const g = isGrid(); document.querySelectorAll('#p-range .df-only').forEach(el => el.classList.toggle('dim', g)); $('r-gridnote').hidden = !g;
+    document.querySelectorAll('#d-grid .dcard').forEach(c => c.setAttribute('aria-pressed', c.dataset.drill === $('r-mode').value));
+  }
+  $('d-chips').addEventListener('click', e => { const c = e.target.closest('[data-cat]'); if (!c) return; dCat = c.dataset.cat; drillCards(); });
+  $('d-grid').addEventListener('click', e => {
+    const c = e.target.closest('[data-drill]'); if (!c || state === 'run' || state === 'count') return;
+    $('r-mode').value = c.dataset.drill; $('r-mode').dispatchEvent(new Event('input')); $('r-mode').dispatchEvent(new Event('change'));
+    syncDrillUI(); if (state !== 'menu') { state = 'menu'; } menu();
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  $('r-len').addEventListener('input', drillCards);
+  if (!DRILL[$('r-mode').value]) $('r-mode').value = 'flick';
+  drillCards(); syncDrillUI();
+  if (isGrid()) gridIdle(); else idleTargets();
   ammo = wpn().mag; showBest(); updStats(); menu();
 })();
 
