@@ -2664,6 +2664,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     else if (mode === 'reflex') gNext = now + 200;
   }
   function gridFinish() {
+    if (!gS.times) gS = { hits: 0, misses: 0, timeouts: 0, onTime: 0, totTime: 0, times: [] };
     state = 'done'; cancelAnimationFrame(raf); fireHeld = false; ads = false; adsT = 0; sensMul = 1;
     if (document.pointerLockElement === box) document.exitPointerLock();
     const mode = $('r-mode').value, sens = +$('r-sens').value, cm = +$('r-cm').value;
@@ -2683,7 +2684,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
         <div class="sl-sub">Delta Force sens at ${$('r-dpi').value} DPI · about ${dfCm(+$('r-dpi').value, sfBest).toFixed(1)} cm/360 (now ${sens.toFixed(2)})</div>
         <table class="rec"><thead><tr><th>Sens</th><th>Hits</th><th>Accuracy</th><th>Avg time</th><th>Score</th></tr></thead><tbody>${rows.map(r => `<tr${r.m === rows.reduce((a, b) => b.score > a.score ? b : a).m ? ' style="color:#0ff796"' : ''}><td>${(sens * r.m).toFixed(2)}</td><td>${r.hits}</td><td>${Math.round(r.acc * 100)}%</td><td>${r.times.length ? avg(r.times) + ' ms' : '—'}</td><td>${r.score}</td></tr>`).join('')}</tbody></table>
         <div class="sl-sub verdict">${verdict} Do it two or three times: the answer gets more reliable each go.</div>
-        <div class="obtns"><button class="btn" data-go="usesens">Use ${sfBest.toFixed(2)}</button><button class="sl-ghost" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+        <div class="obtns"><button class="btn" data-go="usesens">Use ${sfBest.toFixed(2)}</button><button class="sl-ghost" data-go="test">Go again</button>${nextBtn()}<button class="sl-ghost" data-go="menu">Menu</button></div>`);
       sf = null; gClear(); drawRange(); return;
     }
     const len = +$('r-len').value, ppm = Math.round(points * 60 / len), rk = rankFor(ppm), acc = shots ? Math.round(gS.hits / shots * 100) : 0;
@@ -2694,11 +2695,11 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       : `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Avg time</span><b>${gS.times.length ? avg(gS.times) + ' ms' : '—'}</b></div><div><span>Misses</span><b>${gS.misses}</b></div>${gS.timeouts ? `<div><span>Too slow</span><b class="bad">${gS.timeouts}</b></div>` : ''}`;
     overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
       <div class="t">${points.toLocaleString('en-GB')} points</div><div class="sl-res">${cells}</div>
-      <div class="obtns"><button class="btn" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+      <div class="obtns"><button class="btn" data-go="test">Go again</button>${nextBtn()}<button class="sl-ghost" data-go="menu">Menu</button></div>`);
     gClear(); gridIdle(); $('r-time').textContent = $('r-len').value; drawRange();
   }
   function drawGridHUD(w, h, now) {
-    if (state !== 'run') return;
+    if (state !== 'run' || !gS.times) return;
     const mode = $('r-mode').value, px = 16, py = 16, pw = 270;
     ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 70);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif';
@@ -3110,7 +3111,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
         ${missedT ? `<div><span>Missed targets</span><b>${missedT}</b></div>` : ''}${hostHits ? `<div><span>Hostages hit</span><b class="bad">${hostHits}</b></div>` : ''}
       </div>
       <div class="sl-sub verdict">${verdict}</div>
-      <div class="obtns">${suggested ? `<button class="btn" data-go="retry">Retry with ${suggested.toFixed(2)}</button>` : ''}<button class="${suggested ? 'sl-ghost' : 'btn'}" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
+      <div class="obtns">${suggested ? `<button class="btn" data-go="retry">Retry with ${suggested.toFixed(2)}</button>` : ''}<button class="${suggested ? 'sl-ghost' : 'btn'}" data-go="test">Go again</button>${nextBtn()}<button class="sl-ghost" data-go="menu">Menu</button></div>`);
     $('r-time').textContent = $('r-len').value; drawRange();
   }
   function records() {
@@ -3124,6 +3125,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const go = b.dataset.go;
     if (go === 'test') begin(false); else if (go === 'free') begin(true); else if (go === 'records') records(); else if (go === 'menu') menu();
     else if (go === 'resume') resume(); else if (go === 'quit') { if (document.pointerLockElement === box) document.exitPointerLock(); clearTargets(); menu(); }
+    else if (go === 'next') { $('r-mode').value = nextDrill(); $('r-mode').dispatchEvent(new Event('input')); $('r-mode').dispatchEvent(new Event('change')); syncDrillUI(); state = 'menu'; if (isGrid()) gridIdle(); else idleTargets(); showBest(); begin(false); }
     else if (go === 'usesens') { $('r-sens').value = sfBest.toFixed(2); rFromSens(); $('r-sens').dispatchEvent(new Event('change')); menu(); }
     else if (go === 'retry') { $('r-sens').value = suggested.toFixed(2); rFromSens(); begin(false); }
     else if (go === 'reset') { try { localStorage.removeItem(BEST_KEY); } catch (e2) {} showBest(); records(); }
@@ -3195,6 +3197,8 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     switch: '<svg viewBox="0 0 64 50"><circle cx="12" cy="16" r="6" fill="#ffd24a"/><circle cx="34" cy="34" r="6" fill="#ffd24a"/><circle cx="54" cy="14" r="6" fill="#ffd24a"/><path d="M17 19 L29 30 M39 31 L49 18" stroke="#0ff796" stroke-width="2"/></svg>',
     setup: '<svg viewBox="0 0 64 50"><path d="M8 40 h48" stroke="#3a5070" stroke-width="2"/><path d="M12 40 v-8 M22 40 v-16 M32 40 v-26 M42 40 v-14 M52 40 v-6" stroke="#0ff796" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="10" r="3" fill="#ffe000"/></svg>',
   };
+  const nextDrill = () => { const i = ORDER.indexOf($('r-mode').value); return ORDER[(i + 1) % ORDER.length]; };
+  const nextBtn = () => `<button class="sl-ghost" data-go="next">Next: ${DRILL[nextDrill()].name} ▸</button>`;
   function drillCards() {
     const grid = $('d-grid'); if (!grid) return;
     const best = bestAll(), cur = $('r-mode').value;
