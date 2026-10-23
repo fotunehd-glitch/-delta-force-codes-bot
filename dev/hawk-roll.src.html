@@ -769,7 +769,7 @@ html.noribbon .ribnote{display:none}
         <span class="label">Range settings</span>
         <div class="fields">
           <div class="field" hidden><label class="label" for="r-mode">Drill</label>
-            <select id="r-mode"><option value="flick">Pop-up flicks (6–20 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (25–38 m)</option><option value="track">Tracking</option><option value="multi">Bot switching</option><option value="grid">Grid Blitz</option><option value="spider">Centre Flick</option><option value="reflex">Reflex Pop</option><option value="orb">Orb Track</option><option value="switch">Orb Switch</option><option value="sensfind">Sens Finder</option></select></div>
+            <select id="r-mode"><option value="flick">Pop-up flicks (6–20 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (25–38 m)</option><option value="track">Tracking</option><option value="multi">Bot switching</option><option value="grid">Grid Blitz</option><option value="spider">Centre Flick</option><option value="reflex">Reflex Pop</option><option value="orb">Orb Track</option><option value="switch">Orb Switch</option><option value="combo">Combo Chain</option><option value="sensfind">Sens Finder</option></select></div>
           <div class="field df-only"><label class="label" for="r-wpn">Weapon</label>
             <select id="r-wpn"><option value="m4">M4A1 · auto</option><option value="akm">AKM · auto</option><option value="sr25">SR-25 · semi</option><option value="deagle">Desert Eagle · semi</option><option value="awm">AWM · bolt, scope</option></select></div>
           <div class="field"><label class="label" for="r-len">Length</label><select id="r-len"><option value="30">30 s</option><option value="60" selected>60 s</option></select></div>
@@ -2550,6 +2550,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     reflex: { name: 'Reflex Pop', env: 'grid', cat: 'click', lvl: 3, desc: 'Small targets show up for under a second. Hit them before they vanish.' },
     orb: { name: 'Orb Track', env: 'grid', cat: 'track', lvl: 2, desc: 'Hold left click to fire a beam and keep it on the moving orb. Scores your time on target.' },
     switch: { name: 'Orb Switch', env: 'grid', cat: 'switch', lvl: 2, desc: 'Four moving orbs. Clear them one after another as fast as you can.' },
+    combo: { name: 'Combo Chain', env: 'grid', cat: 'flick', lvl: 2, desc: 'A wall of red, yellow, green and blue shapes. Keep shooting the same shape to build a combo and win bonus time.' },
     sensfind: { name: 'Sens Finder', env: 'grid', cat: 'setup', lvl: 1, desc: 'Five short rounds, each at a secretly different speed. Tells you which sens you aim best with.' },
   });
   const isGrid = () => !!drill().env;
@@ -2571,12 +2572,17 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     wall.position.copy(V(0, 3.25, G_BOX.z + 0.6)); gScene.add(wall);
     const edge = new T.Mesh(new T.PlaneGeometry(15.2, 7.2), new T.MeshBasicMaterial({ color: '#0ff796', transparent: true, opacity: 0.25 })); edge.position.copy(V(0, 3.25, G_BOX.z + 0.62)); gScene.add(edge);
     const floorLine = new T.Mesh(new T.PlaneGeometry(40, 0.04), new T.MeshBasicMaterial({ color: '#0ff796', transparent: true, opacity: 0.4 })); floorLine.rotation.x = -Math.PI / 2; floorLine.position.copy(V(0, 0.01, 2)); gScene.add(floorLine);
-    gGeo = { sphere: new T.SphereGeometry(1, 28, 20), tile: new T.BoxGeometry(1, 1, 0.18) };
+    const ext = sh => { const g = new T.ExtrudeGeometry(sh, { depth: 0.25, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 2 }); g.translate(0, 0, -0.12); return g; };
+    const star = new T.Shape(); for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 0.45 : 1; i ? star.lineTo(Math.cos(a) * r, Math.sin(a) * r) : star.moveTo(Math.cos(a) * r, Math.sin(a) * r); }
+    const tri = new T.Shape(); tri.moveTo(0, 0.95); tri.lineTo(0.9, -0.65); tri.lineTo(-0.9, -0.65); tri.closePath();
+    const sq = new T.Shape(); sq.moveTo(-0.75, -0.75); sq.lineTo(0.75, -0.75); sq.lineTo(0.75, 0.75); sq.lineTo(-0.75, 0.75); sq.closePath();
+    const disc = new T.CylinderGeometry(0.85, 0.85, 0.3, 32); disc.rotateX(Math.PI / 2);
+    gGeo = { sphere: new T.SphereGeometry(1, 28, 20), tile: new T.BoxGeometry(1, 1, 0.18), star: ext(star), tri: ext(tri), sq: ext(sq), disc };
     gMat = c => new T.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.8, roughness: 0.35, metalness: 0.1 });
   }
   const gColor = () => ({ orb: '#2ee6ff', switch: '#ffd24a', reflex: '#ff5a7a' })[$('r-mode').value] || '#ff9f1a';
   function gAdd(o) {
-    const geo = o.shape === 'tile' ? gGeo.tile : gGeo.sphere, m = new T.Mesh(geo, gMat(o.color || gColor()));
+    const geo = gGeo[o.shape] || gGeo.sphere, m = new T.Mesh(geo, gMat(o.color || gColor()));
     gScene.add(m); const t = Object.assign({ born: performance.now(), vx: 0, vy: 0, mesh: m }, o); m.userData.g = t; gTargets.push(t); return t;
   }
   function gDel(t) { gScene.remove(t.mesh); t.mesh.material.dispose(); gTargets = gTargets.filter(x => x !== t); }
@@ -2585,6 +2591,10 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function gFreeCell() { // 5 x 5 cells on the wall, never one already in use
     for (let k = 0; k < 50; k++) { const c = Math.floor(Math.random() * 25); if (!gTargets.some(t => t.cell === c) && c !== gS.lastCell) return c; } return 12;
   }
+  const COMBO_T = [['star', '#ff4a4a'], ['tri', '#ffd24a'], ['disc', '#3ddc6a'], ['sq', '#3d8bff']];
+  const cRowY = r => 1.0 + r * 0.78, cColX = c => (c - 3) * 0.95;
+  function comboAdd(c, r, fromY) { const [shape, color] = COMBO_T[Math.floor(Math.random() * 4)]; return gAdd({ shape, color, type: shape, col: c, row: r, x: cColX(c), y: fromY ?? cRowY(r), ty: cRowY(r), z: G_BOX.z, r: 0.3 }); }
+  function comboFill() { for (let c = 0; c < 7; c++) for (let r = 0; r < 7; r++) comboAdd(c, r); }
   function gSpawn(kind) {
     const mode = $('r-mode').value;
     if (mode === 'grid') { const c = gFreeCell(); gS.lastCell = c; return gAdd({ shape: 'tile', cell: c, x: (c % 5 - 2) * 1.6, y: 1.1 + Math.floor(c / 5) * 1.05, z: G_BOX.z, r: 0.45 }); }
@@ -2596,7 +2606,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     if (mode === 'orb') return gAdd({ x: 0, y: 2.6, z: G_BOX.z - 1, r: 0.45, turnAt: 0 });
     if (mode === 'switch') { const a = Math.random() * Math.PI * 2, s = rnd(1, 2.2); return gAdd({ x: rnd(G_BOX.x0, G_BOX.x1), y: rnd(G_BOX.y0, G_BOX.y1), z: G_BOX.z - rnd(0, 2), r: 0.35, vx: Math.cos(a) * s, vy: Math.sin(a) * s }); }
   }
-  function gridIdle() { if (!ready) return; if (!gScene) buildGrid(); gClear(); gS = {}; const mode = $('r-mode').value; const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && (mode === 'spider' || mode === 'sensfind') ? 'centre' : 'out'); }
+  function gridIdle() { if (!ready) return; if (!gScene) buildGrid(); gClear(); gS = {}; const mode = $('r-mode').value; if (mode === 'combo') { comboFill(); return; } const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && (mode === 'spider' || mode === 'sensfind') ? 'centre' : 'out'); }
   function gridStart(now) {
     if (!gScene) buildGrid(); gClear(); gNext = 0;
     gS = { hits: 0, misses: 0, timeouts: 0, onTime: 0, totTime: 0, times: [] };
@@ -2605,6 +2615,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       const ms = [0.8, 0.9, 1.0, 1.12, 1.25].sort(() => Math.random() - 0.5);
       sf = { i: 0, rounds: ms.map(m => ({ m, hits: 0, misses: 0, times: [] })), phase: 'play', until: now + 12000 }; sensMul = sf.rounds[0].m; endAt = Infinity;
       gSpawn('centre');
+    } else if (mode === 'combo') { sf = null; gS.combo = 0; gS.best = 0; gS.last = null; gS.bonus = 0; comboFill();
     } else { sf = null; const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && mode === 'spider' ? 'centre' : 'out'); }
   }
   function gridShift(gap) { gTargets.forEach(t => { t.born += gap; if (t.turnAt) t.turnAt += gap; }); if (gNext) gNext += gap; if (sf) sf.until += gap; }
@@ -2618,6 +2629,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       if (sf.phase === 'gap') return;
     }
     for (const t of gTargets.slice()) {
+      if (t.ty !== undefined && t.y !== t.ty) { t.y += (t.ty - t.y) * Math.min(1, dt * 16); if (Math.abs(t.ty - t.y) < 0.002) t.y = t.ty; }
       if (mode === 'orb') {
         if (now > t.turnAt) { const a = Math.random() * Math.PI * 2, s = rnd(1.8, 4.2); t.vx = Math.cos(a) * s; t.vy = Math.sin(a) * s * 0.6; t.turnAt = now + rnd(350, 1100); }
       }
@@ -2648,13 +2660,21 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld();
     const hit = ray().intersectObjects(gTargets.map(t => t.mesh), false)[0];
     const R = sf ? sf.rounds[sf.i] : null;
-    if (!hit) { gS.misses++; if (R) R.misses++; for (const t of gTargets) t.missed = (t.missed || 0) + 1; tone([420], 0.02, 0.04, 'triangle'); return; }
+    if (!hit) { gS.misses++; if (mode === 'combo') { gS.combo = 0; gS.last = null; } if (R) R.misses++; for (const t of gTargets) t.missed = (t.missed || 0) + 1; tone([420], 0.02, 0.04, 'triangle'); return; }
     const t = hit.object.userData.g, took = now - t.born, p = hit.point;
     gS.hits++; hitsN++; kills++; killTimes.push(took); gS.times.push(took); if (R) { R.hits++; R.times.push(took); }
-    points += 60 + Math.max(0, Math.round(60 * (1 - (took - 150) / 800)));
+    if (mode === 'combo') {
+      gS.combo = t.type === gS.last ? gS.combo + 1 : 1; gS.last = t.type; gS.best = Math.max(gS.best, gS.combo);
+      points += 25 * gS.combo;
+      if (gS.combo % 5 === 0 && !free) { endAt += 2000; gS.bonus += 2; marker = { t: now, txt: `COMBO x${gS.combo} · +2 s` }; tone([1320, 1760], 0.06, 0.18); }
+    } else points += 60 + Math.max(0, Math.round(60 * (1 - (took - 150) / 800)));
     fx.push({ k: 'spark', x: p.x, y: p.y, z: -p.z, t: now, life: 220, dirs: Array.from({ length: 6 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) });
-    marker = { t: now }; ping(false);
+    if (!(mode === 'combo' && marker && marker.t === now)) marker = mode === 'combo' && gS.combo > 1 ? { t: now, txt: `x${gS.combo}` } : { t: now }; ping(false);
     gDel(t);
+    if (mode === 'combo') { // shapes above drop down one row, a new one falls in at the top
+      gTargets.filter(o => o.col === t.col && o.row > t.row).forEach(o => { o.row--; o.ty = cRowY(o.row); });
+      comboAdd(t.col, 6, cRowY(6) + 1.2);
+    }
     if (mode === 'grid' || mode === 'switch') gSpawn();
     else if (mode === 'spider' || mode === 'sensfind') gSpawn(t.centre ? 'out' : 'centre');
     else if (mode === 'reflex') gNext = now + 200;
@@ -2687,7 +2707,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const onPct = gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) : 0;
     const isNew = !free && saveBest({ points, kills: mode === 'orb' ? onPct + '%' : gS.hits, heads: 0, acc: mode === 'orb' ? onPct : acc, avg: avg(gS.times), rank: rk[0], wpn: 'Aim trainer', sens: sens.toFixed(2) });
     showBest(); drillCards(); syncDrillUI();
-    const cells = mode === 'orb' ? `<div><span>On target</span><b>${onPct}%</b></div><div><span>Time on target</span><b>${gS.onTime.toFixed(1)} s</b></div>`
+    const cells = mode === 'combo' ? `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Best combo</span><b>x${gS.best || 0}</b></div><div><span>Bonus time</span><b>+${gS.bonus || 0} s</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Misses</span><b>${gS.misses}</b></div>` : mode === 'orb' ? `<div><span>On target</span><b>${onPct}%</b></div><div><span>Time on target</span><b>${gS.onTime.toFixed(1)} s</b></div>`
       : `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Avg time</span><b>${gS.times.length ? avg(gS.times) + ' ms' : '—'}</b></div><div><span>Misses</span><b>${gS.misses}</b></div>${gS.timeouts ? `<div><span>Too slow</span><b class="bad">${gS.timeouts}</b></div>` : ''}`;
     overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
       <div class="t">${points.toLocaleString('en-GB')} points</div><div class="sl-res">${cells}</div>
@@ -2704,7 +2724,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     }
     ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 70);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif';
-    const rows = mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
+    const rows = mode === 'combo' ? [['COMBO', 'x' + (gS.combo || 0)], ['BEST', 'x' + (gS.best || 0)], ['HITS', String(gS.hits)]] : mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
       : [['HITS', String(gS.hits)], ['ACCURACY', shots ? Math.round(gS.hits / shots * 100) + '%' : '—'], ['AVG TIME', gS.times.length ? avg(gS.times) + ' ms' : '—']];
     rows.forEach(([k, v], i) => { ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(k, px + 12 + i * 88, py + 22); ctx.fillStyle = '#e3ebf2'; ctx.font = '700 18px "JetBrains Mono", monospace'; ctx.fillText(v, px + 12 + i * 88, py + 48); });
     if (sf) {
@@ -3190,7 +3210,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 
   /* ---------- drill picker cards ---------- */
   const CATNAME = { flick: 'Flicking', click: 'Precision', track: 'Tracking', switch: 'Switching', setup: 'Setup' };
-  const ORDER = ['sensfind', 'grid', 'spider', 'reflex', 'orb', 'switch', 'flick', 'wide', 'micro', 'track', 'multi'];
+  const ORDER = ['sensfind', 'grid', 'spider', 'reflex', 'orb', 'switch', 'combo', 'flick', 'wide', 'micro', 'track', 'multi'];
   const ICON = {
     flick: '<svg viewBox="0 0 64 50"><circle cx="14" cy="30" r="3" fill="#0ff796"/><path d="M17 28 L44 14" stroke="#0ff796" stroke-width="2" stroke-dasharray="3 3"/><circle cx="48" cy="12" r="7" fill="none" stroke="#ff9f1a" stroke-width="2.5"/><circle cx="48" cy="12" r="2.5" fill="#ff9f1a"/></svg>',
     click: '<svg viewBox="0 0 64 50"><circle cx="32" cy="25" r="16" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="9" fill="none" stroke="#3a5070" stroke-width="1.5"/><circle cx="32" cy="25" r="3" fill="#ff5a7a"/><path d="M32 3v8M32 39v8M10 25h8M46 25h8" stroke="#0ff796" stroke-width="2"/></svg>',
@@ -3200,6 +3220,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   };
   const nextDrill = () => { const i = ORDER.indexOf($('r-mode').value); return ORDER[(i + 1) % ORDER.length]; };
   const nextBtn = () => `<button class="sl-ghost" data-go="next">Next: ${DRILL[nextDrill()].name} ▸</button>`;
+  ICON.combo = '<svg viewBox="0 0 64 50"><path d="M14 6l2.4 5 5.4.6-4 3.6 1.2 5.3L14 17.8 9 20.5l1.2-5.3-4-3.6 5.4-.6z" fill="#ff4a4a"/><path d="M32 6l7 12H25z" fill="#ffd24a"/><circle cx="50" cy="13" r="6" fill="#3ddc6a"/><rect x="8" y="28" width="12" height="12" fill="#3d8bff"/><path d="M32 27l7 12H25z" fill="#ffd24a"/><path d="M50 27l7 12H43z" fill="#ffd24a"/></svg>';
   function drillCards() {
     const grid = $('d-grid'); if (!grid) return;
     const best = bestAll(), cur = $('r-mode').value;
@@ -3208,7 +3229,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       const head = (!DRILL[k].env) !== lastDf ? `<div class="dsec">${!DRILL[k].env ? 'Delta Force range: realistic bots and guns' : 'Aim trainer: quick drills in a clean room'}</div>` : ''; lastDf = !DRILL[k].env;
       const d = DRILL[k], df = !d.env, b = best[k + '_' + $('r-len').value];
       return head + `<button type="button" class="dcard${df ? ' df' : ''}" data-drill="${k}" aria-pressed="${k === cur}">
-        <span class="thumb">${ICON[d.cat] || ICON.flick}</span>
+        <span class="thumb">${ICON[k] || ICON[d.cat] || ICON.flick}</span>
         <span class="tag">${df ? 'Delta Force range' : 'Aim trainer'} · ${CATNAME[d.cat] || ''}</span>
         <span class="nm">${d.name}</span><span class="ds">${d.desc || ''}</span>
         <span class="ft"><span class="lv" title="Difficulty">${[1, 2, 3].map(i => `<i class="${i <= (d.lvl || 1) ? 'on' : ''}"></i>`).join('')}</span><span class="bs">${k === 'sensfind' ? 'About 1½ min' : b ? `Best <b>${(b.points || 0).toLocaleString('en-GB')}</b>` : 'No score yet'}</span></span>
