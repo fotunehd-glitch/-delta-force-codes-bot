@@ -748,7 +748,7 @@ html.noribbon .ribnote{display:none}
         <span class="label">Drill</span>
         <div class="fields">
           <div class="field"><label class="label" for="r-mode">Drill</label>
-            <select id="r-mode"><option value="flick">Pop-up flicks (7–25 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (35–60 m)</option><option value="track">Tracking</option></select></div>
+            <select id="r-mode"><option value="flick">Pop-up flicks (6–20 m)</option><option value="wide">Wide flicks</option><option value="micro">Long range (25–38 m)</option><option value="track">Tracking</option></select></div>
           <div class="field"><label class="label" for="r-wpn">Weapon</label>
             <select id="r-wpn"><option value="m4">M4A1 · auto</option><option value="akm">AKM · auto</option><option value="sr25">SR-25 · semi</option><option value="deagle">Desert Eagle · semi</option><option value="awm">AWM · bolt, scope</option></select></div>
           <div class="field"><label class="label" for="r-len">Length</label><select id="r-len"><option value="30">30 s</option><option value="60" selected>60 s</option></select></div>
@@ -1691,86 +1691,157 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   }
   let TEX = {};
   function makeTextures() {
-    TEX.floor = canvasTex(512, 512, (g, w, h) => { noise(g, w, h, '#585a5b', 0.16, 12000, 2); for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(20,22,24,${Math.random() * 0.22})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 20 + Math.random() * 60, 8 + Math.random() * 30, Math.random() * 3, 0, 7); g.fill(); }
-      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; g.strokeRect(0, 0, w, h); }, 6, 17);
-    TEX.wall = canvasTex(512, 256, (g, w, h) => { noise(g, w, h, '#7d8185', 0.14, 9000, 2); g.strokeStyle = 'rgba(0,0,0,.28)'; g.lineWidth = 3; for (let x = 0; x <= w; x += 128) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
-      for (let i = 0; i < 30; i++) { g.fillStyle = 'rgba(40,36,30,.10)'; g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 30 + Math.random() * 80); } g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, h * 0.62, w, h * 0.38); }, 12, 1);
-    TEX.ceil = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#5c6064', 0.12, 4000, 2); }, 8, 16);
-    TEX.hazard = canvasTex(128, 32, (g, w, h) => { g.fillStyle = '#16181a'; g.fillRect(0, 0, w, h); g.fillStyle = '#d8b022'; for (let x = -32; x < w + 32; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h); g.lineTo(x + 32, 0); g.lineTo(x + 16, 0); g.closePath(); g.fill(); } }, 17, 1);
-    TEX.bag = canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#6f6248'; g.fillRect(0, 0, w, h); for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) { const x = c * 52 + (r % 2) * 26 - 10, y = r * 32; g.fillStyle = `rgb(${150 + Math.random() * 25},${125 + Math.random() * 20},${88 + Math.random() * 15})`; g.beginPath(); g.roundRect(x + 2, y + 2, 48, 28, 12); g.fill(); g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 2; g.stroke(); } });
-    TEX.num = n => canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.1, 1500, 2); g.fillStyle = '#d9dcdf'; g.font = '700 190px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), w / 2, h / 2 + 10); });
+    // polished concrete floor with saw-cut joints, tyre marks and wear
+    TEX.floor = canvasTex(1024, 1024, (g, w, h) => {
+      noise(g, w, h, '#6a6c6b', 0.12, 30000, 2);
+      for (let i = 0; i < 70; i++) { g.fillStyle = `rgba(25,26,27,${Math.random() * 0.12})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 30 + Math.random() * 120, 10 + Math.random() * 40, Math.random() * 3, 0, 7); g.fill(); }
+      for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(255,255,255,${Math.random() * 0.05})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 20 + Math.random() * 90, 6 + Math.random() * 30, Math.random() * 3, 0, 7); g.fill(); }
+      g.strokeStyle = 'rgba(15,15,15,.55)'; g.lineWidth = 3; g.strokeRect(0, 0, w, h); g.beginPath(); g.moveTo(w / 2, 0); g.lineTo(w / 2, h); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
+    }, 3.25, 6.5);
+    // lower wall: painted concrete block; upper wall: acoustic panels
+    TEX.wall = canvasTex(1024, 512, (g, w, h) => {
+      g.fillStyle = '#2b2f33'; g.fillRect(0, 0, w, h * 0.55);
+      for (let x = 0; x < w; x += 128) for (let y = 6; y < h * 0.55 - 6; y += 128) { g.fillStyle = `rgb(${50 + Math.random() * 8},${55 + Math.random() * 8},${60 + Math.random() * 8})`; g.fillRect(x + 4, y, 120, 120); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x + 4, y + 116, 120, 4); }
+      g.fillStyle = '#1d2023'; g.fillRect(0, h * 0.55 - 8, w, 10);
+      g.fillStyle = '#878a86'; g.fillRect(0, h * 0.55, w, h * 0.45); noise(g, 0, 0, null, 0, 0, 0);
+      for (let y = h * 0.55; y < h; y += 32) for (let x = ((y / 32) % 2) * 32; x < w; x += 64) { g.fillStyle = `rgba(0,0,0,${0.04 + Math.random() * 0.05})`; g.fillRect(x, y, 62, 30); }
+      g.strokeStyle = 'rgba(40,40,40,.35)'; g.lineWidth = 2; for (let y = h * 0.55; y < h; y += 32) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+      for (let i = 0; i < 25; i++) { g.fillStyle = 'rgba(40,34,26,.12)'; g.fillRect(Math.random() * w, h * 0.55 + Math.random() * h * 0.4, 2 + Math.random() * 4, 20 + Math.random() * 60); }
+      g.fillStyle = '#c9a21f'; g.fillRect(0, h * 0.94, w, h * 0.025);
+    }, 6, 1);
+    TEX.ceil = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#3d4246', 0.1, 4000, 2); }, 6, 12);
+    TEX.hazard = canvasTex(128, 32, (g, w, h) => { g.fillStyle = '#16181a'; g.fillRect(0, 0, w, h); g.fillStyle = '#d8b022'; for (let x = -32; x < w + 32; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h); g.lineTo(x + 32, 0); g.lineTo(x + 16, 0); g.closePath(); g.fill(); } }, 15, 1);
+    TEX.bag = canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#5d523c'; g.fillRect(0, 0, w, h); for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) { const x = c * 52 + (r % 2) * 26 - 26, y = r * 32; const gr = g.createLinearGradient(0, y, 0, y + 30); const b = 130 + Math.random() * 25; gr.addColorStop(0, `rgb(${b + 15},${b - 5},${b - 40})`); gr.addColorStop(1, `rgb(${b - 35},${b - 50},${b - 75})`); g.fillStyle = gr; g.beginPath(); g.roundRect(x + 2, y + 2, 48, 28, 13); g.fill(); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 2; g.stroke(); g.strokeStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.moveTo(x + 10, y + 16); g.lineTo(x + 42, y + 16); g.stroke(); } noise(g, w, h, null, 0.12, 3000, 1.5); });
+    TEX.num = n => canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.1, 1500, 2); g.fillStyle = '#e8eaec'; g.font = '700 190px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), w / 2, h / 2 + 10); });
     TEX.dist = d => canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#d8b022'; g.fillRect(0, 0, w, h); g.strokeStyle = '#16181a'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#16181a'; g.font = '700 74px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(d + 'M', w / 2, h / 2 + 4); });
+    TEX.floorNum = d => canvasTex(256, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(230,232,228,.75)'; g.font = '700 96px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(d), w / 2, h / 2 + 6); noise(g, w, h, null, 0.0, 0, 0); });
     TEX.screen = canvasTex(256, 160, (g, w, h) => { g.fillStyle = '#071512'; g.fillRect(0, 0, w, h); g.strokeStyle = '#19c48a'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = '#19c48a'; g.font = '600 18px monospace'; ['RANGE CONTROL', 'TARGETS: ON', 'DIST: AUTO', 'HP: SET'].forEach((s, i) => g.fillText(s, 20, 38 + i * 28)); });
+    TEX.sign = (lines, bg, fg) => canvasTex(256, 128, (g, w, h) => { g.fillStyle = bg; g.fillRect(0, 0, w, h); g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 38px "Chakra Petch", Arial, sans-serif'; lines.forEach((s, i) => g.fillText(s, w / 2, h / 2 + (i - (lines.length - 1) / 2) * 42)); });
+    TEX.rust = canvasTex(128, 128, (g, w, h) => { noise(g, w, h, '#2e3a4a', 0.18, 3000, 2); for (let i = 0; i < 30; i++) { g.fillStyle = `rgba(${110 + Math.random() * 40},${55 + Math.random() * 20},20,${0.2 + Math.random() * 0.3})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 3 + Math.random() * 10, 2 + Math.random() * 8, 0, 0, 7); g.fill(); } for (const y of [20, 64, 108]) { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, y, w, 4); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(0, y - 2, w, 2); } });
+    TEX.concrete = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#8b8c88', 0.16, 8000, 2); for (let i = 0; i < 20; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * 0.12})`; g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 20, 1 + Math.random() * 3); } g.fillStyle = 'rgba(0,0,0,.15)'; g.fillRect(0, h - 30, w, 30); });
+    TEX.wood = canvasTex(256, 64, (g, w, h) => { g.fillStyle = '#8f7350'; g.fillRect(0, 0, w, h); for (let i = 0; i < 50; i++) { const y = Math.random() * h; g.strokeStyle = `rgba(${Math.random() < 0.5 ? '60,40,20' : '170,140,100'},${0.15 + Math.random() * 0.25})`; g.lineWidth = 0.6 + Math.random(); g.beginPath(); g.moveTo(0, y); for (let x = 0; x <= w; x += 16) g.lineTo(x, y + Math.sin(x / 40 + i) * 2); g.stroke(); } });
+    TEX.trap = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#3a3c3d', 0.15, 6000, 2); for (let i = 0; i < 220; i++) { const x = Math.random() * w, y = h * 0.2 + Math.random() * h * 0.6; g.fillStyle = 'rgba(200,190,170,.25)'; g.beginPath(); g.arc(x, y, 1 + Math.random() * 2.5, 0, 7); g.fill(); g.fillStyle = 'rgba(0,0,0,.5)'; g.beginPath(); g.arc(x, y, 0.8, 0, 7); g.fill(); } for (let x = 0; x < w; x += 64) { g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(x, 0, 3, h); } });
   }
 
-  /* ---------- the range: an underground concrete hall, like the in-game firing range ---------- */
-  const HALL_W = 30, HALL_H = 5.6, HALL_L = 72;
-  const PROPS = [ // sandbag piles and crates down the hall (x, z, w, h, d)
-    { x: -6.5, z: 9, w: 3.0, h: 0.9, d: 1.1, k: 'bag' }, { x: 5.5, z: 12, w: 2.6, h: 0.9, d: 1.1, k: 'bag' },
-    { x: -2.2, z: 19, w: 2.4, h: 0.9, d: 1.1, k: 'bag' }, { x: 9.5, z: 22, w: 2.8, h: 1.2, d: 1.2, k: 'bag' },
-    { x: -10, z: 27, w: 3.0, h: 0.9, d: 1.1, k: 'bag' }, { x: 3, z: 33, w: 2.8, h: 0.9, d: 1.1, k: 'bag' },
-    { x: -5, z: 42, w: 3.0, h: 1.2, d: 1.2, k: 'bag' }, { x: 8, z: 48, w: 2.8, h: 0.9, d: 1.1, k: 'bag' },
-    { x: 12, z: 15, k: 'crate' }, { x: -12.5, z: 18, k: 'crate' }, { x: 12.5, z: 37, k: 'crate' }, { x: -12.5, z: 8, k: 'crate' }, { x: -1, z: 55, k: 'crate' },
+  /* ---------- the range: an indoor firing range with baffles, a bullet trap and real cover ---------- */
+  const HALL_W = 26, HALL_H = 4.8, HALL_L = 48;
+  // cover down the range: sandbag walls, concrete barriers, barrels, pallets, tyres, a wooden barricade
+  const PROPS = [
+    { x: -6, z: 8, k: 'bag', w: 2.6, h: 0.9 }, { x: 5, z: 10.5, k: 'barrier' }, { x: -4.2, z: 14, k: 'barrels' }, { x: 8.5, z: 17, k: 'bag', w: 2.4, h: 1.1 },
+    { x: -9, z: 19, k: 'pallets' }, { x: 6.8, z: 20, k: 'barricade' }, { x: -5, z: 26, k: 'barrier' }, { x: 9.5, z: 27, k: 'tyres' },
+    { x: -9.8, z: 11, k: 'tyres' }, { x: 9, z: 32, k: 'bag', w: 2.8, h: 0.9 }, { x: -8.5, z: 34, k: 'barrels' }, { x: 10, z: 7, k: 'pallets' },
   ];
-  let laneLights = [];
   function buildWorld() {
     makeTextures();
     scene = new T.Scene();
-    scene.background = new T.Color('#0d1013');
-    scene.fog = new T.Fog('#1b2025', 40, 110);
-    scene.add(new T.HemisphereLight('#b9c2ca', '#3a352d', 0.78));
-    const key = new T.DirectionalLight('#e6eef5', 1.8); key.position.set(10, 30, 20); key.castShadow = true;
-    key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -20, right: 20, top: 40, bottom: -40, near: 1, far: 90 }); key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0006;
-    key.target.position.set(0, 0, -32); scene.add(key, key.target);
+    scene.background = new T.Color('#0b0d0f');
+    scene.fog = new T.Fog('#14181b', 30, 75);
+    scene.add(new T.HemisphereLight('#c5ccd2', '#3a352d', 0.8));
+    const key = new T.DirectionalLight('#eef3f8', 1.6); key.position.set(4, 30, -6); key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -15, right: 15, top: 30, bottom: -30, near: 1, far: 60 }); key.shadow.bias = -0.0006; key.shadow.normalBias = 0.02;
+    key.target.position.set(0, 0, -22); scene.add(key, key.target);
     const std = o => new T.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, o));
     const add = (geo, mat, x, y, z, cast = true, recv = true) => { const m = new T.Mesh(geo, mat); m.position.copy(V(x, y, z)); m.castShadow = cast; m.receiveShadow = recv; scene.add(m); return m; };
-    const yellow = std({ color: '#d1a823', roughness: 0.55, metalness: 0.2 }), steel = std({ color: '#3c4248', roughness: 0.5, metalness: 0.5 }), dark = std({ color: '#1c1f22', roughness: 0.8 });
-    // floor, ceiling, walls
-    const floor = add(new T.PlaneGeometry(HALL_W, HALL_L + 20), std({ map: TEX.floor, roughness: 0.75 }), 0, 0, HALL_L / 2 - 8, false, true); floor.rotation.x = -Math.PI / 2;
-    const ceil = add(new T.PlaneGeometry(HALL_W, HALL_L + 20), std({ map: TEX.ceil }), 0, HALL_H, HALL_L / 2 - 8, false, false); ceil.rotation.x = Math.PI / 2;
-    const wallM = std({ map: TEX.wall });
-    [-1, 1].forEach(sd => add(new T.BoxGeometry(0.5, HALL_H, HALL_L + 20), wallM, sd * (HALL_W / 2), HALL_H / 2, HALL_L / 2 - 8, false, true));
-    const back = add(new T.BoxGeometry(HALL_W, HALL_H, 0.5), std({ color: '#2a2e32' }), 0, HALL_H / 2, HALL_L, false, true);
-    add(new T.BoxGeometry(HALL_W, HALL_H, 0.5), wallM, 0, HALL_H / 2, -8, false, true);
-    // ceiling beams + strip lights every 12 m
-    for (let z = 8; z < HALL_L; z += 8) {
-      add(new T.BoxGeometry(HALL_W, 0.5, 0.6), std({ color: '#565b60' }), 0, HALL_H - 0.25, z, false, false);
-      for (let x = -10; x <= 10; x += 10) { add(new T.BoxGeometry(0.25, 0.06, 2.4), new T.MeshBasicMaterial({ color: '#f2f6ff' }), x, HALL_H - 0.56, z + 3, false, false); }
-    }
-    // pillars with big lane numbers
-    let n = 1;
-    for (const x of [-8, 8]) for (const z of [14, 30, 46, 62]) {
-      add(new T.BoxGeometry(1.2, HALL_H, 1.2), wallM, x, HALL_H / 2, z, true, true);
-      if (z === 14) add(new T.PlaneGeometry(1.0, 1.0), std({ map: TEX.num(n++), roughness: 0.8 }), x, 2.4, z - 0.61, false, false);
-    }
-    // rails down each lane
-    for (let x = -12.5; x <= 12.5; x += 5) for (const dx of [-0.35, 0.35]) add(new T.BoxGeometry(0.07, 0.05, HALL_L - 6), steel, x + dx, 0.025, HALL_L / 2 + 1, false, true);
-    // distance markers on the floor and on the walls
-    [10, 20, 30, 40, 50, 60].forEach(d => {
-      const l = add(new T.PlaneGeometry(HALL_W - 1, 0.12), std({ color: '#c9a21f', roughness: 1, transparent: true, opacity: 0.55 }), 0, 0.012, d, false, false); l.rotation.x = -Math.PI / 2;
-      [-1, 1].forEach(sd => { const s = add(new T.PlaneGeometry(1.4, 0.7), std({ map: TEX.dist(d), roughness: 0.7 }), sd * (HALL_W / 2 - 0.27), 2.2, d, false, false); s.rotation.y = sd > 0 ? Math.PI / 2 : -Math.PI / 2; s.rotation.y += Math.PI; });
+    const yellow = std({ color: '#c9a21f', roughness: 0.55, metalness: 0.2 }), steel = std({ color: '#3c4248', roughness: 0.45, metalness: 0.6 }), dark = std({ color: '#1c1f22', roughness: 0.8 }), galv = std({ color: '#8d9296', roughness: 0.4, metalness: 0.7 });
+    const glow = c => new T.MeshBasicMaterial({ color: c });
+    const L0 = -6; // the hall starts a few metres behind the shooter
+    // floor, ceiling, walls, back
+    const floor = add(new T.PlaneGeometry(HALL_W, HALL_L - L0), std({ map: TEX.floor, roughness: 0.55, metalness: 0.05 }), 0, 0, (HALL_L + L0) / 2, false, true); floor.rotation.x = -Math.PI / 2;
+    const ceil = add(new T.PlaneGeometry(HALL_W, HALL_L - L0), std({ map: TEX.ceil }), 0, HALL_H, (HALL_L + L0) / 2, false, false); ceil.rotation.x = Math.PI / 2;
+    const wallM = std({ map: TEX.wall, roughness: 0.95 });
+    [-1, 1].forEach(sd => add(new T.BoxGeometry(0.4, HALL_H, HALL_L - L0), wallM, sd * (HALL_W / 2 + 0.2), HALL_H / 2, (HALL_L + L0) / 2, false, true));
+    add(new T.BoxGeometry(HALL_W, HALL_H, 0.4), wallM, 0, HALL_H / 2, L0, false, true);
+    // wall pilasters (flush with the walls, not in the range)
+    for (let z = 4; z < HALL_L; z += 8) for (const sd of [-1, 1]) add(new T.BoxGeometry(0.35, HALL_H, 0.6), std({ map: TEX.concrete }), sd * (HALL_W / 2 - 0.15), HALL_H / 2, z, false, true);
+    // overhead baffles: angled panels across the hall so a stray round can't leave the range
+    const baffleM = std({ color: '#6b7177', roughness: 0.55, metalness: 0.35 });
+    const bG = new T.BoxGeometry(HALL_W - 0.4, 0.05, 1.3);
+    for (let z = 4; z < HALL_L - 4; z += 3.5) { const b = add(bG, baffleM, 0, HALL_H - 0.55, z, false, false); b.rotation.x = -0.6; add(new T.BoxGeometry(HALL_W - 0.4, 0.08, 0.12), steel, 0, HALL_H - 0.05, z - 0.2, false, false); }
+    // LED strips between the baffles
+    for (let z = 5.75; z < HALL_L - 4; z += 3.5) for (const x of [-8, 0, 8]) { add(new T.BoxGeometry(2.4, 0.06, 0.22), dark, x, HALL_H - 1.05, z, false, false); add(new T.BoxGeometry(2.3, 0.02, 0.16), glow('#f4f7ff'), x, HALL_H - 1.085, z, false, false); for (const dx of [-1, 1]) add(new T.CylinderGeometry(0.006, 0.006, 1.0, 4), steel, x + dx, HALL_H - 0.55, z, false, false); }
+    // ducting and cable tray along the top of the walls
+    for (const sd of [-1, 1]) { const d = add(new T.CylinderGeometry(0.28, 0.28, HALL_L - L0, 18), galv, sd * (HALL_W / 2 - 0.45), HALL_H - 0.45, (HALL_L + L0) / 2, false, false); d.rotation.x = Math.PI / 2;
+      for (let z = L0 + 3; z < HALL_L; z += 3) { const r = add(new T.TorusGeometry(0.285, 0.025, 6, 18), galv, sd * (HALL_W / 2 - 0.45), HALL_H - 0.45, z, false, false); } }
+    add(new T.BoxGeometry(0.35, 0.06, HALL_L - L0), steel, -HALL_W / 2 + 1.0, HALL_H - 1.05, (HALL_L + L0) / 2, false, false);
+    for (const y of [3.4, 3.62]) { const p = add(new T.CylinderGeometry(0.07, 0.07, HALL_L - L0, 10), yellow, HALL_W / 2 - 0.25, y, (HALL_L + L0) / 2, false, false); p.rotation.x = Math.PI / 2; }
+    // wall lights
+    for (let z = 8; z < HALL_L - 2; z += 8) for (const sd of [-1, 1]) { add(new T.BoxGeometry(0.12, 0.18, 0.5), dark, sd * (HALL_W / 2 - 0.08), 2.7, z, false, false); add(new T.BoxGeometry(0.02, 0.1, 0.42), glow('#ffe8c2'), sd * (HALL_W / 2 - 0.15), 2.66, z, false, false); }
+    // bullet trap at the back: slanted steel plates over a rubber berm, lit from the front
+    const trapM = std({ map: TEX.trap, roughness: 0.55, metalness: 0.65 });
+    const tp = add(new T.BoxGeometry(HALL_W, 0.08, 3.6), trapM, 0, 1.3, HALL_L - 2.1, false, true); tp.rotation.x = 0.85;
+    const tp2 = add(new T.BoxGeometry(HALL_W, 0.08, 2.2), trapM, 0, 3.35, HALL_L - 0.9, false, true); tp2.rotation.x = -0.5;
+    add(new T.BoxGeometry(HALL_W, 0.7, 1.4), std({ color: '#1a1a1a', roughness: 1 }), 0, 0.35, HALL_L - 3.6, true, true);
+    add(new T.BoxGeometry(HALL_W, HALL_H, 0.4), std({ color: '#191b1d' }), 0, HALL_H / 2, HALL_L + 0.2, false, true);
+    for (let x = -10; x <= 10; x += 5) add(new T.BoxGeometry(0.2, 0.05, 0.2), steel, x, 0.72, HALL_L - 3.6, false, false);
+    const trapSign = add(new T.PlaneGeometry(3, 0.6), std({ map: TEX.sign(['BULLET TRAP'], '#d8b022', '#16181a'), roughness: 0.7 }), 0, 4.0, HALL_L - 0.32, false, false); 
+    // painted lane lines and distance numbers on the floor, distance boards on the walls
+    for (let x = -10.5; x <= 10.5; x += 4.2) { const l = add(new T.PlaneGeometry(0.06, HALL_L - 6), std({ color: '#d9dbd6', roughness: 0.9, transparent: true, opacity: 0.35 }), x, 0.011, HALL_L / 2 - 1, false, false); l.rotation.x = -Math.PI / 2; }
+    [10, 20, 30, 40].forEach(d => {
+      const l = add(new T.PlaneGeometry(HALL_W - 1, 0.1), std({ color: '#c9a21f', roughness: 1, transparent: true, opacity: 0.6 }), 0, 0.012, d, false, false); l.rotation.x = -Math.PI / 2;
+      for (const x of [-8.4, 0, 8.4]) { const n = add(new T.PlaneGeometry(1.2, 0.6), std({ map: TEX.floorNum(d), transparent: true, roughness: 0.9 }), x, 0.013, d - 0.6, false, false); n.rotation.x = -Math.PI / 2; n.rotation.z = Math.PI; }
+      [-1, 1].forEach(sd => { const s = add(new T.PlaneGeometry(1.2, 0.6), std({ map: TEX.dist(d), roughness: 0.7 }), sd * (HALL_W / 2 - 0.02), 2.1, d, false, false); s.rotation.y = sd > 0 ? -Math.PI / 2 : Math.PI / 2; });
     });
-    // yellow pipes along the right wall, cable trays on the left
-    for (const y of [4.6, 4.95]) { const p = add(new T.CylinderGeometry(0.12, 0.12, HALL_L, 12), yellow, HALL_W / 2 - 0.5, y, HALL_L / 2 - 4, false, false); p.rotation.x = Math.PI / 2; }
-    add(new T.BoxGeometry(0.4, 0.08, HALL_L), steel, -HALL_W / 2 + 0.5, 4.7, HALL_L / 2 - 4, false, false);
-    // the shooting booth: counter, glass dividers, hazard tape, control screen
-    add(new T.BoxGeometry(HALL_W - 1, 1.05, 0.7), std({ color: '#2b2f33', roughness: 0.6, metalness: 0.3 }), 0, 0.525, 1.4, true, true);
-    add(new T.BoxGeometry(HALL_W - 1, 0.05, 0.8), std({ color: '#23272b', roughness: 0.7 }), 0, 1.075, 1.4, false, true);
-    const tape = add(new T.PlaneGeometry(HALL_W - 1, 0.25), std({ map: TEX.hazard, roughness: 0.8 }), 0, 0.013, 0.8, false, false); tape.rotation.x = -Math.PI / 2;
-    const glassM = new T.MeshStandardMaterial({ color: '#8fb7c9', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.12, depthWrite: false });
-    for (const x of [-9, -3, 3, 9]) { add(new T.BoxGeometry(0.08, 3.4, 0.08), steel, x, 1.7, 1.2); add(new T.BoxGeometry(0.08, 3.4, 0.08), steel, x, 1.7, -1.5); add(new T.BoxGeometry(0.03, 2.4, 2.6), glassM, x, 2.0, -0.15, false, false); }
-    add(new T.BoxGeometry(HALL_W - 1, 0.5, 3.2), std({ color: '#30353a' }), 0, 3.5, -0.2, false, false);
-    const scr = add(new T.PlaneGeometry(0.6, 0.38), new T.MeshBasicMaterial({ map: TEX.screen, color: '#9aa' }), 5.2, 1.35, 1.1, false, false); scr.rotation.x = -0.5;
-    // props
-    const bagM = std({ map: TEX.bag, roughness: 1 });
-    for (const p of PROPS) {
-      if (p.k === 'crate') { add(new T.BoxGeometry(1.2, 0.9, 1.0), std({ color: '#3f4d3a', roughness: 0.7 }), p.x, 0.45, p.z); add(new T.BoxGeometry(1.0, 0.7, 0.9), std({ color: '#47553f', roughness: 0.7 }), p.x + 0.1, 1.25, p.z); continue; }
-      const m = add(new T.BoxGeometry(p.w, p.h, p.d, 6, 3, 2), bagM.clone(), p.x, p.h / 2, p.z); m.material.map = TEX.bag.clone(); m.material.map.repeat.set(p.w / 1.4, p.h / 0.9); m.material.map.needsUpdate = true;
-      const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y > 0) pos.setX(i, pos.getX(i) * (1 - 0.12 * (y / (p.h / 2)))); pos.setY(i, y + (Math.random() - 0.5) * 0.04); } m.geometry.computeVertexNormals();
+    // signs: exits, live fire, eye and ear protection, CCTV, extinguishers
+    const sign = (lines, bg, fg, x, y, z, ry, w = 1.2, h = 0.6, emissive) => { const m = add(new T.PlaneGeometry(w, h), emissive ? new T.MeshBasicMaterial({ map: TEX.sign(lines, bg, fg) }) : std({ map: TEX.sign(lines, bg, fg), roughness: 0.6 }), x, y, z, false, false); m.rotation.y = ry; return m; };
+    sign(['EXIT'], '#0b7a3b', '#e9fff1', -HALL_W / 2 + 0.03, 2.9, -3, Math.PI / 2, 0.8, 0.35, true);
+    sign(['EXIT'], '#0b7a3b', '#e9fff1', HALL_W / 2 - 0.03, 2.9, -3, -Math.PI / 2, 0.8, 0.35, true);
+    sign(['LIVE FIRE', 'RANGE HOT'], '#a51c1c', '#ffffff', -HALL_W / 2 + 0.03, 2.2, 6, Math.PI / 2);
+    sign(['EYE & EAR', 'PROTECTION'], '#1d4f91', '#ffffff', HALL_W / 2 - 0.03, 2.2, 6, -Math.PI / 2);
+    sign(['CEASE FIRE', 'ON WHISTLE'], '#d8b022', '#16181a', -HALL_W / 2 + 0.03, 2.2, 22, Math.PI / 2);
+    for (const sd of [-1, 1]) { const ex = add(new T.CylinderGeometry(0.08, 0.08, 0.5, 12), std({ color: '#b51616', roughness: 0.4, metalness: 0.2 }), sd * (HALL_W / 2 - 0.12), 1.0, 3, true, true); add(new T.CylinderGeometry(0.02, 0.03, 0.12, 8), dark, sd * (HALL_W / 2 - 0.12), 1.3, 3); }
+    for (const sd of [-1, 1]) { add(new T.BoxGeometry(0.14, 0.12, 0.26), std({ color: '#d7d9db', roughness: 0.5 }), sd * (HALL_W / 2 - 0.35), HALL_H - 0.9, 1.0, false, false); add(new T.CylinderGeometry(0.04, 0.04, 0.02, 12), std({ color: '#111', roughness: 0.1, metalness: 0.8 }), sd * (HALL_W / 2 - 0.35), HALL_H - 0.92, 1.14, false, false).rotation.x = Math.PI / 2; }
+    // the firing line: counter, numbered lanes, steel booth frames with ballistic glass, canopy with down lights, hazard tape
+    add(new T.BoxGeometry(HALL_W - 0.8, 0.92, 0.6), std({ color: '#2b2f33', roughness: 0.6, metalness: 0.3 }), 0, 0.46, 1.45, true, true);
+    add(new T.BoxGeometry(HALL_W - 0.8, 0.04, 0.72), std({ color: '#1f2224', roughness: 0.85 }), 0, 0.94, 1.45, false, true);
+    const tape = add(new T.PlaneGeometry(HALL_W - 0.8, 0.25), std({ map: TEX.hazard, roughness: 0.8 }), 0, 0.013, 1.95, false, false); tape.rotation.x = -Math.PI / 2;
+    const glassM = new T.MeshStandardMaterial({ color: '#8fb7c9', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.1, depthWrite: false });
+    let lane = 1;
+    for (let x = -10.5; x <= 10.5; x += 4.2) {
+      add(new T.BoxGeometry(0.07, 2.6, 0.07), steel, x, 1.3, 1.1); add(new T.BoxGeometry(0.07, 2.6, 0.07), steel, x, 1.3, -1.3); add(new T.BoxGeometry(0.03, 1.8, 2.3), glassM, x, 1.6, -0.1, false, false);
+      if (x < 10) { add(new T.PlaneGeometry(0.36, 0.36), std({ map: TEX.num(lane++), roughness: 0.7 }), x + 2.1, 0.62, 1.14, false, false); }
     }
-    // warm lamps over the booth and a few down the hall (cheap point lights, no shadows)
-    for (const [x, z, c, i] of [[0, 10, '#dfe9ff', 20], [0, 30, '#dfe9ff', 22], [0, 52, '#dfe9ff', 22]]) { const L = new T.PointLight(c, i, 60, 1); L.position.copy(V(x, HALL_H - 1, z)); scene.add(L); }
-    cam = new T.PerspectiveCamera(60, 16 / 9, 0.05, 1500); cam.rotation.order = 'YXZ'; cam.position.set(0, EYE, 0); scene.add(cam);
+    add(new T.BoxGeometry(HALL_W - 0.8, 0.35, 2.8), std({ color: '#30353a' }), 0, 2.78, -0.1, false, false);
+    for (let x = -8.4; x <= 8.4; x += 4.2) add(new T.CylinderGeometry(0.12, 0.12, 0.03, 16), glow('#fff6e6'), x, 2.59, 0.2, false, false);
+    const scr = add(new T.PlaneGeometry(0.5, 0.32), new T.MeshBasicMaterial({ map: TEX.screen, color: '#9aa' }), 1.6, 1.12, 1.2, false, false); scr.rotation.x = -0.5;
+    // spent brass on the floor by the firing line
+    const brass = new T.InstancedMesh(new T.CylinderGeometry(0.006, 0.006, 0.045, 6), std({ color: '#b8913f', roughness: 0.35, metalness: 0.9 }), 160);
+    const dm = new T.Object3D();
+    for (let i = 0; i < 160; i++) { dm.position.copy(V((Math.random() - 0.5) * (HALL_W - 2), 0.007, 0.6 - Math.random() * 1.6)); dm.rotation.set(Math.PI / 2, Math.random() * 6, 0); dm.updateMatrix(); brass.setMatrixAt(i, dm.matrix); }
+    scene.add(brass);
+    // cover props
+    const bagGeo = (() => { const g = new T.BoxGeometry(0.54, 0.16, 0.34, 8, 3, 5), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i) / 0.27, y = p.getY(i) / 0.08, z = p.getZ(i) / 0.17; const k = 1 - 0.55 * Math.pow(Math.abs(x), 3); p.setY(i, p.getY(i) * (0.55 + 0.45 * k) * (1 - 0.25 * z * z)); p.setZ(i, p.getZ(i) * (1 - 0.18 * Math.pow(Math.abs(x), 4)) * (1 - 0.15 * y * y)); } g.computeVertexNormals(); return g; })();
+    const bagMs = ['#cbb58a', '#bba67c', '#d6c297', '#ad9870'].map(c => std({ color: c, map: TEX.concrete, roughness: 1 })), bagMats = bagMs.map(() => []), hidden = new T.MeshBasicMaterial({ visible: false });
+    const bagM = std({ map: TEX.bag, roughness: 1 }), conc = std({ map: TEX.concrete, roughness: 0.95 }), rust = std({ map: TEX.rust, roughness: 0.6, metalness: 0.4 }), woodM = std({ map: TEX.wood, roughness: 0.85 }), rubber = std({ color: '#1b1b1b', roughness: 0.95 });
+    for (const p of PROPS) {
+      if (p.k === 'bag') { // a wall of individual sandbags, staggered like brickwork (drawn as instances, plus one plain box for collisions)
+        const rows = Math.round(p.h / 0.15), per = Math.round(p.w / 0.52);
+        for (let r = 0; r < rows; r++) for (let c = 0; c < per - (r % 2); c++) for (const dz of [-0.17, 0.17]) {
+          dm.position.copy(V(p.x - p.w / 2 + 0.26 + c * 0.52 + (r % 2) * 0.26 + (Math.random() - 0.5) * 0.03, 0.075 + r * 0.15, p.z + dz * (1 - r * 0.06)));
+          dm.rotation.set(0, (Math.random() - 0.5) * 0.12, (Math.random() - 0.5) * 0.06); dm.updateMatrix(); bagMats[(r + c) % bagMats.length].push(dm.matrix.clone());
+        }
+        add(new T.BoxGeometry(p.w, rows * 0.15, 0.7), hidden, p.x, rows * 0.075, p.z, false, false);
+      } else if (p.k === 'barrier') { // jersey barrier
+        const s = new T.Shape(); s.moveTo(-0.3, 0); s.lineTo(0.3, 0); s.lineTo(0.3, 0.08); s.lineTo(0.18, 0.3); s.lineTo(0.09, 0.8); s.lineTo(-0.09, 0.8); s.lineTo(-0.18, 0.3); s.lineTo(-0.3, 0.08); s.closePath();
+        for (const dx of [-1.0, 1.0]) { const g = new T.ExtrudeGeometry(s, { depth: 1.95, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 1 }); g.rotateY(Math.PI / 2); g.translate(-0.975, 0, 0); add(g, conc, p.x + dx, 0, p.z); }
+      } else if (p.k === 'barrels') {
+        [[0, 0], [0.62, 0.1], [0.3, -0.5]].forEach(([dx, dz], i) => { add(new T.CylinderGeometry(0.29, 0.29, 0.88, 20), i === 1 ? std({ map: TEX.rust, color: '#7a3a2a', roughness: 0.6, metalness: 0.4 }) : rust, p.x + dx, 0.44, p.z + dz); add(new T.CylinderGeometry(0.27, 0.27, 0.01, 20), dark, p.x + dx, 0.885, p.z + dz, false, false); });
+      } else if (p.k === 'pallets') {
+        for (let r = 0; r < 4; r++) { add(new T.BoxGeometry(1.2, 0.025, 1.0), woodM, p.x, 0.13 + r * 0.15, p.z); for (const dz of [-0.42, 0, 0.42]) add(new T.BoxGeometry(1.2, 0.1, 0.1), woodM, p.x, 0.065 + r * 0.15, p.z + dz); }
+      } else if (p.k === 'tyres') {
+        for (let r = 0; r < 4; r++) { const t = add(new T.TorusGeometry(0.33, 0.13, 10, 24), rubber, p.x + (r % 2) * 0.04, 0.13 + r * 0.24, p.z); t.rotation.x = Math.PI / 2; }
+      } else if (p.k === 'barricade') { // plywood wall with a window, braced from behind
+        const s = new T.Shape(); s.moveTo(-1.2, 0); s.lineTo(1.2, 0); s.lineTo(1.2, 2.2); s.lineTo(-1.2, 2.2); s.closePath();
+        const hole = new T.Path(); hole.moveTo(-0.5, 1.1); hole.lineTo(0.5, 1.1); hole.lineTo(0.5, 1.7); hole.lineTo(-0.5, 1.7); hole.closePath(); s.holes.push(hole);
+        const g = new T.ExtrudeGeometry(s, { depth: 0.05, bevelEnabled: false }); add(g, woodM, p.x, 0, p.z);
+        for (const dx of [-1.15, 1.15]) add(new T.BoxGeometry(0.1, 2.2, 0.1), woodM, p.x + dx, 1.1, p.z + 0.08);
+        for (const dx of [-1.0, 1.0]) { const b = add(new T.BoxGeometry(0.08, 2.0, 0.08), woodM, p.x + dx, 0.85, p.z + 0.6); b.rotation.x = 0.55; }
+      }
+    }
+    bagMs.forEach((m, i) => { const im = new T.InstancedMesh(bagGeo, m, bagMats[i].length); bagMats[i].forEach((mx, k) => im.setMatrixAt(k, mx)); im.castShadow = true; im.receiveShadow = true; scene.add(im); });
+    // lights: a cool wash down the hall, a warm light over the firing line, the backstop lit up
+    for (const [x, y, z, c, i, d] of [[0, HALL_H - 0.4, 2, '#ffeedd', 10, 14], [0, HALL_H - 0.4, 14, '#e6eeff', 14, 26], [0, HALL_H - 0.4, 28, '#e6eeff', 14, 26], [0, HALL_H - 0.4, 41, '#e6eeff', 12, 22]]) { const L = new T.PointLight(c, i, d, 1.2); L.position.copy(V(x, y, z)); scene.add(L); }
+    const spot = new T.SpotLight('#fff4e0', 40, 30, 0.6, 0.6, 1.2); spot.position.copy(V(0, HALL_H - 0.3, HALL_L - 12)); spot.target.position.copy(V(0, 1, HALL_L - 2)); scene.add(spot, spot.target);
+    cam = new T.PerspectiveCamera(60, 16 / 9, 0.05, 400); cam.rotation.order = 'YXZ'; cam.position.set(0, EYE, 0); scene.add(cam);
     buildGun();
     buildFx();
   }
@@ -2441,10 +2512,10 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function tAxes(t) { const L = Math.hypot(t.x, t.z) || 1, nx = -t.x / L, nz = -t.z / L; return { nx, nz, ux: nz, uz: -nx }; }
   /* drills: where targets appear */
   const DRILL = {
-    flick: { name: 'Pop-up flicks', dist: [7, 25], ang: 35 },
-    wide:  { name: 'Wide flicks',   dist: [6, 15],  ang: 75 },
-    micro: { name: 'Long range',    dist: [35, 60], ang: 12 },
-    track: { name: 'Tracking',      dist: [8, 16], ang: 30, track: true },
+    flick: { name: 'Pop-up flicks', dist: [6, 20], ang: 35 },
+    wide:  { name: 'Wide flicks',   dist: [5, 12],  ang: 70 },
+    micro: { name: 'Long range',    dist: [25, 38], ang: 12 },
+    track: { name: 'Tracking',      dist: [7, 13], ang: 30, track: true },
   };
   const SPEEDS = { slow: 1.3, normal: 2.2, fast: 3.4 };
   const drill = () => DRILL[$('r-mode').value] || DRILL.flick;
@@ -2467,6 +2538,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     OBST = [];
     const bx = new T.Box3();
     for (const m of SOLIDS) {
+      if (m.isInstancedMesh) continue;
       bx.setFromObject(m);
       const sx = bx.max.x - bx.min.x, sz = bx.max.z - bx.min.z;
       if (bx.min.y < 2.4 && bx.max.y > 0.15 && sx < 8 && sz < 8) OBST.push([bx.min.x, bx.max.x, -bx.max.z, -bx.min.z]); // x range, my-z range
@@ -2903,7 +2975,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const RSET = 'senslab.range.v1', RIDS = ['r-dpi', 'r-sens', 'r-cm', 'r-fov', 'r-ads', 'r-mode', 'r-len', 'r-wpn', 'r-count', 'r-speed', 'r-vanish', 'r-host', 'r-hp', 'r-ammo', 'r-snd'];
   try { const saved = JSON.parse(localStorage.getItem(RSET) || '{}'); RIDS.forEach(id => { if (saved[id] != null) $(id).value = saved[id]; }); } catch (e) {}
   RIDS.forEach(id => $(id).addEventListener('change', () => { try { const o = {}; RIDS.forEach(i => o[i] = $(i).value); localStorage.setItem(RSET, JSON.stringify(o)); } catch (e) {} }));
-  function idleTargets() { clearTargets(); [{ x: -3, z: 11 }, { x: 4, z: 17 }, { x: -1, z: 28, vel: 1.2 }, { x: 6.5, z: 14, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
+  function idleTargets() { clearTargets(); [{ x: -3, z: 10 }, { x: 4, z: 15 }, { x: -1, z: 24, vel: 1.2 }, { x: 6, z: 12.5, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
   idleTargets();
   ammo = wpn().mag; showBest(); updStats(); menu();
 })();
