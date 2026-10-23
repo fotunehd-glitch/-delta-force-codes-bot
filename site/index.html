@@ -2524,7 +2524,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const hf = Math.min(120, Math.max(60, +$('r-fov').value || 90)) * D2R, aspect = w / h;
     cam.aspect = aspect; cam.fov = 2 * Math.atan(Math.tan(hf / 2) / zoomNow() / aspect) / D2R; cam.updateProjectionMatrix();
     cam.rotation.set(pitch * D2R, -yaw * D2R, 0);
-    if (isGrid()) { if (!gScene) buildGrid(); poseGrid(now); renderer.autoClear = true; renderer.render(gScene, cam); return; }
+    if (isGrid()) { if (!gScene) buildGrid(); poseGrid(now); cam.updateMatrixWorld(); renderer.autoClear = true; renderer.render(gScene, cam); return; }
     for (const t of targets) poseBot(t, now);
     poseGun(now);
     gunCam.aspect = aspect; gunCam.updateProjectionMatrix();
