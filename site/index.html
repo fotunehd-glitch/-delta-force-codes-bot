@@ -1767,7 +1767,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     scene.fog = new T.Fog('#14181b', 30, 75);
     scene.add(new T.HemisphereLight('#c5ccd2', '#3a352d', 0.8));
     const key = new T.DirectionalLight('#eef3f8', 1.6); key.position.set(4, 30, -6); key.castShadow = true;
-    key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -15, right: 15, top: 30, bottom: -30, near: 1, far: 60 }); key.shadow.bias = -0.0006; key.shadow.normalBias = 0.02;
+    key.shadow.mapSize.set(1024, 1024); Object.assign(key.shadow.camera, { left: -15, right: 15, top: 30, bottom: -30, near: 1, far: 60 }); key.shadow.bias = -0.0006; key.shadow.normalBias = 0.02;
     key.target.position.set(0, 0, -22); scene.add(key, key.target);
     const std = o => new T.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, o));
     const add = (geo, mat, x, y, z, cast = true, recv = true) => { const m = new T.Mesh(geo, mat); m.position.copy(V(x, y, z)); m.castShadow = cast; m.receiveShadow = recv; scene.add(m); return m; };
@@ -1921,7 +1921,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const gunM = mat({ color: '#222427', roughness: 0.45, metalness: 0.45, bumpMap: null });
     const root = new T.Group(), fall = new T.Group(); root.add(fall);
     const sh = new T.Mesh(new T.PlaneGeometry(1.3, 1.3), new T.MeshBasicMaterial({ map: X.shadow, transparent: true, depthWrite: false })); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.012; root.add(sh); mats.push(sh.material);
-    const cast = o => { o.castShadow = true; o.receiveShadow = true; return o; };
+    const cast = o => { o.castShadow = true; return o; };
     const M = (geo, m, x, y, z, parent) => { const o = cast(new T.Mesh(geo, m)); o.position.set(x, y, z); (parent || fall).add(o); return o; };
     const G = (x, y, z, parent) => { const g = new T.Group(); g.position.set(x, y, z); (parent || fall).add(g); return g; };
     // a limb or body part turned on a lathe: prof = [[y, radius], ...] top to bottom, squashed front-to-back by sz
@@ -2514,9 +2514,13 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     if (ctx2) ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
     return [r.width, r.height, dpr];
   }
+  let glLost = false, glErr = '';
   function render3D(w, h, dpr, now) {
-    if (!ready) return;
-    renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
+    if (!ready || glLost) return;
+    try { render3Dx(w, h, dpr, now); } catch (e) { glErr = String(e && e.message || e).slice(0, 140); console.error(e); }
+  }
+  function render3Dx(w, h, dpr, now) {
+    renderer.setPixelRatio(Math.min(dpr, 1.5)); renderer.setSize(w, h, false);
     const hf = Math.min(120, Math.max(60, +$('r-fov').value || 90)) * D2R, aspect = w / h;
     cam.aspect = aspect; cam.fov = 2 * Math.atan(Math.tan(hf / 2) / zoomNow() / aspect) / D2R; cam.updateProjectionMatrix();
     cam.rotation.set(pitch * D2R, -yaw * D2R, 0);
@@ -2532,6 +2536,9 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     try {
       T = await import(THREE_URL);
       renderer = new T.WebGLRenderer({ canvas: gl, antialias: true, powerPreference: 'high-performance' });
+      renderer.debug.onShaderError = (g, prog, vs, fs) => { glErr = 'Graphics card could not draw part of the scene (shader error)'; console.error('shader error', g.getProgramInfoLog(prog)); };
+      gl.addEventListener('webglcontextlost', e => { e.preventDefault(); glLost = true; glErr = 'Your graphics card paused the 3D view'; drawRange(); });
+      gl.addEventListener('webglcontextrestored', () => { glLost = false; glErr = ''; drawRange(); });
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap; renderer.outputColorSpace = T.SRGBColorSpace;
       renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
       buildWorld(); ready = true;
@@ -2955,6 +2962,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     ctx.clearRect(0, 0, w, h);
     if (!ready) { ctx.fillStyle = '#0d131c'; ctx.fillRect(0, 0, w, h); ctx.fillStyle = '#7f90a3'; ctx.font = '600 14px "Chakra Petch", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(loadErr ? 'The 3D range could not load. Check your connection and refresh.' : 'Loading the range…', CX, CY + 70); return; }
+    if (glErr) { ctx.fillStyle = 'rgba(0,0,0,.7)'; ctx.fillRect(0, h - 64, w, 30); ctx.fillStyle = '#ffe000'; ctx.font = '600 13px "IBM Plex Sans", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('3D problem: ' + glErr + (glLost ? ' — it will come back by itself, or refresh the page' : ''), CX, h - 49); }
     drawFx(w, h, now);
     drawExtras(w, h);
     drawScope(w, h);
