@@ -2560,7 +2560,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     reflex: { name: 'Reflex Pop', env: 'grid', cat: 'click', lvl: 3, desc: 'Small targets show up for under a second. Hit them before they vanish.' },
     orb: { name: 'Orb Track', env: 'grid', cat: 'track', lvl: 2, desc: 'Hold left click to fire a beam and keep it on the moving orb. Scores your time on target.' },
     switch: { name: 'Orb Switch', env: 'grid', cat: 'switch', lvl: 2, desc: 'Four moving orbs. Clear them one after another as fast as you can.' },
-    combo: { name: 'Combo Chain', env: 'grid', cat: 'flick', lvl: 2, desc: 'A wall of red, yellow, green and blue shapes. Keep shooting the same shape to build a combo and win bonus time.' },
+    combo: { name: 'Combo Chain', env: 'grid', cat: 'flick', lvl: 2, desc: 'A wall of coloured shapes. Shoot one and every matching shape touching it pops too. Bigger groups score more and win bonus time.' },
     sensfind: { name: 'Sens Finder', env: 'grid', cat: 'setup', lvl: 1, desc: 'Five short rounds, each at a secretly different speed. Tells you which sens you aim best with.' },
   });
   const isGrid = () => !!drill().env;
@@ -2625,7 +2625,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       const ms = [0.8, 0.9, 1.0, 1.12, 1.25].sort(() => Math.random() - 0.5);
       sf = { i: 0, rounds: ms.map(m => ({ m, hits: 0, misses: 0, times: [] })), phase: 'play', until: now + 12000 }; sensMul = sf.rounds[0].m; endAt = Infinity;
       gSpawn('centre');
-    } else if (mode === 'combo') { sf = null; gS.combo = 0; gS.best = 0; gS.last = null; gS.bonus = 0; comboFill();
+    } else if (mode === 'combo') { sf = null; gS.combo = 0; gS.best = 0; gS.popped = 0; gS.bonus = 0; comboFill();
     } else { sf = null; const n = mode === 'grid' ? 3 : mode === 'switch' ? 4 : 1; for (let i = 0; i < n; i++) gSpawn(i === 0 && mode === 'spider' ? 'centre' : 'out'); }
   }
   function gridShift(gap) { gTargets.forEach(t => { t.born += gap; if (t.turnAt) t.turnAt += gap; }); if (gNext) gNext += gap; if (sf) sf.until += gap; }
@@ -2670,21 +2670,31 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld();
     const hit = ray().intersectObjects(gTargets.map(t => t.mesh), false)[0];
     const R = sf ? sf.rounds[sf.i] : null;
-    if (!hit) { gS.misses++; if (mode === 'combo') { gS.combo = 0; gS.last = null; } if (R) R.misses++; for (const t of gTargets) t.missed = (t.missed || 0) + 1; tone([420], 0.02, 0.04, 'triangle'); return; }
+    if (!hit) { gS.misses++; if (R) R.misses++; for (const t of gTargets) t.missed = (t.missed || 0) + 1; tone([420], 0.02, 0.04, 'triangle'); return; }
     const t = hit.object.userData.g, took = now - t.born, p = hit.point;
     gS.hits++; hitsN++; kills++; killTimes.push(took); gS.times.push(took); if (R) { R.hits++; R.times.push(took); }
-    if (mode === 'combo') {
-      gS.combo = t.type === gS.last ? gS.combo + 1 : 1; gS.last = t.type; gS.best = Math.max(gS.best, gS.combo);
-      points += 25 * gS.combo;
-      if (gS.combo % 5 === 0 && !free) { endAt += 2000; gS.bonus += 2; marker = { t: now, txt: `COMBO x${gS.combo} · +2 s` }; tone([1320, 1760], 0.06, 0.18); }
+    let group = null;
+    if (mode === 'combo') { // pop every matching shape joined to the one you hit (up, down, left, right)
+      const at = {}; gTargets.forEach(o => { if (o.col !== undefined) at[o.col + ',' + o.row] = o; });
+      group = [t]; const seen = new Set([t]);
+      for (let i = 0; i < group.length; i++) { const g0 = group[i]; [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dc, dr]) => { const n = at[(g0.col + dc) + ',' + (g0.row + dr)]; if (n && n.type === t.type && !seen.has(n)) { seen.add(n); group.push(n); } }); }
+      const N = group.length, bonus = N >= 8 ? 3 : N >= 6 ? 2 : N >= 4 ? 1 : 0;
+      gS.combo = N; gS.best = Math.max(gS.best, N); gS.popped += N;
+      points += 15 * N * N;
+      if (bonus && !free) { endAt += bonus * 1000; gS.bonus += bonus; tone([1320, 1760], 0.06, 0.18); }
+      marker = { t: now, txt: N > 1 ? `x${N}${bonus && !free ? ` · +${bonus} s` : ''}` : '' };
+      group.forEach(o => fx.push({ k: 'spark', x: o.x, y: o.y, z: o.z, t: now, life: 260, dirs: Array.from({ length: 6 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) }));
     } else points += 60 + Math.max(0, Math.round(60 * (1 - (took - 150) / 800)));
     fx.push({ k: 'spark', x: p.x, y: p.y, z: -p.z, t: now, life: 220, dirs: Array.from({ length: 6 }, () => { const a = Math.random() * Math.PI * 2; return [Math.cos(a), Math.sin(a)]; }) });
-    if (!(mode === 'combo' && marker && marker.t === now)) marker = mode === 'combo' && gS.combo > 1 ? { t: now, txt: `x${gS.combo}` } : { t: now }; ping(false);
-    gDel(t);
-    if (mode === 'combo') { // shapes above drop down one row, a new one falls in at the top
-      gTargets.filter(o => o.col === t.col && o.row > t.row).forEach(o => { o.row--; o.ty = cRowY(o.row); });
-      comboAdd(t.col, 6, cRowY(6) + 1.2);
-    }
+    if (mode !== 'combo') marker = { t: now }; ping(gS.combo >= 4 && mode === 'combo');
+    if (mode === 'combo') { // remove the group, let each column fall, drop new shapes in at the top
+      group.forEach(gDel);
+      for (let c = 0; c < 7; c++) {
+        const col = gTargets.filter(o => o.col === c).sort((a, b) => a.row - b.row);
+        col.forEach((o, i) => { o.row = i; o.ty = cRowY(i); });
+        for (let r = col.length, k = 0; r < 7; r++, k++) comboAdd(c, r, cRowY(6) + 1.0 + k * 0.78);
+      }
+    } else gDel(t);
     if (mode === 'grid' || mode === 'switch') gSpawn();
     else if (mode === 'spider' || mode === 'sensfind') gSpawn(t.centre ? 'out' : 'centre');
     else if (mode === 'reflex') gNext = now + 200;
@@ -2717,7 +2727,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     const onPct = gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) : 0;
     const isNew = !free && saveBest({ points, kills: mode === 'orb' ? onPct + '%' : gS.hits, heads: 0, acc: mode === 'orb' ? onPct : acc, avg: avg(gS.times), rank: rk[0], wpn: 'Aim trainer', sens: sens.toFixed(2) });
     showBest(); drillCards(); syncDrillUI();
-    const cells = mode === 'combo' ? `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Best combo</span><b>x${gS.best || 0}</b></div><div><span>Bonus time</span><b>+${gS.bonus || 0} s</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Misses</span><b>${gS.misses}</b></div>` : mode === 'orb' ? `<div><span>On target</span><b>${onPct}%</b></div><div><span>Time on target</span><b>${gS.onTime.toFixed(1)} s</b></div>`
+    const cells = mode === 'combo' ? `<div><span>Shapes popped</span><b>${gS.popped || 0}</b></div><div><span>Biggest group</span><b>${gS.best || 0}</b></div><div><span>Bonus time</span><b>+${gS.bonus || 0} s</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Misses</span><b>${gS.misses}</b></div>` : mode === 'orb' ? `<div><span>On target</span><b>${onPct}%</b></div><div><span>Time on target</span><b>${gS.onTime.toFixed(1)} s</b></div>`
       : `<div><span>Hits</span><b>${gS.hits}</b></div><div><span>Accuracy</span><b>${acc}%</b></div><div><span>Avg time</span><b>${gS.times.length ? avg(gS.times) + ' ms' : '—'}</b></div><div><span>Misses</span><b>${gS.misses}</b></div>${gS.timeouts ? `<div><span>Too slow</span><b class="bad">${gS.timeouts}</b></div>` : ''}`;
     overlay(`${isNew ? '<div class="nb">NEW BEST</div>' : ''}<div class="rank" style="color:${rk[2]}">${rk[0].toUpperCase()}</div>
       <div class="t">${points.toLocaleString('en-GB')} points</div><div class="sl-res">${cells}</div>
@@ -2734,7 +2744,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     }
     ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 70);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif';
-    const rows = mode === 'combo' ? [['COMBO', 'x' + (gS.combo || 0)], ['BEST', 'x' + (gS.best || 0)], ['HITS', String(gS.hits)]] : mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
+    const rows = mode === 'combo' ? [['LAST', 'x' + (gS.combo || 0)], ['BIGGEST', 'x' + (gS.best || 0)], ['POPPED', String(gS.popped || 0)]] : mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
       : [['HITS', String(gS.hits)], ['ACCURACY', shots ? Math.round(gS.hits / shots * 100) + '%' : '—'], ['AVG TIME', gS.times.length ? avg(gS.times) + ' ms' : '—']];
     rows.forEach(([k, v], i) => { ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif'; ctx.fillText(k, px + 12 + i * 88, py + 22); ctx.fillStyle = '#e3ebf2'; ctx.font = '700 18px "JetBrains Mono", monospace'; ctx.fillText(v, px + 12 + i * 88, py + 48); });
     if (sf) {
@@ -2905,7 +2915,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     ctx.fillStyle = '#c4ccd4'; ctx.font = '600 11px "Chakra Petch", sans-serif';
     const live = targets.find(t => !t.hit && t.kind === 'foe');
     ctx.fillText(state === 'run' ? `POINTS${live ? `  ·  TARGET ${live.dist} M` : ''}` : '', 16, h - 16);
-    if (state === 'run' && !free) { const left = Math.max(0, (endAt - now) / 1000); ctx.textAlign = 'right'; ctx.font = '700 16px "JetBrains Mono", monospace'; ctx.fillStyle = left < 5 ? '#ff5a5a' : '#e3ebf2'; ctx.fillText(`0:${String(Math.ceil(left)).padStart(2, '0')}`, w - 18, 70); }
+    if (state === 'run' && !free) { const left = Math.max(0, (endAt - now) / 1000); ctx.textAlign = 'right'; ctx.font = '700 16px "JetBrains Mono", monospace'; ctx.fillStyle = left < 5 ? '#ff5a5a' : '#e3ebf2'; const ls = Math.ceil(left); ctx.fillText(`${Math.floor(ls / 60)}:${String(ls % 60).padStart(2, '0')}`, w - 18, 70); }
 
     if (state === 'run' && !isGrid()) {
       const px = 16, py = 16, pw = 220, rows = [['Accuracy', shots ? Math.round(hitsN / shots * 100) + '%' : '—'], ['Headshot %', kills ? Math.round(heads / kills * 100) + '%' : '—'], ['Avg knock-down', killTimes.length ? (avg(killTimes) / 1000).toFixed(2) + ' s' : '—']];
