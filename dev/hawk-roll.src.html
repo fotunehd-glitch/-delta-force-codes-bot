@@ -900,7 +900,7 @@ document.getElementById("ribNote").onclick=()=>{const d=document.getElementById(
 // ---------------- pools ----------------
 const pools={
  op:()=>OPERATORS.filter(o=>!S.opsOff.includes(o[0])).map(([n,c])=>({nm:n,sub:c,tier:0})),
- map:()=>MAPS.filter(m=>S.maps.includes(m)&&!(m==="Tide Prison"&&!rotation().prisonOpen)).map(m=>({nm:m,sub:"Operations",tier:0})),
+ map:()=>{const r=rotation(),base=MAPS.filter(m=>S.maps.includes(m)&&!(m==="Tide Prison"&&!r.prisonOpen)),ok=base.filter(m=>!S.diffs.length||mapModes(m,r).some(d=>S.diffs.includes(d)));return (ok.length?ok:base).map(m=>({nm:m,sub:"Operations",tier:0}))}, // skip maps with none of your ticked difficulties
  weapon:()=>S.wtypes.flatMap(t=>WEAPONS[t].map(n=>({nm:n,sub:WTYPES[t],tier:0}))),
 };
 ["helmets","vests","rigs","backpacks"].forEach(k=>pools[k]=()=>{
