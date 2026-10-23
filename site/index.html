@@ -419,10 +419,6 @@ html.noribbon .ribnote{display:none}
 #senslab h2 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; letter-spacing: .03em; }
 #senslab .drills { gap: 12px; }
 #senslab .dhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
-#senslab .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-#senslab .chip { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; cursor: pointer; }
-#senslab .chip:hover { color: var(--fg); }
-#senslab .chip[aria-selected="true"] { color: #062014; background: var(--green); border-color: var(--green); }
 #senslab .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
 #senslab .dsec { grid-column: 1 / -1; font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg); margin-top: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 #senslab .dcard { text-align: left; display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; padding: 0 0 12px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; cursor: pointer; color: var(--fg); font: inherit; transition: border-color .15s, transform .15s; }
@@ -1227,17 +1223,6 @@ function holdToggle(k){
   $("#f-"+k).classList.toggle("held",st.held);
 }
 
-// dice
-async function rollDie(el,faces){
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const out=pick(faces);
-  el.classList.remove("hard","normal");
-  if(S.instant){el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();return}
-  el.classList.add("rolling");
-  for(let i=0;i<14;i++){el.textContent=pick(faces);SFX.dieTick();await new Promise(r=>setTimeout(r,40+i*12))}
-  el.classList.remove("rolling");el.textContent=out;el.classList.toggle("hard",out==="Hard");el.classList.toggle("normal",out==="Normal");SFX.dieLand();
-}
-const DIFF=["Easy","Easy","Normal","Normal","Hard","Hard"];
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
 const BUILDS=["No Attachments","Budget Build","Mid Tier Build","Max Build"];
 const BUILD_COL=["#8b939b","#2f9e55","#7c4dd1","#d49a1c"];
@@ -1733,7 +1718,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       g.fillStyle = '#2b2f33'; g.fillRect(0, 0, w, h * 0.55);
       for (let x = 0; x < w; x += 128) for (let y = 6; y < h * 0.55 - 6; y += 128) { g.fillStyle = `rgb(${50 + Math.random() * 8},${55 + Math.random() * 8},${60 + Math.random() * 8})`; g.fillRect(x + 4, y, 120, 120); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x + 4, y + 116, 120, 4); }
       g.fillStyle = '#1d2023'; g.fillRect(0, h * 0.55 - 8, w, 10);
-      g.fillStyle = '#878a86'; g.fillRect(0, h * 0.55, w, h * 0.45); noise(g, 0, 0, null, 0, 0, 0);
+      g.fillStyle = '#878a86'; g.fillRect(0, h * 0.55, w, h * 0.45);
       for (let y = h * 0.55; y < h; y += 32) for (let x = ((y / 32) % 2) * 32; x < w; x += 64) { g.fillStyle = `rgba(0,0,0,${0.04 + Math.random() * 0.05})`; g.fillRect(x, y, 62, 30); }
       g.strokeStyle = 'rgba(40,40,40,.35)'; g.lineWidth = 2; for (let y = h * 0.55; y < h; y += 32) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
       for (let i = 0; i < 25; i++) { g.fillStyle = 'rgba(40,34,26,.12)'; g.fillRect(Math.random() * w, h * 0.55 + Math.random() * h * 0.4, 2 + Math.random() * 4, 20 + Math.random() * 60); }
@@ -1741,10 +1726,9 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     }, 6, 1);
     TEX.ceil = canvasTex(256, 256, (g, w, h) => { noise(g, w, h, '#3d4246', 0.1, 4000, 2); }, 6, 12);
     TEX.hazard = canvasTex(128, 32, (g, w, h) => { g.fillStyle = '#16181a'; g.fillRect(0, 0, w, h); g.fillStyle = '#d8b022'; for (let x = -32; x < w + 32; x += 32) { g.beginPath(); g.moveTo(x, h); g.lineTo(x + 16, h); g.lineTo(x + 32, 0); g.lineTo(x + 16, 0); g.closePath(); g.fill(); } }, 15, 1);
-    TEX.bag = canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#5d523c'; g.fillRect(0, 0, w, h); for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) { const x = c * 52 + (r % 2) * 26 - 26, y = r * 32; const gr = g.createLinearGradient(0, y, 0, y + 30); const b = 130 + Math.random() * 25; gr.addColorStop(0, `rgb(${b + 15},${b - 5},${b - 40})`); gr.addColorStop(1, `rgb(${b - 35},${b - 50},${b - 75})`); g.fillStyle = gr; g.beginPath(); g.roundRect(x + 2, y + 2, 48, 28, 13); g.fill(); g.strokeStyle = 'rgba(0,0,0,.4)'; g.lineWidth = 2; g.stroke(); g.strokeStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.moveTo(x + 10, y + 16); g.lineTo(x + 42, y + 16); g.stroke(); } noise(g, w, h, null, 0.12, 3000, 1.5); });
     TEX.num = n => canvasTex(256, 256, (g, w, h) => { g.fillStyle = '#1e2124'; g.fillRect(0, 0, w, h); noise(g, w, h, null, 0.1, 1500, 2); g.fillStyle = '#e8eaec'; g.font = '700 190px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), w / 2, h / 2 + 10); });
     TEX.dist = d => canvasTex(256, 128, (g, w, h) => { g.fillStyle = '#d8b022'; g.fillRect(0, 0, w, h); g.strokeStyle = '#16181a'; g.lineWidth = 8; g.strokeRect(4, 4, w - 8, h - 8); g.fillStyle = '#16181a'; g.font = '700 74px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(d + 'M', w / 2, h / 2 + 4); });
-    TEX.floorNum = d => canvasTex(256, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(230,232,228,.75)'; g.font = '700 96px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(d), w / 2, h / 2 + 6); noise(g, w, h, null, 0.0, 0, 0); });
+    TEX.floorNum = d => canvasTex(256, 128, (g, w, h) => { g.clearRect(0, 0, w, h); g.fillStyle = 'rgba(230,232,228,.75)'; g.font = '700 96px "Chakra Petch", Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(d), w / 2, h / 2 + 6); });
     TEX.screen = canvasTex(256, 160, (g, w, h) => { g.fillStyle = '#071512'; g.fillRect(0, 0, w, h); g.strokeStyle = '#19c48a'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = '#19c48a'; g.font = '600 18px monospace'; ['RANGE CONTROL', 'TARGETS: ON', 'DIST: AUTO', 'HP: SET'].forEach((s, i) => g.fillText(s, 20, 38 + i * 28)); });
     TEX.sign = (lines, bg, fg) => canvasTex(256, 128, (g, w, h) => { g.fillStyle = bg; g.fillRect(0, 0, w, h); g.strokeStyle = fg; g.lineWidth = 6; g.strokeRect(6, 6, w - 12, h - 12); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 38px "Chakra Petch", Arial, sans-serif'; lines.forEach((s, i) => g.fillText(s, w / 2, h / 2 + (i - (lines.length - 1) / 2) * 42)); });
     TEX.rust = canvasTex(128, 128, (g, w, h) => { noise(g, w, h, '#2e3a4a', 0.18, 3000, 2); for (let i = 0; i < 30; i++) { g.fillStyle = `rgba(${110 + Math.random() * 40},${55 + Math.random() * 20},20,${0.2 + Math.random() * 0.3})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 3 + Math.random() * 10, 2 + Math.random() * 8, 0, 0, 7); g.fill(); } for (const y of [20, 64, 108]) { g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, y, w, 4); g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(0, y - 2, w, 2); } });
@@ -1803,7 +1787,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     add(new T.BoxGeometry(HALL_W, 0.7, 1.4), std({ color: '#1a1a1a', roughness: 1 }), 0, 0.35, HALL_L - 3.6, true, true);
     add(new T.BoxGeometry(HALL_W, HALL_H, 0.4), std({ color: '#191b1d' }), 0, HALL_H / 2, HALL_L + 0.2, false, true);
     for (let x = -10; x <= 10; x += 5) add(new T.BoxGeometry(0.2, 0.05, 0.2), steel, x, 0.72, HALL_L - 3.6, false, false);
-    const trapSign = add(new T.PlaneGeometry(3, 0.6), std({ map: TEX.sign(['BULLET TRAP'], '#d8b022', '#16181a'), roughness: 0.7 }), 0, 4.0, HALL_L - 0.32, false, false); 
+    add(new T.PlaneGeometry(3, 0.6), std({ map: TEX.sign(['BULLET TRAP'], '#d8b022', '#16181a'), roughness: 0.7 }), 0, 4.0, HALL_L - 0.32, false, false); 
     // painted lane lines and distance numbers on the floor, distance boards on the walls
     for (let x = -10.5; x <= 10.5; x += 4.2) { const l = add(new T.PlaneGeometry(0.06, HALL_L - 6), std({ color: '#d9dbd6', roughness: 0.9, transparent: true, opacity: 0.35 }), x, 0.011, HALL_L / 2 - 1, false, false); l.rotation.x = -Math.PI / 2; }
     [10, 20, 30, 40].forEach(d => {
@@ -1841,7 +1825,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     // cover props
     const bagGeo = (() => { const g = new T.BoxGeometry(0.54, 0.16, 0.34, 8, 3, 5), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i) / 0.27, y = p.getY(i) / 0.08, z = p.getZ(i) / 0.17; const k = 1 - 0.55 * Math.pow(Math.abs(x), 3); p.setY(i, p.getY(i) * (0.55 + 0.45 * k) * (1 - 0.25 * z * z)); p.setZ(i, p.getZ(i) * (1 - 0.18 * Math.pow(Math.abs(x), 4)) * (1 - 0.15 * y * y)); } g.computeVertexNormals(); return g; })();
     const bagMs = ['#cbb58a', '#bba67c', '#d6c297', '#ad9870'].map(c => std({ color: c, map: TEX.concrete, roughness: 1 })), bagMats = bagMs.map(() => []), hidden = new T.MeshBasicMaterial({ visible: false });
-    const bagM = std({ map: TEX.bag, roughness: 1 }), conc = std({ map: TEX.concrete, roughness: 0.95 }), rust = std({ map: TEX.rust, roughness: 0.6, metalness: 0.4 }), woodM = std({ map: TEX.wood, roughness: 0.85 }), rubber = std({ color: '#1b1b1b', roughness: 0.95 });
+    const conc = std({ map: TEX.concrete, roughness: 0.95 }), rust = std({ map: TEX.rust, roughness: 0.6, metalness: 0.4 }), woodM = std({ map: TEX.wood, roughness: 0.85 }), rubber = std({ color: '#1b1b1b', roughness: 0.95 });
     for (const p of PROPS) {
       if (p.k === 'bag') { // a wall of individual sandbags, staggered like brickwork (drawn as instances, plus one plain box for collisions)
         const rows = Math.round(p.h / 0.15), per = Math.round(p.w / 0.52);
@@ -2100,7 +2084,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   }
 
   /* ---------- the guns (their own little scene so they never clip into walls) ---------- */
-  let GUNS = {}, gunNow = null, flashSprite = null;
+  let GUNS = {}, flashSprite = null;
   function buildGun() {
     gunScene = new T.Scene();
     gunScene.add(new T.HemisphereLight('#e8eef4', '#4a4236', 1.25));
@@ -2458,7 +2442,6 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function poseGun(now) {
     const W = wpn(), key = $('r-wpn').value, g = GUNS[key] || GUNS.m4;
     Object.entries(GUNS).forEach(([k, o]) => o.visible = k === key && !(W.scope && adsT > 0.85));
-    gunNow = g;
     const k = Math.max(0, 1 - (now - kickT) / 110), s = g.userData.sight;
     const hip = new T.Vector3(W.pistol ? 0.11 : 0.13, W.pistol ? -0.14 : -0.165, W.pistol ? -0.42 : -0.47);
     const ad = new T.Vector3(-s.x, -s.y, -s.z - (W.pistol ? 0.44 : 0.14));
@@ -2697,7 +2680,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       const verdict = Math.abs(bestM - 1) < 0.05 ? 'Your current sens is already about right.' : bestM > 1 ? 'You aimed better a little <b>faster</b> than your current sens.' : 'You aimed better a little <b>slower</b> than your current sens.';
       overlay(`<div class="t">Sens Finder</div>
         <div class="sl-sub">Your best sens</div><div class="rank" style="color:#0ff796">${sfBest.toFixed(2)}</div>
-        <div class="sl-sub">Delta Force sens at ${$('r-dpi').value} DPI · about ${(cm / bestM).toFixed(1)} cm/360 (now ${sens.toFixed(2)})</div>
+        <div class="sl-sub">Delta Force sens at ${$('r-dpi').value} DPI · about ${dfCm(+$('r-dpi').value, sfBest).toFixed(1)} cm/360 (now ${sens.toFixed(2)})</div>
         <table class="rec"><thead><tr><th>Sens</th><th>Hits</th><th>Accuracy</th><th>Avg time</th><th>Score</th></tr></thead><tbody>${rows.map(r => `<tr${r.m === rows.reduce((a, b) => b.score > a.score ? b : a).m ? ' style="color:#0ff796"' : ''}><td>${(sens * r.m).toFixed(2)}</td><td>${r.hits}</td><td>${Math.round(r.acc * 100)}%</td><td>${r.times.length ? avg(r.times) + ' ms' : '—'}</td><td>${r.score}</td></tr>`).join('')}</tbody></table>
         <div class="sl-sub verdict">${verdict} Do it two or three times: the answer gets more reliable each go.</div>
         <div class="obtns"><button class="btn" data-go="usesens">Use ${sfBest.toFixed(2)}</button><button class="sl-ghost" data-go="test">Go again</button><button class="sl-ghost" data-go="menu">Menu</button></div>`);
@@ -3203,7 +3186,6 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function idleTargets() { clearTargets(); [{ x: -3, z: 10 }, { x: 4, z: 15 }, { x: -1, z: 24, vel: 1.2 }, { x: 6, z: 12.5, kind: 'host' }].forEach(p => targets.push({ kind: 'foe', vel: 0, off: 0, range: 3, ...p, tilt: 0, hit: false, hp: 1, hpMax: 1, dist: Math.round(Math.hypot(p.x, p.z)) })); }
 
   /* ---------- drill picker cards ---------- */
-  const CATS = [['all', 'All'], ['df', 'Delta Force range'], ['flick', 'Flicking'], ['click', 'Precision'], ['track', 'Tracking'], ['switch', 'Switching'], ['setup', 'Sens finder']];
   const CATNAME = { flick: 'Flicking', click: 'Precision', track: 'Tracking', switch: 'Switching', setup: 'Setup' };
   const ORDER = ['sensfind', 'grid', 'spider', 'reflex', 'orb', 'switch', 'flick', 'wide', 'micro', 'track', 'multi'];
   const ICON = {
@@ -3213,7 +3195,6 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     switch: '<svg viewBox="0 0 64 50"><circle cx="12" cy="16" r="6" fill="#ffd24a"/><circle cx="34" cy="34" r="6" fill="#ffd24a"/><circle cx="54" cy="14" r="6" fill="#ffd24a"/><path d="M17 19 L29 30 M39 31 L49 18" stroke="#0ff796" stroke-width="2"/></svg>',
     setup: '<svg viewBox="0 0 64 50"><path d="M8 40 h48" stroke="#3a5070" stroke-width="2"/><path d="M12 40 v-8 M22 40 v-16 M32 40 v-26 M42 40 v-14 M52 40 v-6" stroke="#0ff796" stroke-width="5" stroke-linecap="round"/><circle cx="32" cy="10" r="3" fill="#ffe000"/></svg>',
   };
-  let dCat = 'all';
   function drillCards() {
     const grid = $('d-grid'); if (!grid) return;
     const best = bestAll(), cur = $('r-mode').value;
