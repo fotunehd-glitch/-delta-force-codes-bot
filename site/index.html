@@ -2552,7 +2552,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     grid: { name: 'Grid Blitz', env: 'grid', cat: 'flick', lvl: 1, desc: 'Three tiles on a wall. Shoot one and another pops up somewhere new.' },
     spider: { name: 'Centre Flick', env: 'grid', cat: 'flick', lvl: 2, desc: 'Flick out to a target, then back to the middle one. Over and over.' },
     reflex: { name: 'Reflex Pop', env: 'grid', cat: 'click', lvl: 3, desc: 'Small targets show up for under a second. Hit them before they vanish.' },
-    orb: { name: 'Orb Track', env: 'grid', cat: 'track', lvl: 2, desc: 'Keep your crosshair on the moving orb. Scores your time on target.' },
+    orb: { name: 'Orb Track', env: 'grid', cat: 'track', lvl: 2, desc: 'Hold left click to fire a beam and keep it on the moving orb. Scores your time on target.' },
     switch: { name: 'Orb Switch', env: 'grid', cat: 'switch', lvl: 2, desc: 'Four moving orbs. Clear them one after another as fast as you can.' },
     sensfind: { name: 'Sens Finder', env: 'grid', cat: 'setup', lvl: 1, desc: 'Five short rounds, each at a secretly different speed. Tells you which sens you aim best with.' },
   });
@@ -2635,7 +2635,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     if (mode === 'reflex' && !gTargets.length && gNext && now >= gNext) { gNext = 0; gSpawn(); }
     if (mode === 'orb') { // time with the crosshair on the orb
       gS.totTime += dt; const t = gTargets[0];
-      if (t) { poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld(); t.on = ray().intersectObject(t.mesh, false).length > 0; if (t.on) { gS.onTime += dt; points = Math.round(gS.onTime * 150); } }
+      if (t) { poseGrid(now); gScene.updateMatrixWorld(); cam.rotation.set(pitch * D2R, -yaw * D2R, 0); cam.updateMatrixWorld(); t.on = fireHeld && ray().intersectObject(t.mesh, false).length > 0; if (t.on) { gS.onTime += dt; points = Math.round(gS.onTime * 150); if (now - (gS.tickAt || 0) > 90) { gS.tickAt = now; tone([1900], 0.025, 0.04, 'sine'); } } }
     }
   }
   function poseGrid(now) {
@@ -2701,6 +2701,11 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function drawGridHUD(w, h, now) {
     if (state !== 'run' || !gS.times) return;
     const mode = $('r-mode').value, px = 16, py = 16, pw = 270;
+    if (mode === 'orb') {
+      const on = gTargets[0] && gTargets[0].on;
+      if (fireHeld) { ctx.save(); ctx.strokeStyle = on ? 'rgba(46,230,255,.9)' : 'rgba(46,230,255,.45)'; ctx.lineWidth = on ? 4 : 2.5; ctx.shadowColor = '#2ee6ff'; ctx.shadowBlur = on ? 16 : 6; ctx.beginPath(); ctx.moveTo(w * 0.72, h + 10); ctx.lineTo(CX + 2, CY + 3); ctx.stroke(); ctx.restore(); }
+      else { ctx.textAlign = 'center'; ctx.fillStyle = '#ffe000'; ctx.font = '700 14px "Chakra Petch", sans-serif'; ctx.fillText('HOLD LEFT CLICK TO FIRE', CX, CY + 46); }
+    }
     ctx.fillStyle = 'rgba(8,12,16,.55)'; ctx.fillRect(px, py, pw, 70);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#9fb0bf'; ctx.font = '600 11px "Chakra Petch", sans-serif';
     const rows = mode === 'orb' ? [['ON TARGET', gS.totTime ? Math.round(gS.onTime / gS.totTime * 100) + '%' : '—'], ['TIME ON', gS.onTime.toFixed(1) + ' s']]
@@ -3049,7 +3054,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
         <div class="sl-sub">${d.desc}</div>
         <div class="sl-sub">Aim trainer · sens ${(+$('r-sens').value).toFixed(2)} @ ${$('r-dpi').value} DPI (${(+$('r-cm').value).toFixed(1)} cm/360)${sf0 ? ' · 5 rounds of 12 s' : ''}</div>
         <div class="obtns"><button class="btn" data-go="test">${sf0 ? 'Find my sens' : 'Start'}</button>${sf0 ? '' : '<button class="sl-ghost" data-go="free">Free play</button>'}<button class="sl-ghost" data-go="records">Records</button><button class="sl-ghost" data-go="full">Fullscreen</button></div>
-        <div class="sl-sub small">${$('r-mode').value === 'orb' ? 'No need to click: just keep your crosshair on the orb.' : sf0 ? 'Each round secretly uses a different sens. Shoot the green centre target, then the orange one, as fast and clean as you can. Esc pauses.' : 'Left click shoots. Esc pauses.'}</div>`);
+        <div class="sl-sub small">${$('r-mode').value === 'orb' ? 'Hold left click to fire a beam and keep it on the orb. It only counts while you are holding the button and on target.' : sf0 ? 'Each round secretly uses a different sens. Shoot the green centre target, then the orange one, as fast and clean as you can. Esc pauses.' : 'Left click shoots. Esc pauses.'}</div>`);
       drawRange(); return;
     }
     overlay(`<div class="t">Firing range <span class="beta">BETA</span></div>
