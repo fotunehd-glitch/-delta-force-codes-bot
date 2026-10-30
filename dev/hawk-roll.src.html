@@ -369,6 +369,11 @@ html.noribbon .ribnote{display:none}
 .bcode .bc-copy{flex:none}
 .bcode .bc-src{font-size:10.5px;color:var(--muted)}.bcode .bc-src a{color:inherit}
 .bcode.none code{display:none}
+.bc-tw{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:linear-gradient(90deg,#9146ff,#6b2fd6);color:#fff;text-decoration:none;transition:filter .15s,transform .15s}
+.bc-tw:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.bc-tw svg{flex:none;width:26px;height:26px}
+.bc-tw span{display:grid;line-height:1.15;min-width:0}.bc-tw b{font-size:13px;letter-spacing:.02em}.bc-tw small{font-size:11px;opacity:.85}
+.bc-tw i{margin-left:auto;font-style:normal;font-weight:700;font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.18)}
 #budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
 
 /* site tabs: Random Loadout | Sens Lab */
@@ -1245,7 +1250,7 @@ function refreshBuild(){
   if(!r){box.hidden=true;return}
   box.classList.remove("none");
   const src=r[4]==="POACH"?`Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a>`:`Build code from the FortuneHD Discord`;
-  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
+  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>${r[4]==="POACH"?`<a class="bc-tw" href="https://www.twitch.tv/poach" target="_blank" rel="noopener" aria-label="Watch POACH on Twitch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="3" fill="none" stroke="#fff" stroke-width="2"/><path d="M10 8.5v5l4.5-2.5z" fill="#fff"/><path d="M8 21h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><span><b>Watch POACH on Twitch</b><small>twitch.tv/poach</small></span><i>WATCH</i></a>`:""}`;
   box.style.setProperty("--bc",BUILD_COL[all.indexOf(r)%BUILD_COL.length]);box.hidden=false;
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
