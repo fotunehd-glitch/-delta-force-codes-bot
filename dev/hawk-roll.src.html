@@ -369,11 +369,6 @@ html.noribbon .ribnote{display:none}
 .bcode .bc-copy{flex:none}
 .bcode .bc-src{font-size:10.5px;color:var(--muted)}.bcode .bc-src a{color:inherit}
 .bcode.none code{display:none}
-.bc-tw{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:linear-gradient(90deg,#9146ff,#6b2fd6);color:#fff;text-decoration:none;transition:filter .15s,transform .15s}
-.bc-tw:hover{filter:brightness(1.12);transform:translateY(-1px)}
-.bc-tw svg{flex:none;width:26px;height:26px}
-.bc-tw span{display:grid;line-height:1.15;min-width:0}.bc-tw b{font-size:13px;letter-spacing:.02em}.bc-tw small{font-size:11px;opacity:.85}
-.bc-tw i{margin-left:auto;font-style:normal;font-weight:700;font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.18)}
 #budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
 
 /* site tabs: Random Loadout | Sens Lab */
@@ -877,8 +872,9 @@ MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.pu
 const STREAMERS=[
   {id:"terasite",name:"Terasite",url:"https://www.twitch.tv/terasite",bg:"#0ff796",fg:"#062014"},
   {id:"leissik", name:"Leissik", url:"https://www.twitch.tv/leissik", bg:"#9146ff",fg:"#ffffff"},
+  {id:"poach",    name:"POACH",   url:"https://www.twitch.tv/poach",   bg:"#ffb020",fg:"#1b1206"},
 ];
-const RIB_MAX=2;            // ribbons shown at once; with more turned on, they take turns in pairs
+const ribMax=()=>innerWidth<=600?2:3; // ribbons shown at once (2 on phones so they clear the title); with more turned on, they take turns            // ribbons shown at once; with more turned on, they take turns in pairs
 const RIB_SWAP_MS=8000;
 // Links:  ?noribbon = hide all    ?hide=terasite,leissik = hide those    ?only=terasite = show just those
 const RIB_Q=new URLSearchParams(location.search),RIB_ALL_OFF=RIB_Q.has("noribbon")||RIB_Q.has("clean");
@@ -891,7 +887,7 @@ function ribOn(){
   return STREAMERS.filter(x=>!off.has(x.id)&&!RIB_HIDE.includes(x.id)&&(!RIB_ONLY.length||RIB_ONLY.includes(x.id)));
 }
 function drawRibbons(swap){
-  const on=ribOn(),pages=Math.max(1,Math.ceil(on.length/RIB_MAX));ribPage%=pages;
+  const on=ribOn(),RIB_MAX=ribMax(),pages=Math.max(1,Math.ceil(on.length/RIB_MAX));ribPage%=pages;
   const shown=on.slice(ribPage*RIB_MAX,ribPage*RIB_MAX+RIB_MAX);
   document.getElementById("ribbons").innerHTML=shown.map((x,i)=>`<a class="ribbon${i?"":" first"}${swap?" swap":""}" data-rib="${x.id}" style="--i:${i};--rb:${x.bg};--rf:${x.fg}" href="${x.url}" target="_blank" rel="noopener" aria-label="Watch ${x.name} on Twitch" title="Watch ${x.name} on Twitch"><span><b>${x.name}</b><i>&#9654; Watch on Twitch</i></span></a>`).join("");
   const n=document.querySelector(".ribnote");if(n)n.style.setProperty("--n",Math.max(1,shown.length));
@@ -908,6 +904,7 @@ if(S.ribT===false||S.ribL===false){S.ribOff=[...new Set([...(S.ribOff||[]),...(S
 delete S.ribT;delete S.ribL;
 const save=()=>{try{localStorage.setItem("hawkroll.v2",JSON.stringify({...S,_seen:MAPS}))}catch(e){}};
 applyRibbons();
+{let rm=ribMax();addEventListener("resize",()=>{if(ribMax()!==rm){rm=ribMax();drawRibbons()}})}
 document.getElementById("ribNote").onclick=()=>{const d=document.getElementById("settings");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});const c=document.getElementById("optRibbons");c&&setTimeout(()=>c.focus({preventScroll:true}),400)};
 
 // ---------------- pools ----------------
@@ -1250,7 +1247,7 @@ function refreshBuild(){
   if(!r){box.hidden=true;return}
   box.classList.remove("none");
   const src=r[4]==="POACH"?`Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a>`:`Build code from the FortuneHD Discord`;
-  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>${r[4]==="POACH"?`<a class="bc-tw" href="https://www.twitch.tv/poach" target="_blank" rel="noopener" aria-label="Watch POACH on Twitch"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="14" rx="3" fill="none" stroke="#fff" stroke-width="2"/><path d="M10 8.5v5l4.5-2.5z" fill="#fff"/><path d="M8 21h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg><span><b>Watch POACH on Twitch</b><small>twitch.tv/poach</small></span><i>WATCH</i></a>`:""}`;
+  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
   box.style.setProperty("--bc",BUILD_COL[all.indexOf(r)%BUILD_COL.length]);box.hidden=false;
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
