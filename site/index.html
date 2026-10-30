@@ -369,6 +369,13 @@ html.noribbon .ribnote{display:none}
 .modesw:has(input:checked) .ml{color:var(--muted)}
 .bnote{display:none;text-align:center;max-width:220px;font-size:11.5px;color:var(--muted);font-style:italic}
 .buildmode .bnote{display:block}
+.bcode{width:min(300px,100%);display:grid;gap:6px;padding:10px 12px;border:1px solid var(--bc,var(--green));border-radius:10px;background:rgba(10,14,20,.7);text-align:left}
+.bcode .bc-top{font-size:12px;color:var(--muted)}.bcode .bc-top b{color:var(--text,#e3ebf2)}
+.bcode .bc-row{display:flex;gap:8px;align-items:center}
+.bcode code{flex:1;min-width:0;font:600 13px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.04em;color:var(--bc,var(--green));overflow-wrap:anywhere}
+.bcode .bc-copy{flex:none}
+.bcode .bc-src{font-size:10.5px;color:var(--muted)}.bcode .bc-src a{color:inherit}
+.bcode.none code{display:none}
 #budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
 
 /* site tabs: Random Loadout | Sens Lab */
@@ -592,6 +599,7 @@ html.noribbon .ribnote{display:none}
       <button class="big" id="budBtn" type="button">Roll for budget</button>
       <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
       <div class="bnote">Build mode is new and subject to change</div>
+      <div class="bcode" id="buildCode" hidden aria-live="polite"></div>
     </div>
     <div class="die">
       <h2>Ammo Type</h2>
@@ -1202,7 +1210,7 @@ function spin(k,delay=0){
 }
 function landFx(k){
   if(k==="map"&&typeof applyRotation==="function")setTimeout(()=>applyRotation(true),0);
-  if(k==="weapon")setTimeout(refreshAmmo,0);
+  if(k==="weapon")setTimeout(()=>{refreshAmmo();refreshBuild()},0);
   const fr=$("#f-"+k);if(!fr)return;
   fr.classList.remove("land");void fr.offsetWidth;fr.classList.add("land");
   const it=state[k].cur;fr.style.setProperty("--glow",it&&it.tier?`var(--t${it.tier})`:"var(--green)");
@@ -1231,6 +1239,28 @@ function holdToggle(k){
 
 const BUDGET=["0","100k","200k","300k","400k","Unlimited"];
 const BUILDS=["No Attachments","Budget Build","Mid Tier Build","Max Build"];
+// weapon build codes from POACH (deltaforce.build/poach, used with permission): [site weapon, build name, price in k, code]
+const BUILD_CODES=[["M7 Battle Rifle","M7",1000,"6LND5UO06F3769TRGAG41"],["MDR Assault Rifle","MDR",650,"6LND5NC06F3769TRGAG41"],["M14 Marksman Rifle","M14",800,"6LND5RK06F3769TRGAG41"],["KC17 Assault Rifle","KC17 Scoped",650,"6LLTTFS06F3769TRGAG41"],["PKM General Machine Gun","PKM Reflex",400,"6LLVB4806F3769TRGAG41"],["KC17 Assault Rifle","KC17",800,"6LLLGIC06F3769TRGAG41"],["M700 Sniper Rifle","M700 Full Auto",1000,"6LKJUBO06F3769TRGAG41"],["MK4 Submachine Gun","MK4",500,"6LJTFNO06F3769TRGAG41"],["AKM Assault Rifle","AKM",455,"6LJL91C06F3769TRGAG41"],["Thompson Submachine Gun","Budget Tommy",200,"6LJ9CM006F3769TRGAG41"],["Thompson Submachine Gun","Tommy Suppressed",600,"6LAP50O06F3769TRGAG41"],["K437 Assault Rifle","K437",900,"6L83DNK06F3769TRGAG41"],["Thompson Submachine Gun","Tommy",600,"6L7ROF406F3769TRGAG41"],["MK47 Assault Rifle","MK47 Short Barrel",800,"6L45SGK06F3769TRGAG41"],["MK47 Assault Rifle","MK47",800,"6L3PCCS04R96VUC6OKBOP"],["M700 Sniper Rifle","M700",400,"6L3E8VG06F3769TRGAG41"],["AS Val Assault Rifle","AS VAL Burst",650,"6L35FUO06F3769TRGAG41"],["Compound Bow","Bow Gaming",500,"6KMK3T006F3769TRGAG41"],["AS Val Assault Rifle","AS VAL",750,"6KT7CL406F3769TRGAG41"],["SCAR-H Battle Rifle","SCAR",530,"6KRU96K06F3769TRGAG41"],["QJB201 Light Machine Gun","QJB Accuracy",500,"6KRT7S806F3769TRGAG41"],["SVD Sniper Rifle","SVD",300,"6KRK3SC06F3769TRGAG41"],["K416 Assault Rifle","Budget K416",320,"6KQI3D806F3769TRGAG41"],["KC17 Assault Rifle","Ultra Budget KC17",300,"6KQ75QO06F3769TRGAG41"],["QJB201 Light Machine Gun","Budget QJB",280,"6KQ78R406F3769TRGAG41"],["ASh-12 Assault Rifle","ASh-12",500,"6KPT0NC06F3769TRGAG41"],["M249 Light Machine Gun","M249",426,"6KP8DV006F3769TRGAG41"],["CI-19 Assault Rifle","Budget CI-19",290,"6KP7SH806F3769TRGAG41"],["RM277 Assault Rifle","RM277",450,"6KLVH1806F3769TRGAG41"],["MCX LT Assault Rifle","MCX",450,"6KJFMJS06F3769TRGAG41"],["SVCH Marksman Rifle","SVCH",650,"6KI3TL006F3769TRGAG41"],["CI-19 Assault Rifle","CI-19",600,"6KIBSS806F3769TRGAG41"],["RM277 Assault Rifle","Budget RM277",300,"6KIB39K06F3769TRGAG41"],["SKS Marksman Rifle","SKS",450,"6KHLOVO06F3769TRGAG41"],["SR-3M Compact Assault Rifle","Budget SR-3M",220,"6KHDEL806F3769TRGAG41"],["K416 Assault Rifle","K416",650,"6KA8B7406F3769TRGAG41"],["Marlin Lever-action Rifle","Marlin Sniper",185,"6K8OPK006F3769TRGAG41"],["QJB201 Light Machine Gun","Basic's QJB",450,"6K4SVT406F3769TRGAG41"],["AR-57 Assault Rifle","AR57 Red-dot",400,"6JV1VD006F3769TRGAG41"],["M250 General Machine Gun","M250",700,"6JUSSLC06F3769TRGAG41"],["AR-57 Assault Rifle","AR57 Scoped",500,"6JTIG7006F3769TRGAG41"],["PKM General Machine Gun","PKM Long Barrel",500,"6JTIBF806F3769TRGAG41"],["MCX LT Assault Rifle","Budget MCX",240,"6JTIH6K06F3769TRGAG41"],["KC17 Assault Rifle","Budget KC17",350,"6JTIDL806F3769TRGAG41"],["AR-57 Assault Rifle","Budget AR57",300,"6JR9HT806F3769TRGAG41"],["AK-12 Assault Rifle","AK-12",550,"6JQOTPC06F3769TRGAG41"],["M4A1 Assault Rifle","M4A1",440,"6JQOV8K06F3769TRGAG41"],["PSG-1 Marksman Rifle","PSG-1",411,"6JQOURO06F3769TRGAG41"],["SMG-45 Submachine Gun","SMG-45",250,"6JQOUMK06F3769TRGAG41"],["P90 Submachine Gun","P90",344,"6JQOUK406F3769TRGAG41"],["MP5 Submachine Gun","MP5",260,"6JQOUH006F3769TRGAG41"],["M1014 Shotgun","M1014",162,"6JQOUD806F3769TRGAG41"],["AWM Sniper Rifle","AWM",1000,"6JQOTL406F3769TRGAG41"],["93R","93R Bot Blaster",54,"6JQOU7C06F3769TRGAG41"],["Vityaz Submachine Gun","RIP Vityaz",120,"6JQOU3806F3769TRGAG41"],["AS Val Assault Rifle","Burst Budget VAL",320,"6JQOVO406F3769TRGAG41"],["UZI Submachine Gun","Fun Thermal UZI",229,"6JQOU0G06F3769TRGAG41"],["G3 Battle Rifle","Budget G3",270,"6JQOVIK06F3769TRGAG41"],["AKM Assault Rifle","CS/Hipfire AKM",230,"6JQOTC006F3769TRGAG41"],["M4A1 Assault Rifle","Budget M4A1",270,"6JQOUVC06F3769TRGAG41"],["AKM Assault Rifle","Budget AKM",260,"6JQOVG406F3769TRGAG41"],["CAR-15 Assault Rifle","PhD's CAR-15",1000,"6JQ9DTC02N2NQGF6IHVGC"],["G3 Battle Rifle","G3",304,"6JQ985C06F3769TRGAG41"],["SR-25 Marksman Rifle","SR-25",700,"6JQBGS806F3769TRGAG41"],["SR-3M Compact Assault Rifle","SR-3M",520,"6JQ98BO06F3769TRGAG41"],["M82 Sniper Rifle","M82 Barrett",1000,"6JQ9ADK06F3769TRGAG41"],["G18","G18",100,"6JQ9NHK06F3769TRGAG41"],["AR-57 Assault Rifle","AR57 99 ACC",400,"6JPVAM406F3769TRGAG41"],["M249 Light Machine Gun","New SAW M249",400,"6JPUJ3K06F3769TRGAG41"],["AKM Assault Rifle","Red Dot AKM",320,"6JLL6L806F3769TRGAG41"],["P90 Submachine Gun","Budget P90",120,"6JGP0MC06F3769TRGAG41"],["Vector Submachine Gun","Vector",500,"6JB5Q7S06F3769TRGAG41"],["MP7","MP7",350,"6JVSGH806F3769TRGAG41"],["MP7","Budget MP7",120,"6K4FO2G06F3769TRGAG41"],["MK4 Submachine Gun","Budget MK4",200,"6J9Q2O4073PH40I6AFVCE"],["K437 Assault Rifle","Budget K437",250,"6JQP10C06F3769TRGAG41"],["AUG Assault Rifle","AUG",500,"6GTC61G06F3769TRGAG41"],["AUG Assault Rifle","Budget AUG",160,"6J95GHC06F3769TRGAG41"],["R93 Sniper Rifle","R93 (Budget)",88,"6FDPM8807EP326IQSRQ4N"],[".357 Revolver","Extra Storage Revolver",20,"6FPCKGO06F3769TRGAG41"]];
+// price bands for each build tier (in k): Budget up to 300k, Mid Tier over 300k up to 500k, Max 500k and up
+const BUILD_TIER={"Budget Build":p=>p<=300,"Mid Tier Build":p=>p>300&&p<500,"Max Build":p=>p>=500};
+const BUILD_NAME={"Budget Build":"Budget","Mid Tier Build":"Mid Tier","Max Build":"Max"};
+let buildPick={key:"",row:null};
+const kfmt=p=>p>=1000?(p/1000).toFixed(p%1000?1:0)+"M":p+"k";
+function refreshBuild(){
+  const box=$("#buildCode");if(!box)return;
+  const tier=$("#budRes").textContent.trim(),w=curWeapon(),test=BUILD_TIER[tier];
+  if(S.budMode!=="build"||!test||!w||(typeof budW!=="undefined"&&budW&&budW.busy)){box.hidden=true;return}
+  const short=w.replace(/ (Assault|Battle|Marksman|Sniper|Compact Assault|Light Machine|General Machine|Submachine) ?(Rifle|Gun)?$/,"").replace(/ Shotgun$/,"").replace(/ Lever-action Rifle$/,"");
+  const all=BUILD_CODES.filter(b=>b[0]===w),fit=all.filter(b=>test(b[2])),key=w+"|"+tier;
+  if(buildPick.key!==key){buildPick={key,row:fit.length?fit[Math.floor(Math.random()*fit.length)]:null}}
+  const r=buildPick.row;
+  if(r){box.classList.remove("none");box.innerHTML=`<div class="bc-top"><b>${short}</b> · ${BUILD_NAME[tier]} build · ${r[1]} · about ${kfmt(r[2])}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a> · paste it in the gun's modify screen</div>`}
+  else{const near=all.slice().sort((a,b)=>Math.abs(a[2]-({"Budget Build":250,"Mid Tier Build":400,"Max Build":700})[tier])-Math.abs(b[2]-({"Budget Build":250,"Mid Tier Build":400,"Max Build":700})[tier]))[0];
+    box.classList.toggle("none",!near);box.innerHTML=near?`<div class="bc-top">No ${BUILD_NAME[tier]} build code for <b>${short}</b> yet · closest is ${near[1]} at about ${kfmt(near[2])}</div><div class="bc-row"><code>${near[3]}</code><button class="b bc-copy" type="button" data-code="${near[3]}">COPY</button></div><div class="bc-src">Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a></div>`:`<div class="bc-top">No build code for <b>${short}</b> yet</div>`}
+  box.style.setProperty("--bc",BUILD_COL[BUILDS.indexOf(tier)]||"");box.hidden=false;
+}
+document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
+  if(navigator.clipboard)navigator.clipboard.writeText(b.dataset.code).then(done,()=>{});else{const ta=document.createElement("textarea");ta.value=b.dataset.code;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(_){}ta.remove()}});
 const BUILD_COL=["#8b939b","#2f9e55","#7c4dd1","#d49a1c"];
 const BUILD_W={"No Attachments":25,"Budget Build":30,"Mid Tier Build":30,"Max Build":15};
 const budList=()=>S.budMode==="build"?BUILDS:BUDGET;
@@ -1312,7 +1342,7 @@ function makeBudWheel(){
   budW.showLabel(v);
   $("#budH").textContent=build?"Weapon Build":"Weapon Mod Budget";
   $("#budBtn").textContent=build?"Roll for build":"Roll for budget";
-  $("#budMode").checked=build;$("#budWheel").closest(".die").classList.toggle("buildmode",build);
+  $("#budMode").checked=build;$("#budWheel").closest(".die").classList.toggle("buildmode",build);setTimeout(refreshBuild,0);
 }
 function rollWheel(W,list,styled){
   if(W.busy)return;
@@ -1324,7 +1354,8 @@ function rollWheel(W,list,styled){
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
     if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
     if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}
-    if(W===budW){const b=S.budMode==="build";budLast[b?"build":"budget"]=pickLab;res.style.setProperty("--bc",b?BUILD_COL[BUILDS.indexOf(pickLab)]:"")}});
+    if(W===budW){const b=S.budMode==="build";budLast[b?"build":"budget"]=pickLab;res.style.setProperty("--bc",b?BUILD_COL[BUILDS.indexOf(pickLab)]:"");buildPick.key="";refreshBuild()}});
+  if(W===budW)refreshBuild();
 }
 
 // ---------------- settings UI ----------------
