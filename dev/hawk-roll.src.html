@@ -364,7 +364,7 @@ html.noribbon .ribnote{display:none}
 .buildmode .bnote{display:block}
 .buildmode #budWheel{display:none}
 .buildmode .bcode{width:min(300px,100%);margin-top:4px}
-.bcode.hint code{color:var(--muted);letter-spacing:.3em}
+
 .bcode.rolling code{color:var(--fg,#e3ebf2);opacity:.75}
 .bcode.land{animation:popIn .35s ease-out,winPulse 1s ease-out}
 .bcode{width:min(300px,100%);display:grid;gap:6px;padding:10px 12px;border:1px solid var(--bc,var(--green));border-radius:10px;background:rgba(10,14,20,.7);text-align:left}
@@ -1254,7 +1254,7 @@ function refreshBuild(){
   const all=buildsFor(w),r=buildPick.gun===w?buildPick.row:null;
   if(!all.length){box.classList.add("none");box.innerHTML=`<div class="bc-top">No build code for <b>${shortGun(w)}</b> yet</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("none","rolling");
-  if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-row"><code>? ? ? ? ? ?</code></div><div class="bc-src">Press <b>Spin for a random build</b> to get a code</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
+  if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-src">Press <b>Spin for a random build</b> to get a code for this gun</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("hint");
   const src=r[4]==="POACH"?`Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a>`:`Build code from the FortuneHD Discord`;
   box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
