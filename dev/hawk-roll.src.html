@@ -362,6 +362,11 @@ html.noribbon .ribnote{display:none}
 .modesw:has(input:checked) .ml{color:var(--muted)}
 .bnote{display:none;text-align:center;max-width:220px;font-size:11.5px;color:var(--muted);font-style:italic}
 .buildmode .bnote{display:block}
+.buildmode #budWheel{display:none}
+.buildmode .bcode{width:min(300px,100%);margin-top:4px}
+.bcode.hint code{color:var(--muted);letter-spacing:.3em}
+.bcode.rolling code{color:var(--fg,#e3ebf2);opacity:.75}
+.bcode.land{animation:popIn .35s ease-out,winPulse 1s ease-out}
 .bcode{width:min(300px,100%);display:grid;gap:6px;padding:10px 12px;border:1px solid var(--bc,var(--green));border-radius:10px;background:rgba(10,14,20,.7);text-align:left}
 .bcode .bc-top{font-size:12px;color:var(--muted)}.bcode .bc-top b{color:var(--text,#e3ebf2)}
 .bcode .bc-row{display:flex;gap:8px;align-items:center}
@@ -1244,14 +1249,16 @@ const shortGun=w=>w.replace(/ (Assault|Battle|Marksman|Sniper|Compact Assault|Li
 function refreshBuild(){
   const box=$("#buildCode");if(!box)return;
   const w=curWeapon();
-  if(S.budMode!=="build"||!w||(typeof budW!=="undefined"&&budW&&budW.busy)){box.hidden=true;return}
+  if(S.budMode!=="build"||!w){box.hidden=true;return}
+  if(typeof budW!=="undefined"&&budW&&budW.busy)return;
   const all=buildsFor(w),r=buildPick.gun===w?buildPick.row:null;
   if(!all.length){box.classList.add("none");box.innerHTML=`<div class="bc-top">No build code for <b>${shortGun(w)}</b> yet</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
-  if(!r){box.hidden=true;return}
-  box.classList.remove("none");
+  box.classList.remove("none","rolling");
+  if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-row"><code>? ? ? ? ? ?</code></div><div class="bc-src">Press <b>Spin for a random build</b> to get a code</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
+  box.classList.remove("hint");
   const src=r[4]==="POACH"?`Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a>`:`Build code from the FortuneHD Discord`;
   box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
-  box.style.setProperty("--bc",BUILD_COL[all.indexOf(r)%BUILD_COL.length]);box.hidden=false;
+  box.style.setProperty("--bc","");box.hidden=false;
 }
 document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
   if(navigator.clipboard)navigator.clipboard.writeText(b.dataset.code).then(done,()=>{});else{const ta=document.createElement("textarea");ta.value=b.dataset.code;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(_){}ta.remove()}});
@@ -1271,7 +1278,7 @@ function makeWheel(id,labels,colors,resEl,opts={}){
     slices.forEach((lab,i)=>{const s0=i*a,e=s0+a,mid=s0+a/2,[tx,ty]=P(mid,62),txt=W.short[lab]||lab;
       const c=opts.colAt?opts.colAt(lab,i):W.col[lab],r0=22,sty=`style="--c:${c};filter:drop-shadow(0 0 4px ${c})"`;
       const shape=n===1?`<circle r="${(r+r0)/2}" fill="none" stroke-width="${r-r0}" stroke="#0f1317"/><circle class="edge" r="${r}" fill="none" stroke="${c}" stroke-width="3" ${sty}/><circle r="${r0}" fill="none" stroke="${c}" stroke-width="3" ${sty}/>`:(()=>{const [x1,y1]=P(s0,r),[x2,y2]=P(e,r),[x3,y3]=P(e,r0),[x4,y4]=P(s0,r0);return `<path d="M${x4} ${y4}L${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}L${x3} ${y3}A${r0} ${r0} 0 0 0 ${x4} ${y4}Z" fill="#0f1317" stroke="${c}" stroke-width="3" ${sty}/>`})();
-      const sz=opts.radial?(txt.length>6?" xs":" sm"):n>=10?" xs":(n>=8||txt.length>5?" sm":"");
+      const sz=n===1?"":n>=10?" xs":(n>=8||txt.length>5?" sm":"");
       g+=`<g class="slice${offList&&offList.includes(lab)?" off":""}" data-i="${i}">${shape}<text x="${tx}" y="${ty}" transform="rotate(${opts.radial?mid-90:mid} ${tx} ${ty})" text-anchor="middle" dominant-baseline="middle" class="wheel-lab${sz}" style="fill:${c}">${txt}</text></g>`});
     disc.innerHTML=g;
   };
@@ -1296,7 +1303,7 @@ function makeWheel(id,labels,colors,resEl,opts={}){
   W.flash=()=>{let c=0;clearInterval(W.ct);W.ct=setInterval(()=>{W.bulbs.forEach(b=>b.classList.toggle("on",c%2===0));if(++c>7){clearInterval(W.ct);W.bulbs.forEach(b=>b.classList.add("on"));setTimeout(()=>W.bulbs.forEach(b=>b.classList.remove("on")),900)}},140)};
   W.spin=(i,done)=>{
     if(W.busy)return;
-    const a=W.a,target=-(i*a+a/2)+(Math.random()-.5)*a*.7;
+    const a=W.a,target=-(i*a+a/2)+(W.labels.length>1?(Math.random()-.5)*a*.7:0);
     const base=W.rot-(((W.rot-target)%360)+360)%360;
     const end=base-360*(5+Math.floor(Math.random()*2));
     W.el.classList.remove("landed");W.el.querySelectorAll(".slice.win").forEach(x=>x.classList.remove("win"));
@@ -1330,35 +1337,49 @@ function makeBudWheel(){
   const build=S.budMode==="build",r=$("#budRes");
   if(build){
     const w=curWeapon(),rows=w?buildsFor(w):[];
-    const labs=rows.length?rows.map((x,i)=>"Build "+(i+1)):[w?"No builds":"No gun"],short={};labs.forEach((l,i)=>short[l]=rows.length?buildTag(rows[i]):w?"NO CODES":"NO GUN");
-    // a gun with one build still gets a two-tone wheel; otherwise each build keeps its own colour
-    const colAt=rows.length===1?(l,i)=>BUILD_COL[i%2]:null;
-    budW=makeWheel("bud",labs,rows.length?labs.map((l,i)=>BUILD_COL[i%BUILD_COL.length]):["#5c636b"],r,{short,colAt,radial:true});
-    budW.gun=w;budW.setEnabled(labs);
+    // one plain wheel (no slices): it spins, then a random build for the gun is picked
+    const lab=rows.length?"Random build":w?"No builds":"No gun";
+    budW=makeWheel("bud",[lab],[rows.length?"#2f9e55":"#5c636b"],r,{short:{"Random build":"RANDOM BUILD","No builds":"NO CODES","No gun":"ROLL A GUN"}});
+    budW.gun=w;budW.show(0);
     const keep=buildPick.gun===w&&buildPick.row;
-    r.textContent=keep?buildPick.row[1]:rows.length?"Spin for a build":w?"No builds yet":"Roll a gun first";
-    r.style.setProperty("--bc",keep?BUILD_COL[rows.indexOf(buildPick.row)%BUILD_COL.length]:"");
-    if(keep)budW.showLabel("Build "+(rows.indexOf(buildPick.row)+1));
+    r.textContent=keep?buildPick.row[1]:rows.length?"Random build":w?"No builds yet":"Roll a gun first";
+    r.style.setProperty("--bc","");
   }else{
     budW=makeWheel("bud",BUDGET,["#5c636b","#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a"],r,{short:{Unlimited:"UNLTD"}});
     r.textContent=budLast.budget;r.style.setProperty("--bc","");budW.showLabel(budLast.budget);
   }
   r.classList.toggle("build",build);
   $("#budH").textContent=build?"Weapon Build":"Weapon Mod Budget";
-  $("#budBtn").textContent=build?"Spin for a build":"Roll for budget";
+  $("#budBtn").textContent=build?"Spin for a random build":"Roll for budget";
   $("#budMode").checked=build;$("#budWheel").closest(".die").classList.toggle("buildmode",build);setTimeout(refreshBuild,0);
 }
 // keep the build wheel in step with the gun on the Weapons reel
 function syncBuildWheel(){if(S.budMode==="build"&&budW&&!budW.busy&&budW.gun!==curWeapon())makeBudWheel();else refreshBuild()}
+// Build mode: no wheel, the code box shuffles through the gun's codes and stops on a random one
+function rollBuild(){
+  if(budW.gun!==curWeapon())makeBudWheel();
+  const w=budW.gun,rows=w?buildsFor(w):[],res=$("#budRes"),box=$("#buildCode");
+  if(!rows.length){res.textContent=w?"No builds yet":"Roll a gun first";refreshBuild();return}
+  const pick=rows[Math.floor(Math.random()*rows.length)];
+  const land=()=>{budW.busy=false;buildPick={gun:w,row:pick};res.classList.remove("rolling");res.textContent=pick[1];refreshBuild()};
+  if(S.instant){land();return}
+  budW.busy=true;buildPick={gun:"",row:null};res.classList.add("rolling");res.textContent="…";
+  const pool=BUILD_CODES.map(b=>b[3]);let t=0,gap=45;box.hidden=false;box.classList.remove("hint","none");box.classList.add("rolling");
+  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · picking a build…</div><div class="bc-row"><code></code></div>`;
+  const code=box.querySelector("code");
+  const tick=()=>{code.textContent=pool[Math.floor(Math.random()*pool.length)];try{SFX.dieTick()}catch(_){}
+    t+=gap;gap*=1.12;if(t<1500)setTimeout(tick,gap);else{try{SFX.dieLand()}catch(_){}land();box.classList.remove("land");void box.offsetWidth;box.classList.add("land")}};
+  tick();
+}
 function rollWheel(W,list,styled){
   if(W.busy)return;
-  if(W===budW&&S.budMode==="build"&&budW.gun!==curWeapon()){makeBudWheel();W=budW;list=budW.all}
+  if(W===budW&&S.budMode==="build"){rollBuild();return}
   const pool=list.filter(x=>W.labels.includes(x));if(!pool.length)return;
   let pickLab=pool[Math.floor(Math.random()*pool.length)];const res=W.resEl;
   const spots=W.labels.map((l,i)=>l===pickLab?i:-1).filter(i=>i>=0),i=spots[Math.floor(Math.random()*spots.length)];
   res.classList.remove("hard","normal","stale");res.classList.add("rolling");res.textContent="…";if(W===budW&&S.budMode==="build")buildPick={gun:"",row:null};
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
-    if(W===budW&&S.budMode==="build"){const rows=buildsFor(budW.gun||""),bi=W.all.indexOf(pickLab);if(rows[bi]){buildPick={gun:budW.gun,row:rows[bi]};res.textContent=rows[bi][1];res.style.setProperty("--bc",BUILD_COL[bi%BUILD_COL.length])}else res.textContent=budW.gun?"No builds yet":"Roll a gun first";refreshBuild();return}
+    if(W===budW&&S.budMode==="build"){const rows=buildsFor(budW.gun||""),bi=Math.floor(Math.random()*rows.length);if(rows[bi]){buildPick={gun:budW.gun,row:rows[bi]};res.textContent=rows[bi][1];res.style.setProperty("--bc","")}else res.textContent=budW.gun?"No builds yet":"Roll a gun first";refreshBuild();return}
     if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
     if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}
     if(W===budW){budLast.budget=pickLab;res.style.setProperty("--bc","");refreshBuild()}});
