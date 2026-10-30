@@ -623,7 +623,7 @@ html.noribbon .ribnote{display:none}
       <div class="toggles">
         <label class="ck"><input type="checkbox" id="optSound" checked> Enable sounds</label>
         <label class="ck"><input type="checkbox" id="optInstant"> Instant spin</label>
-        <label class="ck"><input type="checkbox" id="optUnique" checked> No repeats until everything's shown</label>
+        <label class="ck"><input type="checkbox" id="optUnique"> No repeats until everything's shown</label>
         <label class="ck"><input type="checkbox" id="optRibbons" checked> Show streamer ribbons (top right)</label>
         <span id="ribList" style="display:contents"></span>
       </div>
@@ -827,6 +827,8 @@ html.noribbon .ribnote{display:none}
 </div>
 
 <script>
+// fair random whole numbers 0..n-1 from the browser's crypto generator (no bias); falls back to Math.random
+const RI=n=>{if(n<=1)return 0;try{const lim=Math.floor(4294967296/n)*n,u=new Uint32Array(1);let x;do{crypto.getRandomValues(u);x=u[0]}while(x>=lim);return x%n}catch(_){return Math.floor(Math.random()*n)}};
 /*IMGDATA*/
 // ---------------- data ----------------
 const OPERATORS=[
@@ -867,10 +869,11 @@ const ICON={
 };
 
 // ---------------- settings ----------------
-const DEFAULTS={sound:true,instant:false,unique:true,tiers:{helmets:[1,6],vests:[1,6],rigs:[1,5],backpacks:[1,6]},wtypes:Object.keys(WTYPES),maps:MAPS.slice(),opsOff:[],diffs:["Easy","Normal","Hard"],ammo:["Grey","Green","Blue","Purple","Gold","Red"]};
+const DEFAULTS={sound:true,instant:false,unique:false,tiers:{helmets:[1,6],vests:[1,6],rigs:[1,5],backpacks:[1,6]},wtypes:Object.keys(WTYPES),maps:MAPS.slice(),opsOff:[],diffs:["Easy","Normal","Hard"],ammo:["Grey","Green","Blue","Purple","Gold","Red"]};
 const MAXT={helmets:6,vests:6,rigs:5,backpacks:6};
 let S=JSON.parse(JSON.stringify(DEFAULTS));
 try{const raw=JSON.parse(localStorage.getItem("hawkroll.v2")||"null");if(raw)S=Object.assign(S,raw);}catch(e){}
+if(!S.rv){S.unique=false;S.rv=1} // truly random by default (Oct 2026); players can still tick "No repeats" in Settings
 MAPS.forEach(m=>{if(S._seen&&!S._seen.includes(m)&&!S.maps.includes(m))S.maps.push(m)});
 // ---------------- streamer ribbons ----------------
 // To add a streamer, add one line here. bg = ribbon colour, fg = text colour.
@@ -1095,7 +1098,7 @@ function ding(){SFX.win(false)}
 
 // ---------------- render ----------------
 const $=s=>document.querySelector(s);
-const pick=a=>a[Math.floor(Math.random()*a.length)];
+const pick=a=>a[RI(a.length)];
 const CLASSICON={
  Assault:'<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg>',
  Support:'<svg viewBox="0 0 24 24" fill="var(--green)"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg>',
@@ -1153,7 +1156,7 @@ function bagPick(k,p,cur){
   const recent=RECENT[k]||[];
   if(!bag.length){
     bag=names.slice();
-    for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}
+    for(let i=bag.length-1;i>0;i--){const j=RI((i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}
     // items seen at the end of the last round go to the back of the new one (bag pops from the end)
     const keep=Math.floor(bag.length/3);
     const late=recent.slice(-keep).filter(n=>bag.includes(n));
@@ -1387,7 +1390,7 @@ function rollBuild(){
   if(budW.gun!==curWeapon())makeBudWheel();
   const w=budW.gun,rows=w?buildsFor(w):[],res=$("#budRes"),box=$("#buildCode");
   if(!rows.length){res.textContent=w?"No builds yet":"Roll a gun first";refreshBuild();return}
-  const pick=rows[Math.floor(Math.random()*rows.length)];
+  const pick=rows[RI(rows.length)];
   const land=()=>{budW.busy=false;buildPick={gun:w,row:pick};res.classList.remove("rolling");res.textContent=pick[1];refreshBuild()};
   if(S.instant){land();return}
   budW.busy=true;buildPick={gun:"",row:null};res.classList.add("rolling");res.textContent="…";
@@ -1402,11 +1405,11 @@ function rollWheel(W,list,styled){
   if(W.busy)return;
   if(W===budW&&S.budMode==="build"){rollBuild();return}
   const pool=list.filter(x=>W.labels.includes(x));if(!pool.length)return;
-  let pickLab=pool[Math.floor(Math.random()*pool.length)];const res=W.resEl;
-  const spots=W.labels.map((l,i)=>l===pickLab?i:-1).filter(i=>i>=0),i=spots[Math.floor(Math.random()*spots.length)];
+  let pickLab=pool[RI(pool.length)];const res=W.resEl;
+  const spots=W.labels.map((l,i)=>l===pickLab?i:-1).filter(i=>i>=0),i=spots[RI(spots.length)];
   res.classList.remove("hard","normal","stale");res.classList.add("rolling");res.textContent="…";if(W===budW&&S.budMode==="build")buildPick={gun:"",row:null};
   W.spin(i,()=>{res.classList.remove("rolling");res.textContent=pickLab;
-    if(W===budW&&S.budMode==="build"){const rows=buildsFor(budW.gun||""),bi=Math.floor(Math.random()*rows.length);if(rows[bi]){buildPick={gun:budW.gun,row:rows[bi]};res.textContent=rows[bi][1];res.style.setProperty("--bc","")}else res.textContent=budW.gun?"No builds yet":"Roll a gun first";refreshBuild();return}
+    if(W===budW&&S.budMode==="build"){const rows=buildsFor(budW.gun||""),bi=RI(rows.length);if(rows[bi]){buildPick={gun:budW.gun,row:rows[bi]};res.textContent=rows[bi][1];res.style.setProperty("--bc","")}else res.textContent=budW.gun?"No builds yet":"Roll a gun first";refreshBuild();return}
     if(styled){res.classList.toggle("hard",pickLab==="Hard");res.classList.toggle("normal",pickLab==="Normal")}
     if(W===ammoW){res.style.setProperty("--ac",`var(--t${AMMO.indexOf(pickLab)+1})`)}
     if(W===budW){budLast.budget=pickLab;res.style.setProperty("--bc","");refreshBuild()}});
@@ -1524,9 +1527,9 @@ function applyRotation(force){
   const fr=$("#f-map");if(fr){const cur=state.map.cur;fr.classList.toggle("closed",!!cur&&cur.nm==="Tide Prison"&&!r.prisonOpen);fr.dataset.opens=`Opens ${t}`}
 }
 // on first load, start on a difficulty the starting map actually has (so nobody sees "Roll again" before rolling)
-(function(){const d=effDiffs(),r=$("#diffRes");if(d.length&&!d.includes(r.textContent)){const v=d[Math.floor(Math.random()*d.length)];r.textContent=v;r.classList.remove("stale");r.classList.toggle("hard",v==="Hard");r.classList.toggle("normal",v==="Normal");diffW.setEnabled(d);diffW.showLabel(v)}})();
+(function(){const d=effDiffs(),r=$("#diffRes");if(d.length&&!d.includes(r.textContent)){const v=d[RI(d.length)];r.textContent=v;r.classList.remove("stale");r.classList.toggle("hard",v==="Hard");r.classList.toggle("normal",v==="Normal");diffW.setEnabled(d);diffW.showLabel(v)}})();
 // same for ammo: start on a level the starting gun can use
-(function(){const a=effAmmo(),r=$("#ammoRes");if(a.length&&!a.includes(r.textContent)){const v=a[Math.floor(Math.random()*a.length)];r.textContent=v;r.classList.remove("stale");r.style.setProperty("--ac",`var(--t${AMMO.indexOf(v)+1})`);ammoW.setEnabled(a);ammoW.showLabel(v);const n=$("#ammoNote"),t=ammoNote();if(n){n.hidden=!t;n.textContent=t}}})();
+(function(){const a=effAmmo(),r=$("#ammoRes");if(a.length&&!a.includes(r.textContent)){const v=a[RI(a.length)];r.textContent=v;r.classList.remove("stale");r.style.setProperty("--ac",`var(--t${AMMO.indexOf(v)+1})`);ammoW.setEnabled(a);ammoW.showLabel(v);const n=$("#ammoNote"),t=ammoNote();if(n){n.hidden=!t;n.textContent=t}}})();
 applyRotation(true);setInterval(()=>applyRotation(false),15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotation(false)});
 
