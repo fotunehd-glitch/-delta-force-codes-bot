@@ -593,7 +593,7 @@ html.noribbon .ribnote{display:none}
       <div class="res" id="budRes">200k</div>
       <button class="big" id="budBtn" type="button">Roll for budget</button>
       <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
-      <div class="bnote">Build mode is new and subject to change</div>
+      <div class="bnote">Build mode is new and subject to change. Some guns don't have build codes yet, more will be added.</div>
       <div class="bcode" id="buildCode" hidden aria-live="polite"></div>
     </div>
     <div class="die">
@@ -1252,7 +1252,7 @@ function refreshBuild(){
   if(S.budMode!=="build"||!w){box.hidden=true;return}
   if(typeof budW!=="undefined"&&budW&&budW.busy)return;
   const all=buildsFor(w),r=buildPick.gun===w?buildPick.row:null;
-  if(!all.length){box.classList.add("none");box.innerHTML=`<div class="bc-top">No build code for <b>${shortGun(w)}</b> yet</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
+  if(!all.length){box.classList.add("none");box.innerHTML=`<div class="bc-top">No build code for <b>${shortGun(w)}</b> yet</div><div class="bc-src">More build codes will be added soon</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("none","rolling");
   if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-src">Press <b>Spin for a random build</b> to get a code for this gun</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("hint");
