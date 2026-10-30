@@ -194,6 +194,8 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 .cab-foot{display:flex;align-items:center;gap:16px;margin:24px calc(-1*(var(--pad) + var(--bw))) 0;transform:translateY(50%)}
 .cab-line{flex:1;height:var(--bw);background:var(--green);box-shadow:0 0 10px rgba(15,247,150,.45)}
 .cab-foot #spinAll{flex:none;margin:0}
+.nored{display:flex;justify-content:center;align-items:center;gap:6px;margin:-4px auto 22px;width:max-content;max-width:100%;justify-self:center;align-self:center;flex-wrap:wrap;font-size:13px;color:var(--muted);cursor:pointer}.nored b{color:var(--t6)}.nored small{font-size:11px;opacity:.8}
+@media (max-width:600px){.nored small{display:none}}
 .foot-btns{display:flex;gap:12px;flex:none}
 @media (max-width:600px){.cab{--pad:10px}.cab-foot{gap:10px}}
 
@@ -572,6 +574,7 @@ html.noribbon .ribnote{display:none}
     <section class="reels" id="reels" aria-live="polite"></section>
     <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Mystery crate</button></span><span class="cab-line"></span></div>
   </div>
+  <label class="ck nored"><input type="checkbox" id="noRed"> <span>No <b>red</b> gear</span> <small>(helmets, armour, rigs and bags)</small></label>
 
   <section class="dice">
     <div class="die">
@@ -922,7 +925,8 @@ const pools={
  weapon:()=>S.wtypes.flatMap(t=>WEAPONS[t].map(n=>({nm:n,sub:WTYPES[t],tier:0}))),
 };
 ["helmets","vests","rigs","backpacks"].forEach(k=>pools[k]=()=>{
-  const[a,b]=S.tiers[k];const out=[];
+  let[a,b]=S.tiers[k];const out=[];
+  if(S.noRed){b=Math.min(b,5);a=Math.min(a,b)}   // "No red gear" box under the reels
   for(let t=a;t<=b;t++)(GEAR[k][t]||[]).forEach(n=>out.push({nm:n,sub:TIERNAME[t],tier:t}));
   return out;
 });
@@ -1462,6 +1466,8 @@ $("#budMode").addEventListener("change",e=>{if(budW.busy){e.target.checked=S.bud
 $("#ammoBtn").onclick=()=>{if(!S.ammo.length){$("#ammoMsg").hidden=false;return}const a=effAmmo();if(!a.length){refreshAmmo();SFX.button();return}rollWheel(ammoW,a,false)};
 refreshAmmo();
 if(S.ammo.length&&!S.ammo.includes("Blue")){const f=S.ammo[0];$("#ammoRes").textContent=f;ammoW.showLabel(f);$("#ammoRes").style.setProperty("--ac",`var(--t${AMMO.indexOf(f)+1})`)}
+{const nr=$("#noRed");nr.checked=!!S.noRed;nr.addEventListener("change",()=>{S.noRed=nr.checked;save();try{SFX.button()}catch(_){}
+  ["helmets","vests","rigs","backpacks"].forEach(k=>{const it=state[k].cur;if(S.noRed&&it&&it.tier===6)spin(k)})})}
 document.querySelectorAll("[data-a]").forEach(cb=>{cb.checked=S.ammo.includes(cb.dataset.a);cb.addEventListener("change",()=>{
   S.ammo=[...document.querySelectorAll("[data-a]")].filter(x=>x.checked).map(x=>x.dataset.a);$("#ammoMsg").hidden=S.ammo.length>0;save();refreshAmmo()})});
 $("#settings").addEventListener("change",e=>{
