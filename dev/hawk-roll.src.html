@@ -1260,6 +1260,44 @@ function refreshBuild(){
   box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
   box.style.setProperty("--bc","");box.hidden=false;
 }
+// ---- live build codes: build-codes.txt in the GitHub repo (outside site/, so editing it never needs a Netlify deploy).
+// The list above is only a backup for when GitHub can't be reached.
+const BUILD_URL="https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/build-codes.txt";
+const gnorm=t=>String(t).toLowerCase().replace(/[^a-z0-9]/g,"");
+const GUN_ALIAS={scarhkampfgewehr:"SCAR-H Battle Rifle",leveraction:"Marlin Lever-action Rifle",leveractionrifle:"Marlin Lever-action Rifle",ks:"SKS Marksman Rifle",ash12battlerifle:"ASh-12 Assault Rifle",ash12:"ASh-12 Assault Rifle",tommy:"Thompson Submachine Gun",thompson:"Thompson Submachine Gun",bow:"Compound Bow",val:"AS Val Assault Rifle",asval:"AS Val Assault Rifle",barrett:"M82 Sniper Rifle",deagle:"Desert Eagle",scar:"SCAR-H Battle Rifle",scarh:"SCAR-H Battle Rifle",revolver:".357 Revolver"};
+let GUN_INDEX=null;
+function gunMatch(t){
+  if(!GUN_INDEX){GUN_INDEX={};const all=Object.values(WEAPONS).flat();
+    all.forEach(w=>{GUN_INDEX[gnorm(shortGun(w))]=w});all.forEach(w=>{GUN_INDEX[gnorm(w)]=w})}
+  const n=gnorm(t);if(!n)return null;
+  if(GUN_INDEX[n])return GUN_INDEX[n];
+  if(GUN_ALIAS[n])return GUN_ALIAS[n];
+  // "M4A1 Assault Rifle Long" etc: the longest gun name that starts the text
+  let best=null;for(const k in GUN_INDEX)if(k.length>=3&&n.startsWith(k)&&(!best||k.length>best.length))best=k;
+  return best?GUN_INDEX[best]:null;
+}
+function parseBuildText(txt){
+  let src="POACH";const rows=[],seen=new Set(),skipped=[];
+  for(let line of txt.split(/\r?\n/)){
+    line=line.trim();if(!line||line[0]==="#")continue;
+    const sec=line.match(/^\[(.+)\]$/);if(sec){src=/poach/i.test(sec[1])?"POACH":"Discord";continue}
+    const m=line.match(/(?:^|[^0-9A-Za-z])([0-9A-Z]{21})(?![0-9A-Za-z])/);if(!m){skipped.push(line);continue}
+    const at=line.indexOf(m[1]);
+    const gun=line.slice(0,at).replace(/-?\s*(operations|warfare).*$/i,"").replace(/[\s\-|:,–]+$/,"").trim();
+    const name=line.slice(at+21).replace(/^[\s\-|:,–]+/,"").trim();
+    const w=gunMatch(gun);if(!w||seen.has(m[1])){skipped.push(line);continue}
+    seen.add(m[1]);rows.push([w,name||(src==="POACH"?"POACH build":"Player build"),null,m[1],src]);
+  }
+  return {rows,skipped};
+}
+fetch(BUILD_URL+"?v="+Math.floor(Date.now()/3e5),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{
+  const {rows,skipped}=parseBuildText(t);
+  if(skipped.length)console.warn("build-codes.txt: lines not used (gun not recognised, no code, or a repeat):",skipped);
+  if(rows.length<10)return;              // something's wrong with the file: keep the backup list
+  BUILD_CODES.length=0;BUILD_CODES.push(...rows);
+  if(buildPick.row&&!BUILD_CODES.some(b=>b[3]===buildPick.row[3]))buildPick={gun:"",row:null};
+  window.__buildsLive=rows.length;refreshBuild();
+}).catch(e=>console.warn("build codes: using the built-in list",e));
 document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
   if(navigator.clipboard)navigator.clipboard.writeText(b.dataset.code).then(done,()=>{});else{const ta=document.createElement("textarea");ta.value=b.dataset.code;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(_){}ta.remove()}});
 const BUILD_COL=["#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a","#1fae9a","#c44d9a","#8fa31c","#5c8bd6","#b8742a"];
