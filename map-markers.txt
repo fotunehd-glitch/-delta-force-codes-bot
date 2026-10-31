@@ -18,4 +18,9 @@
 #   Getting around: Zipline
 #   Other: Other
 #
+# Icons: a line like  Icon | Small safe | small-safe.png  uses map-icons/small-safe.png for that type.
+# Types without an icon show a coloured letter dot.
+#
 # Lines starting with # are ignored. To remove a marker, delete its line.
+
+Icon | Small safe | small-safe.png
