@@ -1685,7 +1685,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 (function(){
   const $=id=>document.getElementById(id),grid=$("mpGrid"),wrap=$("mpViewWrap");
   const FLOORS={"Zero Dam":["1F"],"Layali Grove":["1F"],"Brakkesh":["1F"],"Space City":["1F"],"Tide Prison":["1F"],"AZ3 Nuclear Plant":["1F"]}; // real floors get added with the map pictures
-  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp"}; // top-down maps, 3072px square
+  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp"}; // top-down maps, 3072px square
   let cur=null;
   const chips=m=>{const on=mapModes(m);return ["Easy","Normal","Hard"].map(d=>`<span class="mp-chip ${d[0].toLowerCase()}${on.includes(d)?"":" off"}">${d}</span>`).join("")};
   const code=m=>{const c=(window.__codes||[]).find(x=>x.name===m);return c&&c.code?c.code:null};
