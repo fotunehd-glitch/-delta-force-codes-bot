@@ -1694,8 +1694,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 // ---------------- Maps tab ----------------
 (function(){
   const $=id=>document.getElementById(id),grid=$("mpGrid"),wrap=$("mpViewWrap");
-  const FLOORS={"Zero Dam":["1F"],"Layali Grove":["1F"],"Brakkesh":["1F"],"Space City":["1F"],"Tide Prison":["1F"],"AZ3 Nuclear Plant":["1F"]}; // real floors get added with the map pictures
-  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp"}; // top-down maps, 3072px square
+  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp","Tide Prison":[["F1","/img/maps/tide-prison-f1.webp"],["F2","/img/maps/tide-prison-f2.webp"],["F3","/img/maps/tide-prison-f3.webp"],["F4","/img/maps/tide-prison-f4.webp"]]}; // a list = one picture per floor // top-down maps, 3072px square
   let cur=null;
   const chips=m=>{const on=mapModes(m);return ["Easy","Normal","Hard"].map(d=>`<span class="mp-chip ${d[0].toLowerCase()}${on.includes(d)?"":" off"}">${d}</span>`).join("")};
   const code=m=>{const c=(window.__codes||[]).find(x=>x.name===m);return c&&c.code?c.code:null};
@@ -1718,13 +1717,13 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function side(){if(!cur)return;const c=code(cur);$("mpChips").innerHTML=chips(cur);$("mpNow").innerHTML=nowLine(cur);
     $("mpCode").innerHTML=c?`<b>${c}</b><button class="cp b" type="button" data-code="${c}">COPY</button>`:`<span class="mp-line">No door code today</span>`}
   function open(m){cur=m;$("mpName").textContent=m;grid.hidden=true;wrap.hidden=false;
-    $("mpFloors").innerHTML=(FLOORS[m]||["1F"]).length>1?FLOORS[m].map((f,i)=>`<button type="button" aria-pressed="${i===0}">${f}</button>`).join(""):"";
-    const src=MAP_IMG[m];cv.innerHTML=src?`<img src="${src}" alt="${m} map" decoding="async">`:"";stage.classList.toggle("has-map",!!src);
+    const v=MAP_IMG[m],fl=Array.isArray(v)?v:null;$("mpFloors").innerHTML=fl?fl.map(([f,s],i)=>`<button type="button" data-src="${s}" aria-pressed="${i===0}">${f}</button>`).join(""):"";
+    const src=fl?fl[0][1]:v;cv.innerHTML=src?`<img src="${src}" alt="${m} map" decoding="async">`:"";stage.classList.toggle("has-map",!!src);
     side();requestAnimationFrame(fit);history.replaceState(null,"","#maps");}
   function close(){cur=null;wrap.hidden=true;grid.hidden=false}
   grid.addEventListener("click",e=>{const c=e.target.closest(".mp-card");if(c)open(c.dataset.map)});
   $("mpBack").onclick=close;
-  $("mpFloors").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;[...$("mpFloors").children].forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  $("mpFloors").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;[...$("mpFloors").children].forEach(x=>x.setAttribute("aria-pressed",x===b));const im=cv.querySelector("img");if(im&&b.dataset.src)im.src=b.dataset.src});
   const refresh=()=>{cards();side()};
   window.addEventListener("codes:update",refresh);window.addEventListener("maps:open",refresh);setInterval(()=>{if(!$("mapsTab").hidden)refresh()},60000);
   window.addEventListener("resize",()=>{if(cur)fit()});
