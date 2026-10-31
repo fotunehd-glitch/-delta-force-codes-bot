@@ -1743,6 +1743,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
       if(!map||!isFinite(X)||!isFinite(Y))continue;
       out.push({map,floor:(p[1]&&p[1]!=="-")?p[1].toUpperCase():null,type:tnorm(p[2])[0],x:X,y:Y,label:p[5]||""})}
     return out}
+  if(window.__MAP_MARKERS_TXT){MARKERS=parseMarkers(window.__MAP_MARKERS_TXT)} // preview copies carry the file inline
   fetch(MARKER_URL+"?v="+Math.floor(Date.now()/3e5),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{MARKERS=parseMarkers(t);refresh();if(cur)drawMarkers()}).catch(e=>console.warn("map markers not loaded",e));
   // ---- pan and zoom
   const stage=$("mpStage"),cv=$("mpCanvas");let z=1,x=0,y=0;

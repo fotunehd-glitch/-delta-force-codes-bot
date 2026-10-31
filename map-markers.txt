@@ -24,3 +24,166 @@
 # Lines starting with # are ignored. To remove a marker, delete its line.
 
 Icon | Small safe | small-safe.png
+
+# Zero Dam: key spots (spawns, extracts, keycard rooms, protocol crates)
+Zero Dam | - | Spawn | 370.8 | 346.7
+Zero Dam | - | Spawn | 381.3 | 276.4
+Zero Dam | - | Spawn | 783.2 | 474.4
+Zero Dam | - | Spawn | 849.4 | 641.6
+Zero Dam | - | Spawn | 190.2 | 373.0
+Zero Dam | - | Spawn | 768.1 | 831.1
+Zero Dam | - | Spawn | 174.3 | 546.9
+Zero Dam | - | Spawn | 707.0 | 494.1
+Zero Dam | - | Spawn | 709.0 | 646.0
+Zero Dam | - | Spawn | 586.2 | 450.9
+Zero Dam | - | Spawn | 333.3 | 571.5
+Zero Dam | - | Spawn | 275.9 | 469.5
+Zero Dam | - | Spawn | 596.2 | 686.0
+Zero Dam | - | Spawn | 207.8 | 313.5
+Zero Dam | - | Extract | 862.1 | 633.5
+Zero Dam | - | Extract | 183.8 | 556.9
+Zero Dam | - | Paid extract | 457.0 | 620.1
+Zero Dam | - | Conditional extract | 842.8 | 399.2
+Zero Dam | - | Conditional extract | 669.2 | 261.2
+Zero Dam | - | Conditional extract | 270.0 | 254.9
+Zero Dam | - | Extract | 752.2 | 843.0 | Random extract
+Zero Dam | - | Extract | 251.2 | 550.8 | Random extract
+Zero Dam | - | Keycard room | 257.3 | 538.1 | ???#D1-3
+Zero Dam | - | Keycard room | 580.6 | 512.0 | ???#D2-3
+Zero Dam | - | Keycard room | 747.8 | 539.3 | ???#D3-3
+Zero Dam | - | Keycard room | 327.4 | 297.1 | Barracks Storage Room
+Zero Dam | - | Keycard room | 275.1 | 474.9 | Cement Plant Dormitory
+Zero Dam | - | Keycard room | 336.7 | 510.3 | Cement Plant Office
+Zero Dam | - | Keycard room | 798.3 | 673.6 | Central VIP Room
+Zero Dam | - | Keycard room | 578.4 | 371.1 | East Wing Managers Office
+Zero Dam | - | Keycard room | 594.2 | 357.4 | Equipment Collection Room
+Zero Dam | - | Keycard room | 539.1 | 616.9 | Substation Dormitory
+Zero Dam | - | Keycard room | 599.4 | 564.5 | Substation Tech Room
+Zero Dam | - | Keycard room | 785.4 | 710.4 | Ticket Office
+Zero Dam | - | Keycard room | 535.4 | 330.8 | West Wing Control Room
+Zero Dam | - | Keycard room | 546.1 | 353.5 | West Wing Infirmary
+Zero Dam | - | Keycard room | 544.7 | 355.2 | West Wing Monitoring Room
+Zero Dam | - | Protocol crate | 690.4 | 311.0 | Secret Protocol Crate #D1
+Zero Dam | - | Protocol crate | 230.2 | 281.2 | Secret Protocol Crate #D6
+Zero Dam | - | Protocol crate | 410.2 | 497.3 | Secret Protocol Crate #D7
+Zero Dam | - | Protocol crate | 590.3 | 350.3 | Secret Protocol Crate #D8
+
+# Layali Grove: key spots (spawns, extracts, keycard rooms, protocol crates)
+Layali Grove | - | Spawn | 307.6 | 521.0
+Layali Grove | - | Spawn | 198.2 | 688.0
+Layali Grove | - | Spawn | 195.8 | 511.2
+Layali Grove | - | Spawn | 271.0 | 605.5
+Layali Grove | - | Spawn | 304.7 | 733.2
+Layali Grove | - | Spawn | 367.9 | 412.6
+Layali Grove | - | Spawn | 435.3 | 321.8
+Layali Grove | - | Spawn | 465.1 | 400.1
+Layali Grove | - | Spawn | 637.0 | 452.1
+Layali Grove | - | Spawn | 801.8 | 537.8
+Layali Grove | - | Spawn | 811.5 | 607.9
+Layali Grove | - | Spawn | 706.5 | 476.6
+Layali Grove | - | Spawn | 180.4 | 610.8
+Layali Grove | - | Spawn | 592.8 | 662.8
+Layali Grove | - | Spawn | 682.4 | 712.2
+Layali Grove | - | Spawn | 561.3 | 531.0
+Layali Grove | - | Spawn | 623.0 | 336.7
+Layali Grove | - | Spawn | 443.8 | 452.4
+Layali Grove | - | Spawn | 572.5 | 730.5
+Layali Grove | - | Spawn | 651.1 | 563.7
+Layali Grove | - | Spawn | 254.2 | 470.9
+Layali Grove | - | Spawn | 554.2 | 378.4
+Layali Grove | - | Extract | 208.3 | 711.7
+Layali Grove | - | Extract | 815.7 | 589.8
+Layali Grove | - | Extract | 802.7 | 673.3
+Layali Grove | - | Extract | 187.7 | 593.0
+Layali Grove | - | Paid extract | 429.0 | 740.7
+Layali Grove | - | Extract | 339.4 | 524.7 | Random extract
+Layali Grove | - | Extract | 643.6 | 593.5 | Random extract
+Layali Grove | - | Keycard room | 652.6 | 546.1 | ???#L0-0
+Layali Grove | - | Keycard room | 786.4 | 602.1 | ???#L1-3
+Layali Grove | - | Keycard room | 488.3 | 482.2 | ???#L2-3
+Layali Grove | - | Keycard room | 195.1 | 650.1 | ???#L3-3
+Layali Grove | - | Keycard room | 318.4 | 656.2 | Cargo Plane Conference Room
+Layali Grove | - | Keycard room | 364.7 | 741.2 | Checkpoint Storeroom
+Layali Grove | - | Keycard room | 462.9 | 652.6 | Diamonds Room
+Layali Grove | - | Keycard room | 197.3 | 617.7 | Farm Admin Room
+Layali Grove | - | Keycard room | 444.6 | 636.0 | General's Room
+Layali Grove | - | Keycard room | 446.5 | 628.9 | King's Suite
+Layali Grove | - | Keycard room | 510.7 | 308.8 | Lab Building Archive Room
+Layali Grove | - | Keycard room | 505.6 | 309.8 | Lab Building Office
+Layali Grove | - | Keycard room | 453.4 | 611.8 | Prince's Suite
+Layali Grove | - | Keycard room | 515.9 | 254.6 | Radar Station Conference Room
+Layali Grove | - | Keycard room | 508.5 | 231.9 | Radar Station Control Room
+Layali Grove | - | Keycard room | 512.0 | 234.1 | Radar Station Data Center
+Layali Grove | - | Keycard room | 478.5 | 253.7 | Radar Station Side Entrance
+Layali Grove | - | Keycard room | 503.2 | 227.5 | Radar Station UAV Platform
+Layali Grove | - | Keycard room | 789.1 | 524.7 | Small Train Station Ticket Office
+Layali Grove | - | Keycard room | 480.7 | 664.3 | Spades Room
+Layali Grove | - | Keycard room | 619.9 | 494.1 | Town Diner
+Layali Grove | - | Protocol crate | 146.0 | 665.8 | Secret Protocol Crate #L6
+
+# Space City: key spots (spawns, extracts, keycard rooms, protocol crates)
+Space City | - | Spawn | 731.4 | 521.5
+Space City | - | Spawn | 696.5 | 156.2
+Space City | - | Spawn | 448.2 | 164.1
+Space City | - | Spawn | 603.8 | 286.9
+Space City | - | Spawn | 782.5 | 316.9
+Space City | - | Spawn | 220.7 | 419.4
+Space City | - | Spawn | 227.1 | 236.8
+Space City | - | Spawn | 525.6 | 168.9
+Space City | - | Spawn | 379.6 | 777.6
+Space City | - | Spawn | 586.7 | 281.7
+Space City | - | Conditional extract | 684.1 | 689.0
+Space City | - | Conditional extract | 405.8 | 805.4
+Space City | - | Conditional extract | 525.4 | 555.2
+Space City | - | Keycard room | 768.3 | 329.6 | Assembly Workshop 2F Lab
+Space City | - | Keycard room | 564.2 | 455.3 | Black Chamber Server Room
+Space City | - | Keycard room | 425.0 | 416.0 | Buoyancy Lab Infirmary
+Space City | - | Keycard room | 505.4 | 427.5 | CEO Office Reception Room
+Space City | - | Keycard room | 482.9 | 169.2 | Central Command Room 3F
+Space City | - | Keycard room | 243.9 | 293.7 | Dormitory Back Room
+Space City | - | Keycard room | 662.8 | 462.6 | Eastern Bridge Key
+Space City | - | Keycard room | 607.7 | 273.7 | Employee Passage 2
+Space City | - | Keycard room | 572.8 | 387.2 | Test Range Core
+Space City | - | Keycard room | 538.8 | 388.4 | Test Range Data Center
+Space City | - | Keycard room | 553.0 | 397.2 | Test Range Glass Room
+Space City | - | Keycard room | 344.0 | 378.2 | Western Gate
+Space City | - | Protocol crate | 486.8 | 630.4 | Secret Protocol Crate #S4
+
+# Brakkesh: key spots (spawns, extracts, keycard rooms, protocol crates)
+Brakkesh | - | Spawn | 544.4 | 109.4
+Brakkesh | - | Spawn | 429.4 | 718.8
+Brakkesh | - | Spawn | 225.3 | 137.7
+Brakkesh | - | Spawn | 298.1 | 233.6
+Brakkesh | - | Spawn | 542.0 | 255.1
+Brakkesh | - | Spawn | 663.3 | 144.8
+Brakkesh | - | Spawn | 662.6 | 303.2
+Brakkesh | - | Spawn | 453.1 | 504.2
+Brakkesh | - | Spawn | 614.0 | 468.3
+Brakkesh | - | Spawn | 595.0 | 721.9
+Brakkesh | - | Spawn | 320.6 | 350.1
+Brakkesh | - | Spawn | 541.0 | 566.4
+Brakkesh | - | Spawn | 691.9 | 436.0
+Brakkesh | - | Spawn | 364.0 | 488.0
+Brakkesh | - | Spawn | 462.4 | 97.7
+Brakkesh | - | Conditional extract | 538.6 | 108.2
+Brakkesh | - | Conditional extract | 403.3 | 95.2
+Brakkesh | - | Keycard room | 526.1 | 720.0 | Biological Data Server Room
+Brakkesh | - | Keycard room | 528.1 | 737.1 | CEO Conference Room
+Brakkesh | - | Keycard room | 607.9 | 145.5 | East Town Residential Bedroom
+Brakkesh | - | Keycard room | 317.4 | 250.2 | Hotel Dining Room
+Brakkesh | - | Keycard room | 275.6 | 241.2 | Hotel Staff Break Room
+Brakkesh | - | Keycard room | 443.6 | 669.2 | Interrogation Room 1
+Brakkesh | - | Keycard room | 580.8 | 749.3 | Medical Conference Room
+Brakkesh | - | Keycard room | 426.3 | 367.4 | Museum Abandoned Exhibition Hall
+Brakkesh | - | Keycard room | 411.9 | 376.7 | Museum Exhibition Suite
+Brakkesh | - | Keycard room | 508.5 | 398.4 | Museum Surveillance Room
+Brakkesh | - | Keycard room | 565.7 | 691.4 | New Tower Of Babel Power Access Card
+Brakkesh | - | Keycard room | 441.7 | 795.7 | Ocean Monitoring Hall
+Brakkesh | - | Keycard room | 444.8 | 181.2 | Old Bath Diner
+Brakkesh | - | Keycard room | 495.4 | 112.5 | Old Bath VIP Room
+Brakkesh | - | Keycard room | 579.8 | 775.9 | Outpatient Room
+Brakkesh | - | Keycard room | 577.9 | 765.9 | Relink Implant Surgery Room
+Brakkesh | - | Keycard room | 489.7 | 418.9 | Underground Vault Storage
+Brakkesh | - | Keycard room | 255.1 | 173.1 | West Town Residential Bedroom
+Brakkesh | - | Protocol crate | 501.2 | 242.7 | Secret Protocol Crate #B6
+Brakkesh | - | Protocol crate | 271.0 | 244.4 | Secret Protocol Create #B1
