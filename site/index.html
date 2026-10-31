@@ -1711,7 +1711,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   // pan and zoom on the map stage
   const stage=$("mpStage"),cv=$("mpCanvas");let z=1,x=0,y=0;
   const apply=()=>{cv.style.transform=`translate(${x}px,${y}px) scale(${z})`};
-  const fit=()=>{const w=stage.clientWidth,h=stage.clientHeight;z=Math.min(w,h)/1000;x=(w-1000*z)/2;y=(h-1000*z)/2;apply()};
+  const fit=()=>{const w=stage.clientWidth,h=stage.clientHeight;z=Math.max(w,h)/1000;/* fill the whole box */x=(w-1000*z)/2;y=(h-1000*z)/2;apply()};
   const zoomAt=(f,cx,cy)=>{const nz=Math.max(.2,Math.min(4,z*f));x=cx-(cx-x)*nz/z;y=cy-(cy-y)*nz/z;z=nz;apply()};
   stage.addEventListener("wheel",e=>{e.preventDefault();const b=stage.getBoundingClientRect();zoomAt(e.deltaY<0?1.15:1/1.15,e.clientX-b.left,e.clientY-b.top)},{passive:false});
   let d=null;stage.addEventListener("pointerdown",e=>{if(e.target.closest("button"))return;d={px:e.clientX,py:e.clientY,x,y};stage.setPointerCapture(e.pointerId);stage.classList.add("drag")});
