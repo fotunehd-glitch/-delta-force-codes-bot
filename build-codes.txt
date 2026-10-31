@@ -2,7 +2,10 @@
 # The site reads this file every time someone visits, so adding codes here does NOT need a Netlify deploy.
 # New codes show on the site within about 5 minutes.
 #
-# How to add a code: put it on its own line under [POACH] or [Players]:
+# Sections say who made the codes under them: [POACH], [Players] (shows as the FortuneHD Discord),
+# or any creator's name, with an optional link: [Leissik | https://www.twitch.tv/leissik]
+#
+# How to add a code: put it on its own line under a section:
 #     Gun name - CODE
 #     Gun name - CODE - build name      (build name is optional)
 # You can also paste lines straight from Discord, like:
@@ -142,8 +145,8 @@ M1014 Shotgun - 6LP6S7C0B6QH0OTRO2PVU
 UZI Submachine Gun - 6LP6SOG0B6QH0OTRO2PVU
 ASh-12 Assault Rifle - 6LP6SS40B6QH0OTRO2PVU
 
-[Leissik]
-# from Leissik's build doc (twitch.tv/leissik)
+[Leissik | https://www.twitch.tv/leissik]
+# from Leissik's build doc
 M700 Sniper Rifle - 6LKHPNC0FV996DITL6AIU
 M700 Sniper Rifle - 6LKGKPG0FV996DITL6AIU
 M700 Sniper Rifle - 6LJRE840FV996DITL6AIU

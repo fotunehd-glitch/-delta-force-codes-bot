@@ -1252,13 +1252,15 @@ function refreshBuild(){
   box.classList.remove("none","rolling");
   if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-src">Press <b>Spin for a random build</b> to get a code for this gun</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("hint");
-  const src=r[4]==="POACH"?`Build code by <a href="https://www.deltaforce.build/poach" target="_blank" rel="noopener">POACH</a>`:`Build code from the FortuneHD Discord`;
+  const su=BUILD_SRC_URL[r[4]],src=r[4]==="Discord"?`Build code from the FortuneHD Discord`:`Build code by ${su?`<a href="${su}" target="_blank" rel="noopener">${r[4]}</a>`:`<b>${r[4]}</b>`}`;
   box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
   box.style.setProperty("--bc","");box.hidden=false;
 }
 // ---- live build codes: build-codes.txt in the GitHub repo (outside site/, so editing it never needs a Netlify deploy).
 // The list above is only a backup for when GitHub can't be reached.
 const BUILD_URL="https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/build-codes.txt";
+// creator links: POACH built in; others come from the file, e.g. [Leissik | https://www.twitch.tv/leissik]
+const BUILD_SRC_URL={POACH:"https://www.deltaforce.build/poach"};
 const gnorm=t=>String(t).toLowerCase().replace(/[^a-z0-9]/g,"");
 const GUN_ALIAS={scarhkampfgewehr:"SCAR-H Battle Rifle",leveraction:"Marlin Lever-action Rifle",leveractionrifle:"Marlin Lever-action Rifle",ks:"SKS Marksman Rifle",ash12battlerifle:"ASh-12 Assault Rifle",ash12:"ASh-12 Assault Rifle",tommy:"Thompson Submachine Gun",thompson:"Thompson Submachine Gun",bow:"Compound Bow",val:"AS Val Assault Rifle",asval:"AS Val Assault Rifle",barrett:"M82 Sniper Rifle",deagle:"Desert Eagle",scar:"SCAR-H Battle Rifle",scarh:"SCAR-H Battle Rifle",revolver:".357 Revolver"};
 let GUN_INDEX=null;
@@ -1276,13 +1278,13 @@ function parseBuildText(txt){
   let src="POACH";const rows=[],seen=new Set(),skipped=[];
   for(let line of txt.split(/\r?\n/)){
     line=line.trim();if(!line||line[0]==="#")continue;
-    const sec=line.match(/^\[(.+)\]$/);if(sec){src=/poach/i.test(sec[1])?"POACH":"Discord";continue}
+    const sec=line.match(/^\[(.+)\]$/);if(sec){const [nm,url]=sec[1].split("|").map(x=>x.trim());src=/^poach$/i.test(nm)?"POACH":/^(players?|discord|community)$/i.test(nm)?"Discord":nm;if(url&&/^https:\/\//.test(url))BUILD_SRC_URL[src]=url;continue}
     const m=line.match(/(?:^|[^0-9A-Za-z])([0-9A-Z]{21})(?![0-9A-Za-z])/);if(!m){skipped.push(line);continue}
     const at=line.indexOf(m[1]);
     const gun=line.slice(0,at).replace(/-?\s*(operations|warfare).*$/i,"").replace(/[\s\-|:,–]+$/,"").trim();
     const name=line.slice(at+21).replace(/^[\s\-|:,–]+/,"").trim();
     const w=gunMatch(gun);if(!w||seen.has(m[1])){skipped.push(line);continue}
-    seen.add(m[1]);rows.push([w,name||(src==="POACH"?"POACH build":"Player build"),null,m[1],src]);
+    seen.add(m[1]);rows.push([w,name||(src==="POACH"?"POACH build":src==="Discord"?"Player build":src+" build"),null,m[1],src]);
   }
   return {rows,skipped};
 }
