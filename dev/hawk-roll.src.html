@@ -552,6 +552,7 @@ html.noribbon .ribnote{display:none}
 .zoomer input{width:110px;accent-color:var(--green);cursor:pointer;margin:0}
 .zoomer output{min-width:40px;text-align:center;cursor:pointer;color:var(--green)}
 @media (max-width:600px){.zoomer{display:none}}
+html.nozoom .zoomer{display:none}
 </style>
 <div id="ribbons"></div>
 <div class="ribnote"><button type="button" id="ribNote" title="Turn the streamer ribbons on or off">Hide these ribbons in Settings &#9662;</button></div>
@@ -630,6 +631,7 @@ html.noribbon .ribnote{display:none}
         <label class="ck"><input type="checkbox" id="optInstant"> Instant spin</label>
         <label class="ck"><input type="checkbox" id="optUnique"> No repeats until everything's shown</label>
         <label class="ck"><input type="checkbox" id="optRibbons" checked> Show streamer ribbons (top right)</label>
+        <label class="ck"><input type="checkbox" id="optZoom" checked> Show the page zoom box (bottom left)</label>
         <span id="ribList" style="display:contents"></span>
       </div>
       <div class="cols">
@@ -1428,7 +1430,7 @@ function rollWheel(W,list,styled){
 
 // ---------------- settings UI ----------------
 function buildSettings(){
-  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;ribSettings();
+  $("#optSound").checked=S.sound;$("#optInstant").checked=S.instant;$("#optUnique").checked=S.unique;$("#optRibbons").checked=S.ribbons!==false;$("#optZoom").checked=S.zoomBox!==false;document.documentElement.classList.toggle("nozoom",S.zoomBox===false);ribSettings();
   $("#wtypes").innerHTML=Object.entries(WTYPES).map(([k,l])=>`<label class="ck"><input type="checkbox" id="w-${k}" data-w="${k}" ${S.wtypes.includes(k)?"checked":""}> ${l}</label>`).join("");
   $("#maps").innerHTML=MAPS.map((m,i)=>`<label class="ck"><input type="checkbox" id="m-${i}" data-m="${m}" ${S.maps.includes(m)?"checked":""}> ${m}</label>`).join("");
   $("#opsList").innerHTML=OPERATORS.map(([n])=>`<label class="ck"><input type="checkbox" id="o-${n}" data-o="${n}" ${S.opsOff.includes(n)?"":"checked"}> ${n}</label>`).join("");
@@ -1482,6 +1484,7 @@ $("#settings").addEventListener("change",e=>{
   if(t.id==="optInstant")S.instant=t.checked;
   if(t.id==="optUnique")S.unique=t.checked;
   if(t.id==="optRibbons"){S.ribbons=t.checked;applyRibbons()}
+  if(t.id==="optZoom"){S.zoomBox=t.checked;document.documentElement.classList.toggle("nozoom",!t.checked)}
   if(t.dataset.ribopt){const id=t.dataset.ribopt,o=new Set(S.ribOff||[]);t.checked?o.delete(id):o.add(id);S.ribOff=[...o];ribPage=0;applyRibbons()}
   if(t.dataset.w){S.wtypes=t.checked?[...new Set([...S.wtypes,t.dataset.w])]:S.wtypes.filter(x=>x!==t.dataset.w)}
   if(t.dataset.m){S.maps=t.checked?[...new Set([...S.maps,t.dataset.m])]:S.maps.filter(x=>x!==t.dataset.m)}
