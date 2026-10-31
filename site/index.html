@@ -1694,7 +1694,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 // ---------------- Maps tab ----------------
 (function(){
   const $=id=>document.getElementById(id),grid=$("mpGrid"),wrap=$("mpViewWrap");
-  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp","Tide Prison":[["F1","/img/maps/tide-prison-f1.webp"],["F2","/img/maps/tide-prison-f2.webp"],["F3","/img/maps/tide-prison-f3.webp"],["F4","/img/maps/tide-prison-f4.webp"]]}; // a list = one picture per floor // top-down maps, 3072px square
+  const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp","Tide Prison":[["F1","/img/maps/tide-prison-f1.webp"],["F2","/img/maps/tide-prison-f2.webp"],["F3","/img/maps/tide-prison-f3.webp"],["F4","/img/maps/tide-prison-f4.webp"]],"AZ3 Nuclear Plant":[["1F","/img/maps/az3-1f.webp"],["2F","/img/maps/az3-2f.webp"],["3F","/img/maps/az3-3f.webp"]]}; // a list = one picture per floor // top-down maps, 3072px square
   let cur=null;
   const chips=m=>{const on=mapModes(m);return ["Easy","Normal","Hard"].map(d=>`<span class="mp-chip ${d[0].toLowerCase()}${on.includes(d)?"":" off"}">${d}</span>`).join("")};
   const code=m=>{const c=(window.__codes||[]).find(x=>x.name===m);return c&&c.code?c.code:null};
