@@ -12,7 +12,7 @@
 #
 # Types:
 #   Spawns & extracts: Spawn, Extract, Paid extract, Conditional extract
-#   Doors & keys: Door code room, Keycard room
+#   Doors & keys: Door code room (shows today's door code on the map), Keycard room
 #   Loot: Safe, Small safe, Weapon crate, Large weapon crate, Ammo crate, Computer, Server, Hidden stash, Medical crate, Bird nest, Travel bag, Toolbox, Red loot spot
 #   Events & bosses: Protocol crate, Boss
 #   Getting around: Zipline
@@ -22,6 +22,22 @@
 # Types without an icon show a coloured letter dot.
 #
 # Lines starting with # are ignored. To remove a marker, delete its line.
+
+# Map pictures: a line like  Picture | Zero Dam | - | zero-dam.webp  uses map-images/zero-dam.webp.
+# For floors, one line per floor in order, e.g.  Picture | Tide Prison | F1 | tide-prison-f1.webp
+# To change a map picture: upload the new file to map-images/ with a NEW name (e.g. zero-dam-s12.webp)
+# and change the line here. (Reusing an old name can take up to 12 hours to show.)
+Picture | Zero Dam | - | zero-dam.webp
+Picture | Layali Grove | - | layali-grove.webp
+Picture | Space City | - | space-city.webp
+Picture | Brakkesh | - | brakkesh.webp
+Picture | Tide Prison | F1 | tide-prison-f1.webp
+Picture | Tide Prison | F2 | tide-prison-f2.webp
+Picture | Tide Prison | F3 | tide-prison-f3.webp
+Picture | Tide Prison | F4 | tide-prison-f4.webp
+Picture | AZ3 Nuclear Plant | 1F | az3-1f.webp
+Picture | AZ3 Nuclear Plant | 2F | az3-2f.webp
+Picture | AZ3 Nuclear Plant | 3F | az3-3f.webp
 
 Icon | Small safe | small-safe.png
 

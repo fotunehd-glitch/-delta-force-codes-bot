@@ -421,6 +421,9 @@ html.noribbon .ribnote{display:none}
 .mp-mk.mp-ic{width:34px;height:26px;margin:-13px 0 0 -17px;border-radius:4px;background:none;border:0;box-shadow:none}
 .mp-mk.mp-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7));pointer-events:none}
 .mp-lic{width:18px;height:14px;object-fit:contain;flex:none}
+.mp-mk.mp-dc{width:auto;height:24px;margin:-12px 0 0 0;padding:0 8px 0 4px;transform:translateX(-50%) scale(var(--iz,1));transform-origin:center;border-radius:12px;background:#0ff796;color:#062014;font:800 12px/1 var(--display);letter-spacing:.08em;gap:4px;display:flex;align-items:center;box-shadow:0 0 0 2px #06090c,0 0 12px rgba(15,247,150,.55)}
+.mp-mk.mp-dc span{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#062014;color:#0ff796;font-size:10px}
+.mp-pcode{display:flex;align-items:center;gap:6px}.mp-pcode b{color:#0ff796;letter-spacing:.1em}
 .mp-mk.mp-new{outline:2px dashed #fff;outline-offset:2px;pointer-events:none}
 .mp-pop{position:absolute;z-index:4;display:grid;gap:3px;max-width:220px;padding:8px 10px;border-radius:6px;background:rgba(14,17,21,.96);border:1px solid var(--line);font-size:12.5px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
 .mp-pop[hidden]{display:none}.mp-pop span{color:var(--fg)}.mp-pop small{color:var(--muted)}
@@ -1715,6 +1718,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const MAP_IMG={"Zero Dam":"/img/maps/zero-dam.webp","Layali Grove":"/img/maps/layali-grove.webp","Space City":"/img/maps/space-city.webp","Brakkesh":"/img/maps/brakkesh.webp","Tide Prison":[["F1","/img/maps/tide-prison-f1.webp"],["F2","/img/maps/tide-prison-f2.webp"],["F3","/img/maps/tide-prison-f3.webp"],["F4","/img/maps/tide-prison-f4.webp"]],"AZ3 Nuclear Plant":[["1F","/img/maps/az3-1f.webp"],["2F","/img/maps/az3-2f.webp"],["3F","/img/maps/az3-3f.webp"]]}; // a list = one picture per floor
   const MARKER_URL="https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/map-markers.txt",ICON_BASE="https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/map-icons/";
   const ICONS={}; // type -> picture, from "Icon | Type | file.png" lines in map-markers.txt
+  const PIC_BASE="https://cdn.jsdelivr.net/gh/fotunehd-glitch/-delta-force-codes-bot@main/map-images/";let PICS=null; // from "Picture | Map | Floor | file.webp" lines
   // marker types: [type, group, colour, short label shown in the dot]
   const TYPES=[
     ["Spawn","Spawns & extracts","#4b9bff","S"],["Extract","Spawns & extracts","#0ff796","E"],["Paid extract","Spawns & extracts","#ffbf2e","£"],["Conditional extract","Spawns & extracts","#ff9a3d","C"],
@@ -1741,10 +1745,11 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const countFor=m=>MARKERS.filter(k=>k.map===m).length;
   function cards(){grid.innerHTML=MAPS.map(m=>{const c=code(m),n=countFor(m);return `<button class="mp-card" type="button" data-map="${m}">${IMG[m]?`<img src="${IMG[m]}" alt="" loading="lazy">`:""}<h3>${m}</h3><span class="mp-chips">${chips(m)}</span><span class="mp-line">${nowLine(m)}</span><span class="mp-code">${c?"DOOR CODE "+c:"No door code today"}</span><span class="mp-open">Open map${n?` · ${n} markers`:""}</span></button>`}).join("")}
   // ---- markers file: Map | Floor | Type | X | Y | Label   (X and Y go from 0 to 1000 across the map picture)
-  function parseMarkers(txt){const out=[];
+  function parseMarkers(txt){const out=[];PICS=null;
     for(let line of txt.split(/\r?\n/)){line=line.trim();if(!line||line[0]==="#")continue;
       const p=line.split("|").map(s=>s.trim());
-      if(/^icon$/i.test(p[0])&&p[1]&&/^[\w.-]+\.(png|webp)$/i.test(p[2]||"")){ICONS[tnorm(p[1])[0]]=ICON_BASE+p[2];continue}if(p.length<5)continue;
+      if(/^icon$/i.test(p[0])&&p[1]&&/^[\w.-]+\.(png|webp)$/i.test(p[2]||"")){ICONS[tnorm(p[1])[0]]=ICON_BASE+p[2];continue}
+      if(/^picture$/i.test(p[0])&&p[1]&&/^[\w.-]+\.(png|webp|jpe?g)$/i.test(p[3]||"")){const mp=MAPS.find(m=>m.toLowerCase()===p[1].toLowerCase()||m.toLowerCase().startsWith(p[1].toLowerCase()));if(mp){PICS=PICS||{};(PICS[mp]=PICS[mp]||[]).push([(p[2]&&p[2]!=="-")?p[2].toUpperCase():null,PIC_BASE+p[3]])}continue}if(p.length<5)continue;
       const map=MAPS.find(m=>m.toLowerCase()===p[0].toLowerCase()||m.toLowerCase().startsWith(p[0].toLowerCase()));const X=+p[3],Y=+p[4];
       if(!map||!isFinite(X)||!isFinite(Y))continue;
       out.push({map,floor:(p[1]&&p[1]!=="-")?p[1].toUpperCase():null,type:tnorm(p[2])[0],x:X,y:Y,label:p[5]||""})}
@@ -1767,7 +1772,7 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   // ---- markers on the map
   const shown=()=>MARKERS.map((k,i)=>({...k,i})).filter(k=>k.map===cur&&(!k.floor||!floor||k.floor===floor));
   function drawMarkers(){const lay=$("mpMarks");if(!lay)return;
-    lay.innerHTML=shown().filter(k=>!off.has(k.type)).map(k=>{const t=TYPE[k.type.toLowerCase()];const ic=ICONS[t[0]];return `<button type="button" class="mp-mk${ic?" mp-ic":""}" data-i="${k.i}" style="left:${k.x/10}%;top:${k.y/10}%;--mc:${t[2]}" title="${esc(k.label||k.type)}" aria-label="${esc(k.type+(k.label?": "+k.label:""))}">${ic?`<img src="${ic}" alt="">`:t[3]}</button>`}).join("")+editDots();
+    lay.innerHTML=shown().filter(k=>!off.has(k.type)).map(k=>{const t=TYPE[k.type.toLowerCase()];const ic=ICONS[t[0]],dc=t[0]==="Door code room"?code(cur):null;if(dc)return `<button type="button" class="mp-mk mp-dc" data-i="${k.i}" style="left:${k.x/10}%;top:${k.y/10}%" title="Today's door code ${dc}" aria-label="Door code room, today's code ${dc}"><span>#</span>${dc}</button>`;return `<button type="button" class="mp-mk${ic?" mp-ic":""}" data-i="${k.i}" style="left:${k.x/10}%;top:${k.y/10}%;--mc:${t[2]}" title="${esc(k.label||k.type)}" aria-label="${esc(k.type+(k.label?": "+k.label:""))}">${ic?`<img src="${ic}" alt="">`:t[3]}</button>`}).join("")+editDots();
     layers()}
   function layers(){const box=$("mpLayers");if(!box||!cur)return;const list=shown();
     if(!list.length){box.innerHTML=`<div class="mp-line">No markers on this map yet. They're being added.</div>`;return}
@@ -1775,14 +1780,14 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     box.innerHTML=`<div class="mp-lall"><button type="button" data-all="1">Show all</button><button type="button" data-all="0">Hide all</button></div>`+Object.entries(groups).map(([g,ts])=>`<div class="mp-lg">${g}</div>`+Object.entries(ts).map(([t,n])=>{const ty=TYPE[t.toLowerCase()];return `<label class="mp-layer"><input type="checkbox" data-mt="${esc(t)}" ${off.has(t)?"":"checked"}>${ICONS[ty[0]]?`<img class="mp-lic" src="${ICONS[ty[0]]}" alt="">`:`<i style="background:${ty[2]}"></i>`}${t}<small>${n}</small></label>`}).join("")).join("")}
   $("mpLayers").addEventListener("change",e=>{const t=e.target.dataset.mt;if(!t)return;e.target.checked?off.delete(t):off.add(t);saveOff();drawMarkers()});
   $("mpLayers").addEventListener("click",e=>{const a=e.target.dataset.all;if(a==null)return;shown().forEach(k=>a==="1"?off.delete(k.type):off.add(k.type));saveOff();drawMarkers()});
-  function showPop(i){const k=MARKERS[i];if(!k)return;const p=$("mpPop"),t=TYPE[k.type.toLowerCase()];p.innerHTML=`<b style="color:${t[2]}">${esc(k.type)}</b>${k.label?`<span>${esc(k.label)}</span>`:""}${k.floor?`<small>Floor ${esc(k.floor)}</small>`:""}`;p.hidden=false;
+  function showPop(i){const k=MARKERS[i];if(!k)return;const p=$("mpPop"),t=TYPE[k.type.toLowerCase()];const dc2=k.type==="Door code room"?code(k.map):null;p.innerHTML=`<b style="color:${t[2]}">${esc(k.type)}</b>${k.label?`<span>${esc(k.label)}</span>`:""}${k.type==="Door code room"?(dc2?`<span class="mp-pcode">Today: <b>${dc2}</b> <button class="cp b" type="button" data-code="${dc2}">COPY</button></span>`:`<small>No code today</small>`):""}${k.floor?`<small>Floor ${esc(k.floor)}</small>`:""}`;p.hidden=false;
     p.style.left=Math.min(stage.clientWidth-200,Math.max(8,x+k.x*z+12))+"px";p.style.top=Math.max(8,y+k.y*z-14)+"px"}
   function hidePop(){$("mpPop").hidden=true}
   // ---- placing mode (open the Maps tab with #maps-edit): click the map, then copy the lines into map-markers.txt on GitHub
   const edits=[];
   function editDots(){return EDIT?edits.filter(m=>m.map===cur&&(!m.floor||m.floor===floor)).map(m=>`<span class="mp-mk mp-new" style="left:${m.x/10}%;top:${m.y/10}%;--mc:${TYPE[m.type.toLowerCase()][2]}">${TYPE[m.type.toLowerCase()][3]}</span>`).join(""):""}
   function editAdd(mx,my){const type=$("mpEType").value,label=$("mpELabel").value.trim();edits.push({map:cur,floor:hasFloors()?floor:null,type,x:+mx.toFixed(1),y:+my.toFixed(1),label});editOut();drawMarkers()}
-  const hasFloors=()=>Array.isArray(MAP_IMG[cur]);
+  const hasFloors=()=>$("mpFloors").children.length>0;
   function editOut(){$("mpEOut").value=edits.map(m=>`${m.map} | ${m.floor||"-"} | ${m.type} | ${m.x} | ${m.y}${m.label?" | "+m.label:""}`).join("\n")}
   if(EDIT){const b=$("mpEdit");b.hidden=false;$("mpEType").innerHTML=TYPES.map(t=>`<option>${t[0]}</option>`).join("");
     $("mpEUndo").onclick=()=>{edits.pop();editOut();drawMarkers()};
@@ -1791,16 +1796,19 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function side(){if(!cur)return;const c=code(cur);$("mpChips").innerHTML=chips(cur);$("mpNow").innerHTML=nowLine(cur);
     $("mpCode").innerHTML=c?`<b>${c}</b><button class="cp b" type="button" data-code="${c}">COPY</button>`:`<span class="mp-line">No door code today</span>`}
   function open(m){cur=m;$("mpName").textContent=m;grid.hidden=true;wrap.hidden=false;hidePop();
-    const v=MAP_IMG[m],fl=Array.isArray(v)?v:null;floor=fl?fl[0][0]:null;
+    const g=PICS&&PICS[m],v=g?(g.length===1&&!g[0][0]?g[0][1]:g.map(([f,s],i)=>[f||String(i+1),s])):MAP_IMG[m],fl=Array.isArray(v)?v:null,fb=MAP_IMG[m];floor=fl?fl[0][0]:null;
     $("mpFloors").innerHTML=fl?fl.map(([f,s],i)=>`<button type="button" data-f="${f}" data-src="${s}" aria-pressed="${i===0}">${f}</button>`).join(""):"";
     const src=fl?fl[0][1]:v;cv.innerHTML=(src?`<img src="${src}" alt="${m} map" decoding="async">`:"")+`<div class="mp-marks" id="mpMarks"></div>`;stage.classList.toggle("has-map",!!src);
+    guardPic();
     side();drawMarkers();requestAnimationFrame(fit);history.replaceState(null,"",EDIT?"#maps-edit":"#maps");}
+  // if a GitHub picture fails to load, fall back to the copy built into the site
+  function guardPic(){const im=cv.querySelector("img"),fb=MAP_IMG[cur];if(!im||!fb)return;im.onerror=()=>{im.onerror=null;const f2=Array.isArray(fb)?((fb.find(x=>x[0]===floor)||fb[[...$("mpFloors").children].findIndex(b=>b.dataset.f===floor)]||fb[0])[1]):fb;if(f2&&!im.src.endsWith(f2))im.src=f2}}
   function close(){cur=null;wrap.hidden=true;grid.hidden=false;hidePop()}
   grid.addEventListener("click",e=>{const c=e.target.closest(".mp-card");if(c)open(c.dataset.map)});
   $("mpBack").onclick=close;
-  $("mpFloors").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;[...$("mpFloors").children].forEach(x=>x.setAttribute("aria-pressed",x===b));floor=b.dataset.f;const im=cv.querySelector("img");if(im&&b.dataset.src)im.src=b.dataset.src;hidePop();drawMarkers()});
+  $("mpFloors").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;[...$("mpFloors").children].forEach(x=>x.setAttribute("aria-pressed",x===b));floor=b.dataset.f;const im=cv.querySelector("img");if(im&&b.dataset.src){guardPic();im.src=b.dataset.src}hidePop();drawMarkers()});
   const refresh=()=>{cards();side()};
-  window.addEventListener("codes:update",refresh);window.addEventListener("maps:open",refresh);setInterval(()=>{if(!$("mapsTab").hidden)refresh()},60000);
+  window.addEventListener("codes:update",()=>{refresh();if(cur)drawMarkers()});window.addEventListener("maps:open",refresh);setInterval(()=>{if(!$("mapsTab").hidden)refresh()},60000);
   window.addEventListener("resize",()=>{if(cur)fit()});
   refresh();
 })();
