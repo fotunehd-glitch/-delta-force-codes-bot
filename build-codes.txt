@@ -3,23 +3,7 @@
 # New codes show on the site within about 5 minutes.
 #
 # Sections say who made the codes under them: [POACH], [Players] (shows as the FortuneHD Discord),
-# or any creator's name, with an optional link: 
-MDR Assault Rifle - 6LP7TPO070JFEGB6NU4LT
-MK47 Assault Rifle - 6LP7ULO070JFEGB6NU4LT
-K416 Assault Rifle - 6LI9CA8073PMJ308HD1NU
-K416 Assault Rifle - 6LD4LIG073PMJ308HD1NU
-AKM Assault Rifle - 6LP7V48073PMJ308HD1NU
-CI-19 Assault Rifle - 6LP7VEO073PMJ308HD1NU
-AWM Sniper Rifle - 6LP7UT8070JFEGB6NU4LT
-MP7 Submachine Gun - 6LP7VBC070JFEGB6NU4LT
-PTR-32 Assault Rifle - 6LP7VRK070JFEGB6NU4LT
-AK-12 Assault Rifle - 6LP8060070JFEGB6NU4LT
-AKS-74 Assault Rifle - 6LP80IK073PMJ308HD1NU
-AR-57 Assault Rifle - 6LP81G4070JFEGB6NU4LT
-AR-57 Assault Rifle - 6LP81Q0070JFEGB6NU4LT
-AR-57 Assault Rifle - 6LP8230070JFEGB6NU4LT
-
-[Leissik | https://www.twitch.tv/leissik]
+# or any creator's name, with an optional link: [Leissik | https://www.twitch.tv/leissik]
 #
 # How to add a code: put it on its own line under a section:
 #     Gun name - CODE
@@ -160,6 +144,20 @@ PKM General Machine Gun - 6LP6RSS0B6QH0OTRO2PVU
 M1014 Shotgun - 6LP6S7C0B6QH0OTRO2PVU
 UZI Submachine Gun - 6LP6SOG0B6QH0OTRO2PVU
 ASh-12 Assault Rifle - 6LP6SS40B6QH0OTRO2PVU
+MDR Assault Rifle - 6LP7TPO070JFEGB6NU4LT
+MK47 Assault Rifle - 6LP7ULO070JFEGB6NU4LT
+K416 Assault Rifle - 6LI9CA8073PMJ308HD1NU
+K416 Assault Rifle - 6LD4LIG073PMJ308HD1NU
+AKM Assault Rifle - 6LP7V48073PMJ308HD1NU
+CI-19 Assault Rifle - 6LP7VEO073PMJ308HD1NU
+AWM Sniper Rifle - 6LP7UT8070JFEGB6NU4LT
+MP7 Submachine Gun - 6LP7VBC070JFEGB6NU4LT
+PTR-32 Assault Rifle - 6LP7VRK070JFEGB6NU4LT
+AK-12 Assault Rifle - 6LP8060070JFEGB6NU4LT
+AKS-74 Assault Rifle - 6LP80IK073PMJ308HD1NU
+AR-57 Assault Rifle - 6LP81G4070JFEGB6NU4LT
+AR-57 Assault Rifle - 6LP81Q0070JFEGB6NU4LT
+AR-57 Assault Rifle - 6LP8230070JFEGB6NU4LT
 
 [Leissik | https://www.twitch.tv/leissik]
 # from Leissik's build doc
