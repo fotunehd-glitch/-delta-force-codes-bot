@@ -388,6 +388,10 @@ html.noribbon .ribnote{display:none}
 .sitetabs button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 /* ---- Maps tab ---- */
 #mapsTab{width:min(1200px,100%);margin:18px auto 30px;display:grid;gap:16px}
+.mp-wip{display:grid;gap:4px;justify-items:center;text-align:center;padding:12px 16px;border:2px solid var(--t6);border-radius:8px;background:rgba(255,77,77,.08);box-shadow:0 0 16px rgba(255,77,77,.18)}
+.mp-wip b{font:800 clamp(18px,2.4vw,26px)/1.1 var(--display);letter-spacing:.08em;color:var(--t6);text-shadow:0 0 12px rgba(255,77,77,.45)}
+.mp-wip span{font-size:13.5px;color:#ffb3b3}
+.mp-wip.sm{padding:8px 12px;margin-bottom:8px}.mp-wip.sm b{font-size:16px}.mp-wip.sm span{font-size:12.5px}
 .mp-head{text-align:center;display:grid;gap:4px}.mp-head h2{margin:0;font:700 24px/1.1 var(--display)}.mp-head p{margin:0;color:var(--muted);font-size:13.5px}
 .mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .mp-card{all:unset;box-sizing:border-box;cursor:pointer;position:relative;display:grid;align-content:end;gap:8px;min-height:190px;padding:14px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#0d1014;transition:border-color .15s,transform .15s,box-shadow .15s}
@@ -887,10 +891,12 @@ html.nozoom .zoomer{display:none}
 </div>
 </section>
 <section class="tabpane" id="mapsTab" hidden aria-labelledby="tabMaps">
+  <div class="mp-wip" role="note"><b>NEW &middot; STILL BEING BUILT</b><span>The maps are brand new and not finished yet. More markers, loot spots and icons are being added all the time.</span></div>
   <div class="mp-head"><h2>Delta Force Maps</h2><p>Live status for every Operations map: which modes are open right now and today's door code. Interactive maps are being built.</p></div>
   <div class="mp-grid" id="mpGrid"></div>
   <div id="mpViewWrap" hidden>
     <button class="mp-back" type="button" id="mpBack">&#9664; All maps</button>
+    <div class="mp-wip sm" role="note"><b>NEW &middot; NOT FINISHED</b><span>Markers and icons are still being added to this map.</span></div>
     <div class="mp-title"><h3 id="mpName">Map</h3><span class="mp-chips" id="mpChips"></span></div>
     <div class="mp-view" id="mpView">
       <div class="mp-stage" id="mpStage" aria-label="Map">
