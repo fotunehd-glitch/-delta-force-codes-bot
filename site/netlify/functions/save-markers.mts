@@ -7,6 +7,7 @@ import type { Context, Config } from "@netlify/functions";
 //   MAP_EDIT_USER      your editor username
 //   MAP_EDIT_PASSWORD  your editor password (long and unique)
 //   MAP_GITHUB_TOKEN   a fine-grained GitHub token with "Contents: Read and write" on this one repo only
+// After changing any of these, the site needs a new deploy for the function to see them.
 const REPO = "fotunehd-glitch/-delta-force-codes-bot";
 const FILE = "map-markers.txt";
 const BRANCH = "main";
