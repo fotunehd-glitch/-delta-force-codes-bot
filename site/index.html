@@ -1737,10 +1737,13 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
     ["Door code room","Doors & keys","#0ff796","#"],["Keycard room","Doors & keys","#ffbf2e","K"],
     ["Safe","Loot","#ff4d4d","$"],["Small safe","Loot","#ff7a7a","$"],["Weapon crate","Loot","#b071ff","W"],["Large weapon crate","Loot","#9a50ff","W"],["Ammo crate","Loot","#d9a441","A"],
     ["Computer","Loot","#6fd3ff","PC"],["Server","Loot","#4bb8e8","SV"],["Hidden stash","Loot","#c9c9c9","H"],["Medical crate","Loot","#ff6fa8","+"],["Bird nest","Loot","#9bd36f","N"],["Travel bag","Loot","#a0a0a0","B"],["Toolbox","Loot","#8f9aa6","T"],
+    ["Flight case","Loot","#e0a63c","FC"],["Premium storage box","Loot","#d78cff","PS"],["Premium suitcase","Loot","#c58cff","SC"],["Briefcase","Loot","#b9946a","BC"],["Courier carton","Loot","#c7a17a","CC"],["Field supply box","Loot","#7fbf6a","FS"],["Large toolbox","Loot","#9aa5b1","LT"],["Tool cabinet","Loot","#7f8b97","TC"],["Drawer","Loot","#a88f74","D"],["Garbage bin","Loot","#7a8a6a","G"],["Computer case","Loot","#5fb4d9","CS"],["Military med kit","Loot","#ff5c8a","MK"],["Pile of medical supplies","Loot","#ff8fb0","MS"],["Piece of clothing","Loot","#9f9fd8","CL"],["Climbing bag","Loot","#a0b070","CB"],["Combination lock","Loot","#ffd166","CL"],["Cement truck","Loot","#b0b0b0","CT"],
     ["Red loot spot","Loot","#ff2e2e","R"],
     ["Protocol crate","Events & bosses","#ffe04d","P"],["Boss","Events & bosses","#ff4d4d","!"],["Zipline","Getting around","#9aa5b1","Z"],["Other","Other","#cfd6dd","?"]
   ];
   const TYPE=Object.fromEntries(TYPES.map(t=>[t[0].toLowerCase(),t]));
+  // new types can be added from map-markers.txt:  Type | Name | Group | #colour | Letters
+  const addType=(n,g,c,l)=>{if(!n||TYPE[n.toLowerCase()])return;const t=[n,g||"Other",/^#[0-9a-f]{3,8}$/i.test(c||"")?c:"#cfd6dd",(l||n[0]).slice(0,3)];TYPES.splice(TYPES.length-1,0,t);TYPE[n.toLowerCase()]=t;fillTypes()};
   const tnorm=t=>TYPE[String(t).trim().toLowerCase()]||TYPE["other"];
   let MARKERS=[],cur=null,floor=null;
   const off=new Set(JSON.parse((()=>{try{return localStorage.getItem("hawkroll.mapoff")||"[]"}catch(e){return "[]"}})()));
@@ -1760,10 +1763,12 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function parseMarkers(txt){const out=[];PICS=null;
     for(let line of txt.split(/\r?\n/)){line=line.trim();if(!line||line[0]==="#")continue;
       const p=line.split("|").map(s=>s.trim());
+      if(/^type$/i.test(p[0])&&p[1]){addType(p[1],p[2],p[3],p[4]);continue}
       if(/^icon$/i.test(p[0])&&p[1]&&/^[\w.-]+\.(png|webp)$/i.test(p[2]||"")){ICONS[tnorm(p[1])[0]]=ICON_BASE+p[2];continue}
       if(/^picture$/i.test(p[0])&&p[1]&&/^[\w.-]+\.(png|webp|jpe?g)$/i.test(p[3]||"")){const mp=MAPS.find(m=>m.toLowerCase()===p[1].toLowerCase()||m.toLowerCase().startsWith(p[1].toLowerCase()));if(mp){PICS=PICS||{};(PICS[mp]=PICS[mp]||[]).push([(p[2]&&p[2]!=="-")?p[2].toUpperCase():null,LOCAL_PICS.has(p[3])?"/img/maps/"+p[3]:PIC_BASE+p[3]])}continue}if(p.length<5)continue;
       const map=MAPS.find(m=>m.toLowerCase()===p[0].toLowerCase()||m.toLowerCase().startsWith(p[0].toLowerCase()));const X=+p[3],Y=+p[4];
       if(!map||!isFinite(X)||!isFinite(Y))continue;
+      if(p[2]&&!TYPE[p[2].toLowerCase()])addType(p[2],"Other"); // a new name becomes its own type
       out.push({map,floor:(p[1]&&p[1]!=="-")?p[1].toUpperCase():null,type:tnorm(p[2])[0],x:X,y:Y,label:p[5]||""})}
     return out}
   if(window.__MAP_MARKERS_TXT){MARKERS=parseMarkers(window.__MAP_MARKERS_TXT)} // preview copies carry the file inline
@@ -1805,7 +1810,8 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function editAdd(mx,my){const type=$("mpEType").value,label=$("mpELabel").value.trim();edits.push({map:cur,floor:hasFloors()?floor:null,type,x:+mx.toFixed(1),y:+my.toFixed(1),label});editOut();drawMarkers()}
   const hasFloors=()=>$("mpFloors").children.length>0;
   function editOut(){$("mpEOut").value=edits.map(m=>`${m.map} | ${m.floor||"-"} | ${m.type} | ${m.x} | ${m.y}${m.label?" | "+m.label:""}`).join("\n")}
-  if(EDIT){const b=$("mpEdit");b.hidden=false;$("mpEType").innerHTML=TYPES.map(t=>`<option>${t[0]}</option>`).join("");
+  function fillTypes(){const sel=$("mpEType");if(!EDIT||!sel)return;const v=sel.value;const gs=[...new Set(TYPES.map(t=>t[1]))];sel.innerHTML=gs.map(g=>`<optgroup label="${esc(g)}">`+TYPES.filter(t=>t[1]===g).map(t=>`<option>${esc(t[0])}</option>`).join("")+"</optgroup>").join("");if(v)sel.value=v}
+  if(EDIT){const b=$("mpEdit");b.hidden=false;fillTypes();
     $("mpEUndo").onclick=()=>{edits.pop();editOut();drawMarkers()};
     $("mpECopy").onclick=()=>{const t=$("mpEOut");t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>{$("mpECopy").textContent="COPIED";setTimeout(()=>$("mpECopy").textContent="Copy lines",1200)},()=>document.execCommand&&document.execCommand("copy"))}}
   // ---- side boxes
