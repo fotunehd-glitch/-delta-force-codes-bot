@@ -416,7 +416,7 @@ html.noribbon .ribnote{display:none}
 .mp-open{justify-self:start;font:700 11px/1 var(--display);letter-spacing:.1em;text-transform:uppercase;color:#062014;background:var(--green);padding:7px 10px;border-radius:3px}
 .mp-view{display:grid;grid-template-columns:1fr 290px;gap:14px}
 .mp-view[hidden]{display:none}
-.mp-stage{position:relative;height:min(70vh,680px);border:1px solid var(--line);border-radius:8px;overflow:hidden;background:linear-gradient(rgba(15,247,150,.035) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(15,247,150,.035) 1px,transparent 1px) 0 0/40px 40px,#0b0e12;cursor:grab;touch-action:none}
+.mp-stage{position:relative;height:min(70vh,680px);user-select:none;-webkit-user-select:none;overscroll-behavior:contain;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:linear-gradient(rgba(15,247,150,.035) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(15,247,150,.035) 1px,transparent 1px) 0 0/40px 40px,#0b0e12;cursor:grab;touch-action:none}
 .mp-stage.drag{cursor:grabbing}
 .mp-canvas{position:absolute;left:0;top:0;width:1000px;height:1000px;transform-origin:0 0;background:linear-gradient(rgba(15,247,150,.06) 1px,transparent 1px) 0 0/50px 50px,linear-gradient(90deg,rgba(15,247,150,.06) 1px,transparent 1px) 0 0/50px 50px,#10151b}
 .mp-soon{position:absolute;inset:0;display:grid;place-content:center;gap:8px;text-align:center;color:var(--muted);font-size:14px;pointer-events:none}
@@ -1770,16 +1770,20 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   fetch(MARKER_URL+"?v="+Math.floor(Date.now()/3e5),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{MARKERS=parseMarkers(t);refresh();if(cur)drawMarkers()}).catch(e=>console.warn("map markers not loaded",e));
   // ---- pan and zoom
   const stage=$("mpStage"),cv=$("mpCanvas");let z=1,x=0,y=0;
-  const apply=()=>{cv.style.transform=`translate(${x}px,${y}px) scale(${z})`;cv.style.setProperty("--iz",1/z)};
+  // keep the map filling the box: never smaller than the box, and its edges never pulled inside it
+  const minZ=()=>Math.max(stage.clientWidth,stage.clientHeight)/1000;
+  const clamp=()=>{const w=stage.clientWidth,h=stage.clientHeight;z=Math.max(z,minZ());x=Math.min(0,Math.max(w-1000*z,x));y=Math.min(0,Math.max(h-1000*z,y))};
+  const apply=()=>{clamp();cv.style.transform=`translate(${x}px,${y}px) scale(${z})`;cv.style.setProperty("--iz",1/z)};
   const fit=()=>{const w=stage.clientWidth,h=stage.clientHeight;z=Math.max(w,h)/1000;x=(w-1000*z)/2;y=(h-1000*z)/2;apply()};
-  const zoomAt=(f,cx,cy)=>{const nz=Math.max(.2,Math.min(6,z*f));x=cx-(cx-x)*nz/z;y=cy-(cy-y)*nz/z;z=nz;apply()};
+  const zoomAt=(f,cx,cy)=>{const nz=Math.max(minZ(),Math.min(6,z*f));x=cx-(cx-x)*nz/z;y=cy-(cy-y)*nz/z;z=nz;apply()};
   stage.addEventListener("wheel",e=>{e.preventDefault();const b=stage.getBoundingClientRect();zoomAt(e.deltaY<0?1.15:1/1.15,e.clientX-b.left,e.clientY-b.top)},{passive:false});
   let d=null;
-  stage.addEventListener("pointerdown",e=>{if(e.target.closest(".mp-ctl,.mp-floors,.mp-pop"))return;d={px:e.clientX,py:e.clientY,x,y,moved:false,t:e.target};stage.setPointerCapture(e.pointerId);stage.classList.add("drag")});
+  stage.addEventListener("pointerdown",e=>{if(e.target.closest(".mp-ctl,.mp-floors,.mp-pop"))return;e.preventDefault();d={px:e.clientX,py:e.clientY,x,y,moved:false,t:e.target};stage.setPointerCapture(e.pointerId);stage.classList.add("drag")});
   stage.addEventListener("pointermove",e=>{if(!d)return;if(Math.abs(e.clientX-d.px)+Math.abs(e.clientY-d.py)>4)d.moved=true;x=d.x+e.clientX-d.px;y=d.y+e.clientY-d.py;apply()});
   stage.addEventListener("pointerup",e=>{const was=d;d=null;stage.classList.remove("drag");if(!was||was.moved)return;
     const mk=was.t.closest&&was.t.closest(".mp-mk");if(mk){showPop(+mk.dataset.i);return}hidePop();
     if(EDIT){const b=stage.getBoundingClientRect(),mx=(e.clientX-b.left-x)/z,my=(e.clientY-b.top-y)/z;if(mx>=0&&my>=0&&mx<=1000&&my<=1000)editAdd(mx,my)}});
+  stage.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
   $("mpIn").onclick=()=>zoomAt(1.25,stage.clientWidth/2,stage.clientHeight/2);$("mpOut").onclick=()=>zoomAt(.8,stage.clientWidth/2,stage.clientHeight/2);$("mpFit").onclick=fit;
   // ---- markers on the map
   const shown=()=>MARKERS.map((k,i)=>({...k,i})).filter(k=>k.map===cur&&(!k.floor||!floor||k.floor===floor));
