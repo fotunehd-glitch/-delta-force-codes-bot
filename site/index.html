@@ -402,14 +402,13 @@ html.noribbon .ribnote{display:none}
 .vd-card{border:1px solid var(--line);border-radius:10px;background:var(--reel);overflow:hidden;display:grid;align-content:start}
 .vd-card .vd-info{padding:10px 12px 12px}
 .vd-card h3{font:700 15px/1.25 var(--display);margin:0 0 4px}
+#videosTab h3 a{color:inherit;text-decoration:none}#videosTab h3 a:hover{color:var(--green)}
 .vd-ch{color:var(--muted);font-size:13px}.vd-ch b{color:var(--green);font-weight:600}
 .vd-play{position:relative;display:block;width:100%;aspect-ratio:16/9;background:#000 center/cover no-repeat;border:0;padding:0;cursor:pointer;border-radius:6px;overflow:hidden}
 .vd-card .vd-play{border-radius:0}
 .vd-play::after{content:"";position:absolute;left:50%;top:50%;width:64px;height:44px;margin:-22px 0 0 -32px;border-radius:12px;background:rgba(0,0,0,.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230ff796' d='M8 5v14l11-7z'/%3E%3C/svg%3E") center/26px no-repeat;transition:background-color .15s}
 .vd-play:hover::after,.vd-play:focus-visible::after{background-color:rgba(15,247,150,.25)}
 .vd-play:focus-visible{outline:2px solid var(--green);outline-offset:2px}
-.vd-frame{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:6px;background:#000}
-.vd-card .vd-frame{border-radius:0}
 .vd-yt{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--muted)}.vd-yt:hover{color:var(--fg)}
 .vd-send{text-align:center;color:var(--muted);font-size:13.5px;margin:4px 0 0}.vd-send a{color:var(--green)}
 .vd-empty{text-align:center;color:var(--muted);padding:30px}
@@ -1768,18 +1767,14 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const vid=u=>{const m=String(u).match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/);return m?m[1]:null};
   function parse(t){return t.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!l.startsWith("#")).map(l=>{const p=l.split("|").map(s=>s.trim());const id=vid(p[1]||"");return id?{ch:p[0]||"",id,title:p[2]||""}:null}).filter(Boolean)}
-  const play=v=>`<button class="vd-play" type="button" data-id="${v.id}" aria-label="Play ${esc(v.title||"video")} by ${esc(v.ch)}" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')"></button>`;
-  const info=v=>`${v.title?`<h3>${esc(v.title)}</h3>`:""}<div class="vd-ch">by <b>${esc(v.ch)}</b></div><a class="vd-yt" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Watch on YouTube &#8599;</a>`;
+  const play=v=>`<a class="vd-play" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener" aria-label="Watch ${esc(v.title||"video")} by ${esc(v.ch)} on YouTube" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')"></a>`;
+  const info=v=>`${v.title?`<h3><a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">${esc(v.title)}</a></h3>`:""}<div class="vd-ch">by <b>${esc(v.ch)}</b></div><a class="vd-yt" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Watch on YouTube &#8599;</a>`;
   function draw(list){
     if(!list.length){feat.innerHTML="";grid.innerHTML='<div class="vd-empty">No videos yet.</div>';return}
     const [f,...rest]=list;
     feat.innerHTML=`<div class="vd-feat">${play(f)}<div class="vd-info"><span class="vd-tag">FEATURED</span>${info(f)}</div></div>`;
     grid.innerHTML=rest.map(v=>`<div class="vd-card">${play(v)}<div class="vd-info">${info(v)}</div></div>`).join("");
   }
-  // only load the YouTube player when someone clicks, so the page stays fast
-  document.getElementById("videosTab").addEventListener("click",e=>{const b=e.target.closest(".vd-play");if(!b)return;
-    const f=document.createElement("iframe");f.className="vd-frame";f.src=`https://www.youtube-nocookie.com/embed/${b.dataset.id}?autoplay=1&rel=0`;
-    f.title=b.getAttribute("aria-label").replace(/^Play /,"");f.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";f.allowFullscreen=true;b.replaceWith(f)});
   let loaded=false;
   function load(){if(loaded)return;loaded=true;
     if(window.__VIDEOS_TXT){draw(parse(window.__VIDEOS_TXT));return}
