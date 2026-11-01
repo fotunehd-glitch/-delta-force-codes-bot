@@ -40,6 +40,7 @@ Picture | AZ3 Nuclear Plant | 2F | az3-2f.webp
 Picture | AZ3 Nuclear Plant | 3F | az3-3f.webp
 
 Icon | Small safe | small-safe.png
+Icon | Extract | extract.png
 
 # Zero Dam: key spots (spawns, extracts, keycard rooms, protocol crates)
 Zero Dam | - | Spawn | 370.8 | 346.7
