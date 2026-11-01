@@ -1,0 +1,8 @@
+# Videos shown on the Videos tab of deltaforcerandomkit.com
+# Editing this file updates the site with no Netlify deploy (takes about 5 minutes to show).
+#
+# One video per line:   Channel name | YouTube link | Video title
+# The title is optional. Put the newest video at the TOP: the top one is the big featured video.
+# Lines starting with # are ignored.
+
+Nowhere | https://www.youtube.com/watch?v=HVbvofqo8dk | How We Made Delta Force Fun AGAIN!

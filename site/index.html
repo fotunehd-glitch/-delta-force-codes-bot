@@ -393,6 +393,27 @@ html.noribbon .ribnote{display:none}
 .sitetabs button:hover{color:var(--fg);border-color:var(--green)}
 .sitetabs button[aria-selected="true"]{color:#062014;background:var(--green);border-color:var(--green);box-shadow:0 0 14px rgba(15,247,150,.35)}
 .sitetabs button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+/* ---- Videos tab ---- */
+#videosTab{width:min(1200px,100%);margin:18px auto 30px;display:grid;gap:16px}
+.vd-feat{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--reel)}
+.vd-feat .vd-info h3{font:700 clamp(18px,2vw,24px)/1.2 var(--display);margin:0 0 6px}
+.vd-feat .vd-tag{display:inline-block;font:700 11px/1 var(--display);letter-spacing:.1em;background:var(--green);color:#062014;padding:4px 6px;border-radius:3px;margin-bottom:10px}
+.vd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.vd-card{border:1px solid var(--line);border-radius:10px;background:var(--reel);overflow:hidden;display:grid;align-content:start}
+.vd-card .vd-info{padding:10px 12px 12px}
+.vd-card h3{font:700 15px/1.25 var(--display);margin:0 0 4px}
+.vd-ch{color:var(--muted);font-size:13px}.vd-ch b{color:var(--green);font-weight:600}
+.vd-play{position:relative;display:block;width:100%;aspect-ratio:16/9;background:#000 center/cover no-repeat;border:0;padding:0;cursor:pointer;border-radius:6px;overflow:hidden}
+.vd-card .vd-play{border-radius:0}
+.vd-play::after{content:"";position:absolute;left:50%;top:50%;width:64px;height:44px;margin:-22px 0 0 -32px;border-radius:12px;background:rgba(0,0,0,.72) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230ff796' d='M8 5v14l11-7z'/%3E%3C/svg%3E") center/26px no-repeat;transition:background-color .15s}
+.vd-play:hover::after,.vd-play:focus-visible::after{background-color:rgba(15,247,150,.25)}
+.vd-play:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.vd-frame{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:6px;background:#000}
+.vd-card .vd-frame{border-radius:0}
+.vd-yt{display:inline-block;margin-top:8px;font-size:12.5px;color:var(--muted)}.vd-yt:hover{color:var(--fg)}
+.vd-send{text-align:center;color:var(--muted);font-size:13.5px;margin:4px 0 0}.vd-send a{color:var(--green)}
+.vd-empty{text-align:center;color:var(--muted);padding:30px}
+@media (max-width:760px){.vd-feat{grid-template-columns:1fr}}
 /* ---- Maps tab ---- */
 #mapsTab{width:min(1200px,100%);margin:18px auto 30px;display:grid;gap:16px}
 .mp-wip{display:grid;gap:4px;justify-items:center;text-align:center;padding:12px 16px;border:2px solid var(--t6);border-radius:8px;background:rgba(255,77,77,.08);box-shadow:0 0 16px rgba(255,77,77,.18)}
@@ -653,6 +674,7 @@ html.nozoom .zoomer{display:none}
     <button type="button" role="tab" id="tabLoadout" aria-selected="true" aria-controls="tab-loadout">Random Loadout</button>
     <button type="button" role="tab" id="tabSens" aria-selected="false" aria-controls="senslab">Sens Lab <span class="new">NEW</span></button>
     <button type="button" role="tab" id="tabMaps" aria-selected="false" aria-controls="mapsTab">Maps <span class="new">NEW</span></button>
+    <button type="button" role="tab" id="tabVideos" aria-selected="false" aria-controls="videosTab">Videos <span class="new">NEW</span></button>
   </nav>
   <div class="tabpane" id="tab-loadout" role="tabpanel" aria-labelledby="tabLoadout">
   <div class="cab">
@@ -907,6 +929,12 @@ html.nozoom .zoomer{display:none}
     <p class="note">Enter your <b>DPI</b> and <b>Delta Force sens</b> and the range turns at about the same speed as the game; if you've measured your real cm/360 in game, type that in instead. <b>ADS sens ×</b> works like your ADS slider: 1.00 means aiming turns at the same speed on screen as hipfire. The sens check on the results screen looks at your flicks: if you keep going past targets your sens may be high, if you keep stopping short it may be low.</p>
   </section>
 </div>
+</section>
+<section class="tabpane" id="videosTab" hidden aria-labelledby="tabVideos">
+  <div class="mp-head"><h2>Videos</h2><p>Creators playing Delta Force with the random loadout generator. Go show them some love.</p></div>
+  <div id="vdFeat"></div>
+  <div class="vd-grid" id="vdGrid"></div>
+  <p class="vd-send">Made a video using the randomiser? Send it in the <a href="https://discord.gg/f6frCB48CF" target="_blank" rel="noopener">Discord</a> and it could go up here.</p>
 </section>
 <section class="tabpane" id="mapsTab" hidden aria-labelledby="tabMaps">
   <div class="mp-wip" role="note"><b>NEW &middot; STILL BEING BUILT</b><span>The maps are brand new and not finished yet. More markers, loot spots and icons are being added all the time.</span></div>
@@ -1721,16 +1749,43 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
 
 // ---------------- site tabs ----------------
 (function(){
-  const T=[["loadout","tabLoadout","tab-loadout",""],["senslab","tabSens","senslab","#sens-lab"],["maps","tabMaps","mapsTab","#maps"]].map(([k,b,p,h])=>({k,b:document.getElementById(b),p:document.getElementById(p),h}));
+  const T=[["loadout","tabLoadout","tab-loadout",""],["senslab","tabSens","senslab","#sens-lab"],["maps","tabMaps","mapsTab","#maps"],["videos","tabVideos","videosTab","#videos"]].map(([k,b,p,h])=>({k,b:document.getElementById(b),p:document.getElementById(p),h}));
   function go(t,push){
     document.body.dataset.tab=t;
     T.forEach(x=>{const on=x.k===t;x.b.setAttribute("aria-selected",on);x.p.hidden=!on});
     if(t!=="senslab"&&document.pointerLockElement)document.exitPointerLock();
     const cur=T.find(x=>x.k===t);if(push)history.replaceState(null,"",cur.h||location.pathname+location.search);
-    window.dispatchEvent(new Event("resize"));if(t==="senslab")window.dispatchEvent(new Event("senslab:open"));if(t==="maps")window.dispatchEvent(new Event("maps:open"));
+    window.dispatchEvent(new Event("resize"));if(t==="senslab")window.dispatchEvent(new Event("senslab:open"));if(t==="maps")window.dispatchEvent(new Event("maps:open"));if(t==="videos")window.dispatchEvent(new Event("videos:open"));
   }
   T.forEach((x,i)=>{x.b.onclick=()=>go(x.k,true);x.b.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();const n=T[(i+(e.key==="ArrowRight"?1:T.length-1))%T.length];n.b.focus();n.b.click()}})});
-  go(/^#sens/.test(location.hash)?"senslab":/^#maps/.test(location.hash)?"maps":"loadout",false);
+  go(/^#sens/.test(location.hash)?"senslab":/^#maps/.test(location.hash)?"maps":/^#videos/.test(location.hash)?"videos":"loadout",false);
+})();
+// ---------------- Videos tab ----------------
+// The list comes from videos.txt on GitHub (outside site/), so adding a video never needs a Netlify deploy.
+(function(){
+  const URL_TXT="https://raw.githubusercontent.com/fotunehd-glitch/-delta-force-codes-bot/main/videos.txt";
+  const feat=document.getElementById("vdFeat"),grid=document.getElementById("vdGrid");
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const vid=u=>{const m=String(u).match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/);return m?m[1]:null};
+  function parse(t){return t.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!l.startsWith("#")).map(l=>{const p=l.split("|").map(s=>s.trim());const id=vid(p[1]||"");return id?{ch:p[0]||"",id,title:p[2]||""}:null}).filter(Boolean)}
+  const play=v=>`<button class="vd-play" type="button" data-id="${v.id}" aria-label="Play ${esc(v.title||"video")} by ${esc(v.ch)}" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')"></button>`;
+  const info=v=>`${v.title?`<h3>${esc(v.title)}</h3>`:""}<div class="vd-ch">by <b>${esc(v.ch)}</b></div><a class="vd-yt" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Watch on YouTube &#8599;</a>`;
+  function draw(list){
+    if(!list.length){feat.innerHTML="";grid.innerHTML='<div class="vd-empty">No videos yet.</div>';return}
+    const [f,...rest]=list;
+    feat.innerHTML=`<div class="vd-feat">${play(f)}<div class="vd-info"><span class="vd-tag">FEATURED</span>${info(f)}</div></div>`;
+    grid.innerHTML=rest.map(v=>`<div class="vd-card">${play(v)}<div class="vd-info">${info(v)}</div></div>`).join("");
+  }
+  // only load the YouTube player when someone clicks, so the page stays fast
+  document.getElementById("videosTab").addEventListener("click",e=>{const b=e.target.closest(".vd-play");if(!b)return;
+    const f=document.createElement("iframe");f.className="vd-frame";f.src=`https://www.youtube-nocookie.com/embed/${b.dataset.id}?autoplay=1&rel=0`;
+    f.title=b.getAttribute("aria-label").replace(/^Play /,"");f.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";f.allowFullscreen=true;b.replaceWith(f)});
+  let loaded=false;
+  function load(){if(loaded)return;loaded=true;
+    if(window.__VIDEOS_TXT){draw(parse(window.__VIDEOS_TXT));return}
+    fetch(URL_TXT+"?v="+Math.floor(Date.now()/3e5),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>draw(parse(t))).catch(()=>{loaded=false;grid.innerHTML='<div class="vd-empty">Couldn\'t load the videos right now. Try again in a minute.</div>'});}
+  window.addEventListener("videos:open",load);
+  if(/^#videos/.test(location.hash))load();
 })();
 // ---------------- Maps tab ----------------
 // Markers come from map-markers.txt on GitHub (outside site/), so adding or moving markers never needs a Netlify deploy.
