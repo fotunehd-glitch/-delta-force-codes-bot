@@ -442,6 +442,10 @@ html.noribbon .ribnote{display:none}
 .mp-edit select,.mp-edit input,.mp-edit textarea{box-sizing:border-box;width:100%;background:#0b0e12;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:7px 8px;font:13px var(--body)}
 .mp-edit textarea{font:12px ui-monospace,Consolas,monospace;resize:vertical}
 .mp-ebtns{display:flex;gap:8px}
+.mp-login{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:8px;margin-top:2px}
+.mp-login form{display:grid;gap:6px}.mp-login input{box-sizing:border-box;width:100%;background:#0b0e12;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:7px 8px;font:13px var(--body)}
+.mp-saverow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.mp-saverow[hidden]{display:none}.mp-saverow span{font-size:12.5px;color:var(--muted);flex:1 0 100%}
+.mp-msg{font-size:12.5px;color:var(--muted)}.mp-msg.ok{color:var(--green)}.mp-msg.err{color:var(--t6)}
 .mp-edit[hidden]{display:none}
 .mp-soon b{font:700 22px/1.1 var(--display);color:var(--fg)}
 .mp-ctl{position:absolute;right:10px;top:10px;display:grid;gap:6px;z-index:2}
@@ -925,11 +929,17 @@ html.nozoom .zoomer{display:none}
         <div class="mp-box"><h4>Right now</h4><div class="mp-line" id="mpNow"></div></div>
         <div class="mp-box"><h4>On the map</h4><div id="mpLayers" class="mp-layers"></div></div>
         <div class="mp-box mp-edit" id="mpEdit" hidden><h4>Placing mode</h4>
-          <div class="mp-line">Pick what it is, then click the exact spot on the map. Copy the lines into <b>map-markers.txt</b> on GitHub.</div>
+          <div class="mp-line">Pick what it is, then click the exact spot on the map. Log in below and press <b>Save to site</b>, or copy the lines into <b>map-markers.txt</b> on GitHub.</div>
           <select id="mpEType" aria-label="Marker type"></select>
           <input id="mpELabel" type="text" placeholder="Name (optional), e.g. Admin office safe" aria-label="Marker name">
           <textarea id="mpEOut" rows="5" readonly aria-label="Lines to paste"></textarea>
           <div class="mp-ebtns"><button type="button" class="b" id="mpECopy">Copy lines</button><button type="button" class="b ghost" id="mpEUndo">Undo last</button></div>
+          <div class="mp-login" id="mpLogin">
+            <div class="mp-lg">Save straight to the site</div>
+            <form id="mpLoginForm" autocomplete="on"><input id="mpUser" type="text" placeholder="Username" autocomplete="username" aria-label="Username"><input id="mpPass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="submit" class="b">Log in</button></form>
+            <div class="mp-saverow" id="mpSaveRow" hidden><span id="mpWho"></span><button type="button" class="b" id="mpSave">Save to site</button><button type="button" class="b ghost" id="mpLogout">Log out</button></div>
+            <div class="mp-msg" id="mpMsg" role="status"></div>
+          </div>
         </div>
       </aside>
     </div>
@@ -1813,6 +1823,20 @@ r.addEventListener("input",()=>set(+r.value));$("#zIn").onclick=()=>set(+r.value
   function fillTypes(){const sel=$("mpEType");if(!EDIT||!sel)return;const v=sel.value;const gs=[...new Set(TYPES.map(t=>t[1]))];sel.innerHTML=gs.map(g=>`<optgroup label="${esc(g)}">`+TYPES.filter(t=>t[1]===g).map(t=>`<option>${esc(t[0])}</option>`).join("")+"</optgroup>").join("");if(v)sel.value=v}
   if(EDIT){const b=$("mpEdit");b.hidden=false;fillTypes();
     $("mpEUndo").onclick=()=>{edits.pop();editOut();drawMarkers()};
+    // ---- log in and save straight to map-markers.txt (password checked on the server; it is only kept in this tab's memory)
+    let cred=null;const msg=(t,c)=>{const m=$("mpMsg");m.textContent=t;m.className="mp-msg"+(c?" "+c:"")};
+    const api=async body=>{const r=await fetch("/api/save-markers",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}return {...j,ok:r.ok,status:r.status}};
+    const showLogged=on=>{$("mpLoginForm").hidden=on;$("mpSaveRow").hidden=!on;$("mpWho").textContent=on?"Logged in as "+cred.user:""};
+    $("mpLoginForm").addEventListener("submit",async e=>{e.preventDefault();const user=$("mpUser").value.trim(),pass=$("mpPass").value;if(!user||!pass){msg("Enter your username and password","err");return}
+      msg("Checking…");try{const r=await api({action:"login",user,pass});if(!r.ok){msg(r.error||"Couldn't log in","err");return}cred={user,pass};$("mpPass").value="";showLogged(true);msg(r.ready?"Logged in. Click spots on the map, then Save to site.":"Logged in, but the GitHub token isn't set up in Netlify yet, so saving won't work.",r.ready?"ok":"err")}catch(err){msg("Couldn't reach the site's save service","err")}});
+    $("mpLogout").onclick=()=>{cred=null;showLogged(false);msg("Logged out")};
+    $("mpSave").onclick=async()=>{if(!cred)return;if(!edits.length){msg("Click some spots on the map first","err");return}
+      const lines=$("mpEOut").value.split("\n").filter(Boolean);msg("Saving "+lines.length+"…");$("mpSave").disabled=true;
+      try{const r=await api({action:"save",user:cred.user,pass:cred.pass,lines});
+        if(!r.ok){msg((r.error||"Save failed")+(r.bad?": "+r.bad[0]:""),"err");if(r.status===401){cred=null;showLogged(false)}return}
+        MARKERS.push(...edits.map(m=>({...m})));edits.length=0;editOut();drawMarkers();refresh();
+        msg(r.saved?`Saved ${r.saved} marker${r.saved>1?"s":""}. Everyone will see them within about 5 minutes.`:(r.note||"Nothing new to save"),"ok")}
+      catch(err){msg("Couldn't reach the site's save service","err")}finally{$("mpSave").disabled=false}};
     $("mpECopy").onclick=()=>{const t=$("mpEOut");t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>{$("mpECopy").textContent="COPIED";setTimeout(()=>$("mpECopy").textContent="Copy lines",1200)},()=>document.execCommand&&document.execCommand("copy"))}}
   // ---- side boxes
   function side(){if(!cur)return;const c=code(cur);$("mpChips").innerHTML=chips(cur);$("mpNow").innerHTML=nowLine(cur);
