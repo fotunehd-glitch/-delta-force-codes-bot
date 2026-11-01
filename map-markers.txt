@@ -205,3 +205,8 @@ Brakkesh | - | Keycard room | 489.7 | 418.9 | Underground Vault Storage
 Brakkesh | - | Keycard room | 255.1 | 173.1 | West Town Residential Bedroom
 Brakkesh | - | Protocol crate | 501.2 | 242.7 | Secret Protocol Crate #B6
 Brakkesh | - | Protocol crate | 271.0 | 244.4 | Secret Protocol Create #B1
+
+# Zero Dam: loot (placed by FortuneHD)
+Zero Dam | - | Small safe | 557 | 358.5
+Zero Dam | - | Small safe | 577.7 | 382.5
+Zero Dam | - | Small safe | 635.4 | 216
