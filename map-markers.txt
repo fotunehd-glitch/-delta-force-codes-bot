@@ -215,3 +215,10 @@ Brakkesh | - | Protocol crate | 271.0 | 244.4 | Secret Protocol Create #B1
 Zero Dam | - | Small safe | 557 | 358.5
 Zero Dam | - | Small safe | 577.7 | 382.5
 Zero Dam | - | Small safe | 635.4 | 216
+
+# Added from the site editor 2026-11-01 14:02 UTC
+Zero Dam | - | Flight case | 308.1 | 482.5
+Zero Dam | - | Flight case | 314.9 | 466.5
+Zero Dam | - | Flight case | 532.8 | 593.8
+Zero Dam | - | Flight case | 594.6 | 308.4
+Zero Dam | - | Flight case | 554.7 | 293.7
