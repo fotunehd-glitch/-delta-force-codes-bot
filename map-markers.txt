@@ -16,7 +16,7 @@
 #   Loot: Safe, Small safe, Weapon crate, Large weapon crate, Ammo crate, Computer, Server, Hidden stash, Medical crate, Bird nest, Travel bag, Toolbox,
 #         Flight case, Premium storage box, Premium suitcase, Briefcase, Courier carton, Field supply box, Large toolbox, Tool cabinet, Drawer,
 #         Garbage bin, Computer case, Military med kit, Pile of medical supplies, Piece of clothing, Climbing bag, Combination lock, Cement truck, Red loot spot
-#   Events & bosses: Protocol crate, Boss
+#   Events & bosses: Protocol crate, Boss, Raven deal
 #   Getting around: Zipline
 #   Other: Other
 #
@@ -47,6 +47,9 @@ Picture | AZ3 Nuclear Plant | 3F | az3-3f.webp
 Icon | Small safe | small-safe.png
 Icon | Extract | extract.png
 Icon | Spawn | spawn.png
+
+# New types
+Type | Raven deal | Events & bosses | #9b7bff | RD
 
 # Zero Dam: key spots (spawns, extracts, keycard rooms, protocol crates)
 Zero Dam | - | Spawn | 370.8 | 346.7
