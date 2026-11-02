@@ -186,6 +186,7 @@ K416 Assault Rifle - 6LM824S09U5NFMCSOBH5C
 Thompson Submachine Gun - 6LM827S09U5NFMCSOBH5C
 MK4 Submachine Gun - 6LM829G09U5NFMCSOBH5C
 SR-3M Compact Assault Rifle - 6LM82B809U5NFMCSOBH5C
+SVCH Marksman Rifle - 6LQ5AIC0DABM5PIOQSR5I
 
 [Leissik | https://www.twitch.tv/leissik]
 # from Leissik's build doc
