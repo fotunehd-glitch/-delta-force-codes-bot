@@ -225,3 +225,22 @@ Zero Dam | - | Flight case | 314.9 | 466.5
 Zero Dam | - | Flight case | 532.8 | 593.8
 Zero Dam | - | Flight case | 594.6 | 308.4
 Zero Dam | - | Flight case | 554.7 | 293.7
+
+# Added from the site editor 2026-11-02 22:45 UTC
+Zero Dam | - | Raven deal | 777.9 | 603
+Zero Dam | - | Raven deal | 409.6 | 541.5
+Zero Dam | - | Raven deal | 568.6 | 319.1
+Zero Dam | - | Raven deal | 290.9 | 441.5
+
+# Added from the site editor 2026-11-02 22:58 UTC
+Zero Dam | - | Medical crate | 149.5 | 434.9
+Zero Dam | - | Medical crate | 565 | 286
+Zero Dam | - | Medical crate | 591.9 | 306.7
+Zero Dam | - | Medical crate | 622.9 | 476.6
+Zero Dam | - | Medical crate | 623.4 | 315
+Zero Dam | - | Medical crate | 561.5 | 294.1
+
+# Added from the site editor 2026-11-02 23:00 UTC
+Zero Dam | - | Server | 598.2 | 558.8
+Zero Dam | - | Server | 557.4 | 339.3
+Zero Dam | - | Server | 559.6 | 352.3
