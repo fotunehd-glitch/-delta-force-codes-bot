@@ -386,6 +386,13 @@ html.noribbon .ribnote{display:none}
 .bcode .bc-src{font-size:10.5px;color:var(--muted)}.bcode .bc-src a{color:inherit}
 .bcode.none code{display:none}
 #budRes.build{color:var(--bc,var(--green));font-size:clamp(18px,1.6vh,30px)}
+/* chase lights round the build code box, like the wheels */
+.bc-wrap{position:relative;padding:13px;width:min(326px,100%);box-sizing:border-box;margin-top:2px}
+.bc-wrap:has(>.bcode[hidden]){display:none}
+.bc-wrap .bcode{width:100%;margin:0;box-sizing:border-box}
+.bc-bulbs{position:absolute;inset:0;pointer-events:none}
+.bc-bulbs i{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#123a2a;transition:background .08s,box-shadow .08s}
+.bc-bulbs i.on{background:#c9ffe6;box-shadow:0 0 3px #0ff796,0 0 8px #0ff796}
 
 /* site tabs: Random Loadout | Sens Lab */
 .sitetabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:-6px}
@@ -703,7 +710,7 @@ html.nozoom .zoomer{display:none}
       <button class="big" id="budBtn" type="button">Roll for budget</button>
       <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
       <div class="bnote">Build mode is new and subject to change. Some guns don't have build codes yet, more will be added.</div>
-      <div class="bcode" id="buildCode" hidden aria-live="polite"></div>
+      <div class="bc-wrap"><div class="bc-bulbs" id="bcBulbs" aria-hidden="true"></div><div class="bcode" id="buildCode" hidden aria-live="polite"></div></div>
     </div>
     <div class="die">
       <h2>Ammo Type</h2>
@@ -1544,19 +1551,27 @@ function makeBudWheel(){
 // keep the build wheel in step with the gun on the Weapons reel
 function syncBuildWheel(){if(S.budMode==="build"&&budW&&!budW.busy&&budW.gun!==curWeapon())makeBudWheel();else refreshBuild()}
 // Build mode: no wheel, the code box shuffles through the gun's codes and stops on a random one
+// lights round the build code box: chase while picking, flash when it lands
+const bcLights=(()=>{let B=null,ct=0;
+  function make(){const el=document.getElementById("bcBulbs");if(!el)return [];const T=11,S=4,pos=[],at=(x,y)=>pos.push(`left:calc(6px + (100% - 12px)*${x.toFixed(3)});top:calc(6px + (100% - 12px)*${y.toFixed(3)})`);
+    for(let i=0;i<T;i++)at(i/T,0);for(let i=0;i<S;i++)at(1,i/S);for(let i=0;i<T;i++)at(1-i/T,1);for(let i=0;i<S;i++)at(0,1-i/S); // clockwise from the top left
+    el.innerHTML=pos.map(p=>`<i style="${p}"></i>`).join("");return [...el.children]}
+  const all=()=>B||(B=make()),off=()=>{clearInterval(ct);all().forEach(b=>b.classList.remove("on"))};
+  return{chase(){off();const b=all(),n=b.length;let k=0;ct=setInterval(()=>{b.forEach((x,j)=>x.classList.toggle("on",((j-k)%4+4)%4===0));k=(k+1)%n},70)},
+    flash(){off();const b=all();let c=0;ct=setInterval(()=>{b.forEach(x=>x.classList.toggle("on",c%2===0));if(++c>7){clearInterval(ct);b.forEach(x=>x.classList.add("on"));ct=setTimeout(()=>b.forEach(x=>x.classList.remove("on")),900)}},140)},off}})();
 function rollBuild(){
   if(budW.gun!==curWeapon())makeBudWheel();
   const w=budW.gun,rows=w?buildsFor(w):[],res=$("#budRes"),box=$("#buildCode");
   if(!rows.length){res.textContent=w?"No builds yet":"Roll a gun first";refreshBuild();return}
   const pick=rows[RI(rows.length)];
   const land=()=>{budW.busy=false;buildPick={gun:w,row:pick};res.classList.remove("rolling");res.textContent=pick[1];refreshBuild()};
-  if(S.instant){land();return}
-  budW.busy=true;buildPick={gun:"",row:null};res.classList.add("rolling");res.textContent="…";
+  if(S.instant){land();bcLights.flash();return}
+  budW.busy=true;bcLights.chase();buildPick={gun:"",row:null};res.classList.add("rolling");res.textContent="…";
   const pool=BUILD_CODES.map(b=>b[3]);let t=0,gap=45;box.hidden=false;box.classList.remove("hint","none");box.classList.add("rolling");
   box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · picking a build…</div><div class="bc-row"><code></code></div>`;
   const code=box.querySelector("code");
   const tick=()=>{code.textContent=pool[Math.floor(Math.random()*pool.length)];try{SFX.dieTick()}catch(_){}
-    t+=gap;gap*=1.12;if(t<1500)setTimeout(tick,gap);else{try{SFX.dieLand()}catch(_){}land();box.classList.remove("land");void box.offsetWidth;box.classList.add("land")}};
+    t+=gap;gap*=1.12;if(t<1500)setTimeout(tick,gap);else{try{SFX.dieLand()}catch(_){}land();bcLights.flash();box.classList.remove("land");void box.offsetWidth;box.classList.add("land")}};
   tick();
 }
 function rollWheel(W,list,styled){
