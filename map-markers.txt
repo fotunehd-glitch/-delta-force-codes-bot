@@ -231,3 +231,11 @@ Zero Dam | - | Raven deal | 777.9 | 603
 Zero Dam | - | Raven deal | 409.6 | 541.5
 Zero Dam | - | Raven deal | 568.6 | 319.1
 Zero Dam | - | Raven deal | 290.9 | 441.5
+
+# Added from the site editor 2026-11-02 22:58 UTC
+Zero Dam | - | Medical crate | 149.5 | 434.9
+Zero Dam | - | Medical crate | 565 | 286
+Zero Dam | - | Medical crate | 591.9 | 306.7
+Zero Dam | - | Medical crate | 622.9 | 476.6
+Zero Dam | - | Medical crate | 623.4 | 315
+Zero Dam | - | Medical crate | 561.5 | 294.1
