@@ -42,19 +42,15 @@ export default async (req: Request, context: Context) => {
   let name = String(b?.name || "").trim().replace(/\s+/g, " ");
   // "FortuneHD" is only for FortuneHD: type FortuneHD#secretword, where the secret word is
   // BUILD_OWNER_KEY in Netlify. It is saved as plain "FortuneHD"; the secret word is never stored.
-  const owner = name.match(/^fortune\s*hd\s*#(.+)$/i);
-  const KEY = Netlify.env.get("BUILD_OWNER_KEY") || "";
-  if (owner) {
-    if (!KEY || KEY.length < 4 || !same(owner[1].trim(), KEY)) return json({ error: "Please use your own name" }, 400);
-    name = "FortuneHD";
-  } else if (/^fortunehd/.test(name.toLowerCase().replace(/[^a-z0-9]/g, ""))) {
+  const owner = name.match(/^fortune\s*hd\s*#(.*)$/i);
+  if (!owner && /^fortunehd/.test(name.toLowerCase().replace(/[^a-z0-9]/g, ""))) {
     return json({ error: "Please use your own name" }, 400);
   }
   let gun = String(b?.gun || "").trim(); // only known if they pasted the whole line from the game
   const code = String(b?.code || "").trim().toUpperCase();
 
-  if (!NAME.test(name)) return json({ error: "Name: 2 to 25 letters, numbers, spaces, _ . or -" }, 400);
-  if (RESERVED.test(name)) return json({ error: "Please use your own name" }, 400);
+  if (!owner && !NAME.test(name)) return json({ error: "Name: 2 to 25 letters, numbers, spaces, _ . or -" }, 400);
+  if (!owner && RESERVED.test(name)) return json({ error: "Please use your own name" }, 400);
   if (gun && !GUN.test(gun)) gun = "";
   if (!CODE.test(code)) return json({ error: "That doesn't look like a build code (21 letters and numbers)" }, 400);
 
@@ -67,6 +63,17 @@ export default async (req: Request, context: Context) => {
   const rk = `${who}-${hour}`;
   const used = Number((await rates.get(rk)) || 0);
   if (used >= PER_HOUR) return json({ error: "That's a lot of builds! Try again in an hour." }, 429);
+
+  if (owner) {
+    const KEY = (Netlify.env.get("BUILD_OWNER_KEY") || "").trim();
+    if (KEY.length < 4) return json({ error: "The FortuneHD secret word isn't set up in Netlify yet (BUILD_OWNER_KEY)." }, 503);
+    if (!same(owner[1].trim(), KEY)) {
+      await rates.set(rk, String(used + 1)); // wrong guesses use up the hourly limit
+      await new Promise((r) => setTimeout(r, 1200));
+      return json({ error: "That secret word isn't right" }, 400);
+    }
+    name = "FortuneHD";
+  }
 
   // already waiting, or already on the site?
   if (await subs.get(code)) return json({ error: "That build code has already been sent in and is waiting to be checked" }, 409);

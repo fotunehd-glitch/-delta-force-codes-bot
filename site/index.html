@@ -1651,7 +1651,7 @@ function makeBudWheel(){
   function close(){modal.hidden=true;if(opener)opener.focus()}
   window.__bsOpen=open;
   $("bsOpen").addEventListener("click",e=>open(e.currentTarget));
-  modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
+  let downBg=false;modal.addEventListener("mousedown",e=>{downBg=e.target===modal});modal.addEventListener("click",e=>{if((e.target===modal&&downBg)||e.target.closest("[data-close]"))close();downBg=false});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
   // pasting a whole line like "AR-57 Assault Rifle-Operations (Extraction Mode)-6LQ5I6C0DABM5PIOQSR5I" fills in the gun too
   $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m)return;
@@ -1686,7 +1686,7 @@ function makeBudWheel(){
   const show=on=>{$("brLogin").hidden=on;$("brMain").hidden=!on};
   function open(){modal.hidden=false;show(!!cred);if(cred)load();else setTimeout(()=>$("brUser").focus(),30)}
   function close(){modal.hidden=true;if(location.hash==="#review-builds")history.replaceState(null,"",location.pathname+location.search)}
-  modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
+  let downBg=false;modal.addEventListener("mousedown",e=>{downBg=e.target===modal});modal.addEventListener("click",e=>{if((e.target===modal&&downBg)||e.target.closest("[data-close]"))close();downBg=false});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
   $("brLogin").addEventListener("submit",async e=>{e.preventDefault();const user=$("brUser").value.trim(),pass=$("brPass").value;if(!user||!pass){msg("Enter your username and password","err");return}
     cred={user,pass};msg("Checking…");try{const r=await api({action:"login"});if(!r.ok){cred=null;msg(r.error||"Couldn't log in","err");return}$("brPass").value="";show(true);draw(r.list||[]);msg("")}catch(err){cred=null;msg("Couldn't reach the site","err")}});
