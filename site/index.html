@@ -420,6 +420,39 @@ html.noribbon .ribnote{display:none}
 .vd-send{text-align:center;color:var(--muted);font-size:13.5px;margin:4px 0 0}.vd-send a{color:var(--green)}
 .vd-empty{text-align:center;color:var(--muted);padding:30px}
 @media (max-width:760px){.vd-feat{grid-template-columns:1fr}}
+/* ---- Submit your build pop-up + review page ---- */
+.bc-submit{display:none;margin-top:8px}
+.buildmode .bc-submit{display:inline-block}
+.bs-back{position:fixed;inset:0;z-index:1000;background:rgba(3,5,8,.78);display:grid;place-items:center;padding:16px}
+.bs-back[hidden]{display:none}
+.bs-box{position:relative;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--reel);border:1px solid var(--green);border-radius:10px;box-shadow:0 0 30px rgba(15,247,150,.18);padding:18px 18px 16px;text-align:left}
+.bs-box.wide{width:min(640px,100%)}
+.bs-box h3{margin:0 30px 6px 0;font:700 20px/1.2 var(--display);color:var(--fg)}
+.bs-sub{margin:0 0 12px;font-size:13px;color:var(--muted)}
+.bs-x{all:unset;position:absolute;top:10px;right:12px;width:28px;height:28px;display:grid;place-items:center;cursor:pointer;font-size:22px;line-height:1;color:var(--muted);border-radius:4px}
+.bs-x:hover,.bs-x:focus-visible{color:var(--fg);background:rgba(255,255,255,.06)}
+.bs-box form{display:grid;gap:10px}
+.bs-box label{display:grid;gap:4px;font-size:12.5px;color:var(--muted)}
+.bs-box label small{color:var(--muted);opacity:.8}
+.bs-box input:not([type=checkbox]),.bs-box select{box-sizing:border-box;width:100%;background:#0b0e12;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:9px 10px;font:14px var(--body)}
+.bs-box input:focus,.bs-box select:focus{outline:none;border-color:var(--green)}
+.bs-box #bsCode,.bs-box code{font-family:ui-monospace,Consolas,monospace;letter-spacing:.03em}
+.bs-box .bs-ck{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);cursor:pointer}
+.bs-box .bs-ck input{accent-color:var(--green);width:16px;height:16px}
+.bs-hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.bs-msg{min-height:1em;font-size:13px}.bs-msg.err{color:#ff8080}.bs-msg.ok{color:var(--green)}
+.bs-box .big{justify-self:start}
+.bs-done{display:grid;gap:10px;font-size:14px}.bs-done b{font:700 18px var(--display);color:var(--green)}.bs-done p{margin:0;color:var(--fg)}
+.br-list{display:grid;gap:8px;margin-top:6px}
+.br-item{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#0e1216}
+.br-item .br-info{display:grid;gap:3px;min-width:0;font-size:13px}
+.br-item .br-info b{font:700 14px var(--display)}
+.br-item code{color:var(--green);font-size:13px;overflow-wrap:anywhere}
+.br-item small{color:var(--muted)}
+.br-btns{display:flex;gap:6px;flex:none}
+.br-btns .no{background:none;color:#ff8080;border-color:#ff4d4d;box-shadow:none}
+.br-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:520px){.br-item{flex-direction:column;align-items:stretch}.br-btns{justify-content:flex-end}}
 /* ---- Maps tab ---- */
 #mapsTab{width:min(1200px,100%);margin:18px auto 30px;display:grid;gap:16px}
 .mp-wip{display:grid;gap:4px;justify-items:center;text-align:center;padding:12px 16px;border:2px solid var(--t6);border-radius:8px;background:rgba(255,77,77,.08);box-shadow:0 0 16px rgba(255,77,77,.18)}
@@ -727,6 +760,7 @@ html.nozoom .zoomer{display:none}
       <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
       <div class="bnote">Build mode is new and subject to change. Some guns don't have build codes yet, more will be added.</div>
       <div class="bc-wrap"><div class="bc-bulbs" id="bcBulbs" aria-hidden="true"></div><div class="bcode" id="buildCode" hidden aria-live="polite"></div></div>
+      <button class="b bc-submit" type="button" id="bsOpen">Submit your own build</button>
     </div>
     <div class="die">
       <h2>Ammo Type</h2>
@@ -1010,6 +1044,36 @@ html.nozoom .zoomer{display:none}
     <span>Enjoying the site? <a class="fk" href="https://ko-fi.com/fortunehd" target="_blank" rel="noopener">Buy me a coffee on Ko-fi</a> to help keep it running.</span>
     <span>Original Random Force by Shotski · <a href="https://random-force.corke.dev/" target="_blank" rel="noopener">random-force.corke.dev</a></span>
   </footer>
+</div>
+
+<!-- Submit your build (players) -->
+<div class="bs-back" id="bsModal" hidden>
+  <div class="bs-box" role="dialog" aria-modal="true" aria-labelledby="bsTitle">
+    <button type="button" class="bs-x" data-close aria-label="Close">&times;</button>
+    <h3 id="bsTitle">Submit your build</h3>
+    <form id="bsForm" novalidate>
+      <p class="bs-sub">Share your build code and it could come up for everyone in Build mode. FortuneHD checks every build before it goes on the site.</p>
+      <label>Build code<input id="bsCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste the code, or the whole line from the game"></label>
+      <label>Gun<select id="bsGun"></select></label>
+      <label>Build name <small>(optional)</small><input id="bsBuild" type="text" maxlength="30" placeholder="e.g. Budget AR57"></label>
+      <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Your Twitch or in-game name"></label>
+      <label class="bs-ck"><input type="checkbox" id="bsTwitch"> This is my Twitch name, link my channel</label>
+      <input class="bs-hp" id="bsWeb" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="bs-msg" id="bsMsg" role="status"></div>
+      <button type="submit" class="big" id="bsSend">Send build</button>
+    </form>
+    <div class="bs-done" id="bsDone" hidden><b>Thanks, build sent!</b><p>It'll show on the site once FortuneHD has checked it. Your name will be on it.</p><button type="button" class="big" id="bsAgain">Send another</button></div>
+  </div>
+</div>
+<!-- Review sent-in builds (FortuneHD): deltaforcerandomkit.com/#review-builds -->
+<div class="bs-back" id="brModal" hidden>
+  <div class="bs-box wide" role="dialog" aria-modal="true" aria-labelledby="brTitle">
+    <button type="button" class="bs-x" data-close aria-label="Close">&times;</button>
+    <h3 id="brTitle">Builds sent in</h3>
+    <form id="brLogin" autocomplete="on"><p class="bs-sub">Log in with your map editor username and password.</p><input id="brUser" type="text" placeholder="Username" autocomplete="username" aria-label="Username"><input id="brPass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="submit" class="big">Log in</button></form>
+    <div id="brMain" hidden><div class="br-top"><button type="button" class="b" id="brRefresh">Refresh</button><span class="bs-sub" style="margin:0">Approve adds the code to the site under their name (shows within about 5 minutes).</span></div><div class="br-list" id="brList"></div></div>
+    <div class="bs-msg" id="brMsg" role="status"></div>
+  </div>
 </div>
 
 <script>
@@ -1573,6 +1637,66 @@ function makeBudWheel(){
   $("#budMode").checked=build;$("#budWheel").closest(".die").classList.toggle("buildmode",build);setTimeout(refreshBuild,0);
 }
 // keep the build wheel in step with the gun on the Weapons reel
+// ---- Submit your build: a pop-up form; builds wait for FortuneHD to approve them on #review-builds
+(function(){
+  const $=id=>document.getElementById(id),modal=$("bsModal"),form=$("bsForm");if(!modal)return;
+  const GROUPS={rifle:"Assault rifles",smg:"SMGs",shotgun:"Shotguns",lmg:"Machine guns",mp:"Marksman rifles",sniper:"Sniper rifles",pistol:"Pistols",special:"Special"};
+  $("bsGun").innerHTML=`<option value="">Pick the gun</option>`+Object.entries(WEAPONS).map(([k,ws])=>`<optgroup label="${GROUPS[k]||k}">`+ws.map(w=>`<option>${w}</option>`).join("")+"</optgroup>").join("");
+  const msg=(t,c)=>{const m=$("bsMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
+  let opener=null;
+  function open(btn){opener=btn||null;form.hidden=false;$("bsDone").hidden=true;msg("");
+    if(!$("bsGun").value){const w=curWeapon();if(w)$("bsGun").value=w}
+    modal.hidden=false;setTimeout(()=>$("bsCode").focus(),30)}
+  function close(){modal.hidden=true;if(opener)opener.focus()}
+  window.__bsOpen=open;
+  $("bsOpen").addEventListener("click",e=>open(e.currentTarget));
+  modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
+  // pasting a whole line like "AR-57 Assault Rifle-Operations (Extraction Mode)-6LQ5I6C0DABM5PIOQSR5I" fills in the gun too
+  $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m)return;
+    const at=t.toUpperCase().indexOf(m[1]),before=t.slice(0,at).replace(/-?\s*(operations|warfare).*$/i,"").replace(/[\s\-|:,–]+$/,"").trim();
+    const w=before&&gunMatch(before);if(w)$("bsGun").value=w;if(t.trim()!==m[1])$("bsCode").value=m[1]});
+  form.addEventListener("input",()=>{if($("bsMsg").classList.contains("err"))msg("")});
+  $("bsAgain").onclick=()=>{form.reset();form.hidden=false;$("bsDone").hidden=true;msg("");$("bsCode").focus()};
+  form.addEventListener("submit",async e=>{e.preventDefault();
+    const code=$("bsCode").value.trim().toUpperCase(),gun=$("bsGun").value,build=$("bsBuild").value.trim(),name=$("bsName").value.trim(),twitch=$("bsTwitch").checked;
+    if(!/^[0-9A-Z]{21}$/.test(code)){msg("Paste your build code (21 letters and numbers)","err");$("bsCode").focus();return}
+    if(!gun){msg("Pick the gun","err");$("bsGun").focus();return}
+    if(build&&!/^[A-Za-z0-9 '&()+.,\-]{1,30}$/.test(build)){msg("Build name: up to 30 letters, numbers and spaces","err");$("bsBuild").focus();return}
+    if(!/^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/.test(name)){msg("Put your Twitch or in-game name (2 to 25 letters or numbers)","err");$("bsName").focus();return}
+    if(twitch&&!/^[A-Za-z0-9_]{3,25}$/.test(name)){msg("Twitch names only use letters, numbers and _","err");$("bsName").focus();return}
+    if(BUILD_CODES.some(b=>b[3]===code)){msg("That build code is already on the site","err");return}
+    msg("Sending…");$("bsSend").disabled=true;
+    try{const r=await fetch("/api/submit-build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,gun,build,name,twitch,website:$("bsWeb").value})});
+      let j={};try{j=await r.json()}catch(_){}
+      if(!r.ok){msg(j.error||"Couldn't send it, please try again","err");return}
+      form.hidden=true;$("bsDone").hidden=false;$("bsAgain").focus();form.reset()}
+    catch(err){msg("Couldn't send it, please check your connection","err")}
+    finally{$("bsSend").disabled=false}});
+})();
+// ---- review sent-in builds (FortuneHD only): open the site with #review-builds
+(function(){
+  const $=id=>document.getElementById(id),modal=$("brModal");if(!modal)return;let cred=null;
+  const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const msg=(t,c)=>{const m=$("brMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
+  const api=async body=>{const r=await fetch("/api/review-builds",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,...cred})});let j={};try{j=await r.json()}catch(_){}return {...j,ok:r.ok,status:r.status}};
+  function draw(list){$("brList").innerHTML=list.length?list.map(s=>`<div class="br-item" data-code="${esc(s.code)}"><div class="br-info"><b>${esc(s.gun)}${s.build?` <small>· ${esc(s.build)}</small>`:""}</b><code>${esc(s.code)}</code><small>by ${s.twitch?`<a href="https://www.twitch.tv/${esc(s.name.toLowerCase())}" target="_blank" rel="noopener">${esc(s.name)}</a> (Twitch)`:esc(s.name)} · ${esc(new Date(s.at).toLocaleString())}</small></div><div class="br-btns"><button type="button" class="b" data-act="approve">Approve</button><button type="button" class="b no" data-act="reject">Reject</button></div></div>`).join(""):`<p class="bs-sub">No builds waiting. Nice and tidy.</p>`}
+  async function load(){msg("Loading…");try{const r=await api({action:"list"});if(!r.ok){msg(r.error||"Couldn't load","err");if(r.status===401){cred=null;show(false)}return}draw(r.list||[]);msg(r.ready?"":"The GitHub token isn't set up in Netlify, so approving won't work.",r.ready?"":"err")}catch(e){msg("Couldn't reach the site","err")}}
+  const show=on=>{$("brLogin").hidden=on;$("brMain").hidden=!on};
+  function open(){modal.hidden=false;show(!!cred);if(cred)load();else setTimeout(()=>$("brUser").focus(),30)}
+  function close(){modal.hidden=true;if(location.hash==="#review-builds")history.replaceState(null,"",location.pathname+location.search)}
+  modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
+  $("brLogin").addEventListener("submit",async e=>{e.preventDefault();const user=$("brUser").value.trim(),pass=$("brPass").value;if(!user||!pass){msg("Enter your username and password","err");return}
+    cred={user,pass};msg("Checking…");try{const r=await api({action:"login"});if(!r.ok){cred=null;msg(r.error||"Couldn't log in","err");return}$("brPass").value="";show(true);draw(r.list||[]);msg("")}catch(err){cred=null;msg("Couldn't reach the site","err")}});
+  $("brRefresh").onclick=load;
+  $("brList").addEventListener("click",async e=>{const b=e.target.closest("button[data-act]");if(!b)return;const item=b.closest(".br-item"),code=item.dataset.code,act=b.dataset.act;
+    item.querySelectorAll("button").forEach(x=>x.disabled=true);msg(act==="approve"?"Adding it to the site…":"Rejecting…");
+    try{const r=await api({action:act,code});if(!r.ok){msg(r.error||"Didn't work","err");item.querySelectorAll("button").forEach(x=>x.disabled=false);return}
+      item.remove();if(!$("brList").children.length)draw([]);msg(r.note||(act==="approve"?"Approved. It'll show on the site within about 5 minutes.":"Rejected."),"ok")}
+    catch(err){msg("Couldn't reach the site","err");item.querySelectorAll("button").forEach(x=>x.disabled=false)}});
+  const check=()=>{if(location.hash==="#review-builds")open()};window.addEventListener("hashchange",check);check();
+})();
 function syncBuildWheel(){if(S.budMode==="build"&&budW&&!budW.busy&&budW.gun!==curWeapon())makeBudWheel();else refreshBuild()}
 // Build mode: no wheel, the code box shuffles through the gun's codes and stops on a random one
 // lights round the build code box: chase while picking, flash when it lands

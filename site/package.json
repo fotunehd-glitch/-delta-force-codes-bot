@@ -4,5 +4,8 @@
   "description": "FortuneHD's Delta Force random loadouts + live door codes",
   "devDependencies": {
     "@netlify/functions": "^2.8.0"
+  },
+  "dependencies": {
+    "@netlify/blobs": "11.1.4"
   }
 }
