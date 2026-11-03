@@ -19,6 +19,13 @@ const RESERVED = /^(players?|discord|community)$/i; // these names are used for 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
+function same(a: string, b: string) {
+  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] || 0) ^ (y[i] || 0);
+  return diff === 0;
+}
+
 async function hash(t: string) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dfrk:" + t));
   return [...new Uint8Array(d)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -32,7 +39,17 @@ export default async (req: Request, context: Context) => {
   // bots fill in the hidden "website" box; pretend it worked
   if (b?.website) return json({ ok: true });
 
-  const name = String(b?.name || "").trim().replace(/\s+/g, " ");
+  let name = String(b?.name || "").trim().replace(/\s+/g, " ");
+  // "FortuneHD" is only for FortuneHD: type FortuneHD#secretword, where the secret word is
+  // BUILD_OWNER_KEY in Netlify. It is saved as plain "FortuneHD"; the secret word is never stored.
+  const owner = name.match(/^fortune\s*hd\s*#(.+)$/i);
+  const KEY = Netlify.env.get("BUILD_OWNER_KEY") || "";
+  if (owner) {
+    if (!KEY || KEY.length < 4 || !same(owner[1].trim(), KEY)) return json({ error: "Please use your own name" }, 400);
+    name = "FortuneHD";
+  } else if (/^fortunehd/.test(name.toLowerCase().replace(/[^a-z0-9]/g, ""))) {
+    return json({ error: "Please use your own name" }, 400);
+  }
   let gun = String(b?.gun || "").trim(); // only known if they pasted the whole line from the game
   const code = String(b?.code || "").trim().toUpperCase();
 
