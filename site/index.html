@@ -1057,7 +1057,7 @@ html.nozoom .zoomer{display:none}
     <h3 id="bsTitle">Submit your build</h3>
     <form id="bsForm" novalidate>
       <p class="bs-sub">Your build could come up for everyone in Build mode, with your name on it.</p>
-      <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Twitch or in-game name"></label>
+      <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Just type your name"></label>
       <label>Build code<input id="bsCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste your build code from the game"></label>
       <label>Gun <small>(picked for you if you paste the whole line from the game)</small><select id="bsGun"></select></label>
       <input class="bs-hp" id="bsWeb" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -1661,7 +1661,7 @@ function makeBudWheel(){
   $("bsAgain").onclick=()=>{form.reset();form.hidden=false;$("bsDone").hidden=true;msg("");$("bsName").focus()};
   form.addEventListener("submit",async e=>{e.preventDefault();
     const code=$("bsCode").value.trim().toUpperCase(),name=$("bsName").value.trim();
-    if(!/^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/.test(name)){msg("Put your Twitch or in-game name (2 to 25 letters or numbers)","err");$("bsName").focus();return}
+    if(!/^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/.test(name)){msg("Type your name (2 to 25 letters or numbers)","err");$("bsName").focus();return}
     if(!/^[0-9A-Z]{21}$/.test(code)){msg("Paste your build code (21 letters and numbers)","err");$("bsCode").focus();return}
     const gun=$("bsGun").value;if(!gun){msg("Pick which gun the build is for","err");$("bsGun").focus();return}
     if(BUILD_CODES.some(b=>b[3]===code)){msg("That build code is already on the site","err");return}

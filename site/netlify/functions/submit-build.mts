@@ -14,7 +14,7 @@ const PER_HOUR = 5; // submissions per person per hour
 const NAME = /^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/;
 const GUN = /^[A-Za-z0-9 .\-]{2,40}$/;
 const CODE = /^[0-9A-Z]{21}$/;
-const RESERVED = /^(players?|discord|community|poach|fortunehd)$/i;
+const RESERVED = /^(players?|discord|community)$/i; // these names are used for the FortuneHD Discord section in build-codes.txt
 
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -37,7 +37,7 @@ export default async (req: Request, context: Context) => {
   const code = String(b?.code || "").trim().toUpperCase();
 
   if (!NAME.test(name)) return json({ error: "Name: 2 to 25 letters, numbers, spaces, _ . or -" }, 400);
-  if (RESERVED.test(name)) return json({ error: "Please use your own Twitch or in-game name" }, 400);
+  if (RESERVED.test(name)) return json({ error: "Please use your own name" }, 400);
   if (gun && !GUN.test(gun)) gun = "";
   if (!CODE.test(code)) return json({ error: "That doesn't look like a build code (21 letters and numbers)" }, 400);
 
