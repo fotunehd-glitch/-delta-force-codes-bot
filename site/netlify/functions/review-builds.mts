@@ -67,6 +67,28 @@ function addToFile(text: string, s: Sub) {
   return rows.join("\n") + "\n";
 }
 
+// Optional: BUILD_APPROVED_WEBHOOK = a Discord webhook for #build-codes, so every approved build gets posted there.
+async function announce(s: Sub) {
+  const hook = Netlify.env.get("BUILD_APPROVED_WEBHOOK");
+  if (!hook || !/^https:\/\/(discord\.com|discordapp\.com)\/api\/webhooks\//.test(hook)) return;
+  const clean = (t: string) => t.replace(/[\\*_`~|>#\[\]()]/g, "\\$&").replace(/@/g, "@\u200b");
+  try {
+    await fetch(hook, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        allowed_mentions: { parse: [] },
+        embeds: [{
+          title: `🔧 New build: ${s.gun}`,
+          description: `\`\`\`${s.code}\`\`\`\nBy **${clean(s.name)}**\nPaste it in the gun's modify screen, or roll it on [deltaforcerandomkit.com](https://deltaforcerandomkit.com) in Build mode.`,
+          color: 0x0ff796,
+          footer: { text: "Got a build? Submit yours on the site" },
+        }],
+      }),
+    });
+  } catch { /* the build is on the site either way */ }
+}
+
 export default async (req: Request, context: Context) => {
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const USER = Netlify.env.get("MAP_EDIT_USER") || "";
@@ -125,6 +147,7 @@ export default async (req: Request, context: Context) => {
     });
     if (put.ok) {
       await subs.delete(code);
+      await announce(s);
       return json({ ok: true, approved: true });
     }
     if (put.status !== 409 && put.status !== 422) return json({ error: `GitHub refused the save (${put.status})` }, 502);
