@@ -449,6 +449,7 @@ html.noribbon .ribnote{display:none}
 .br-item .br-info b{font:700 14px var(--display)}
 .br-item code{color:var(--green);font-size:13px;overflow-wrap:anywhere}
 .br-item small{color:var(--muted)}
+.br-gun{background:#0b0e12;color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:5px 6px;font:600 13px var(--body);max-width:100%}
 .br-btns{display:flex;gap:6px;flex:none}
 .br-btns .no{background:none;color:#ff8080;border-color:#ff4d4d;box-shadow:none}
 .br-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -1052,17 +1053,14 @@ html.nozoom .zoomer{display:none}
     <button type="button" class="bs-x" data-close aria-label="Close">&times;</button>
     <h3 id="bsTitle">Submit your build</h3>
     <form id="bsForm" novalidate>
-      <p class="bs-sub">Share your build code and it could come up for everyone in Build mode. FortuneHD checks every build before it goes on the site.</p>
-      <label>Build code<input id="bsCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste the code, or the whole line from the game"></label>
-      <label>Gun<select id="bsGun"></select></label>
-      <label>Build name <small>(optional)</small><input id="bsBuild" type="text" maxlength="30" placeholder="e.g. Budget AR57"></label>
-      <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Your Twitch or in-game name"></label>
-      <label class="bs-ck"><input type="checkbox" id="bsTwitch"> This is my Twitch name, link my channel</label>
+      <p class="bs-sub">Your build could come up for everyone in Build mode, with your name on it.</p>
+      <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Twitch or in-game name"></label>
+      <label>Build code<input id="bsCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste your build code from the game"></label>
       <input class="bs-hp" id="bsWeb" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="bs-msg" id="bsMsg" role="status"></div>
-      <button type="submit" class="big" id="bsSend">Send build</button>
+      <button type="submit" class="big" id="bsSend">Submit build</button>
     </form>
-    <div class="bs-done" id="bsDone" hidden><b>Thanks, build sent!</b><p>It'll show on the site once FortuneHD has checked it. Your name will be on it.</p><button type="button" class="big" id="bsAgain">Send another</button></div>
+    <div class="bs-done" id="bsDone" hidden><b>Thanks, build sent!</b><p>It'll show on the site once it's been checked.</p><button type="button" class="big" id="bsAgain">Send another</button></div>
   </div>
 </div>
 <!-- Review sent-in builds (FortuneHD): deltaforcerandomkit.com/#review-builds -->
@@ -1640,37 +1638,32 @@ function makeBudWheel(){
 // ---- Submit your build: a pop-up form; builds wait for FortuneHD to approve them on #review-builds
 (function(){
   const $=id=>document.getElementById(id),modal=$("bsModal"),form=$("bsForm");if(!modal)return;
-  const GROUPS={rifle:"Assault rifles",smg:"SMGs",shotgun:"Shotguns",lmg:"Machine guns",mp:"Marksman rifles",sniper:"Sniper rifles",pistol:"Pistols",special:"Special"};
-  $("bsGun").innerHTML=`<option value="">Pick the gun</option>`+Object.entries(WEAPONS).map(([k,ws])=>`<optgroup label="${GROUPS[k]||k}">`+ws.map(w=>`<option>${w}</option>`).join("")+"</optgroup>").join("");
+  let gun=""; // worked out from the line they paste; if they only paste the code, FortuneHD picks the gun when approving
   const msg=(t,c)=>{const m=$("bsMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
   let opener=null;
   function open(btn){opener=btn||null;form.hidden=false;$("bsDone").hidden=true;msg("");
-    if(!$("bsGun").value){const w=curWeapon();if(w)$("bsGun").value=w}
-    modal.hidden=false;setTimeout(()=>$("bsCode").focus(),30)}
+    modal.hidden=false;setTimeout(()=>$("bsName").focus(),30)}
   function close(){modal.hidden=true;if(opener)opener.focus()}
   window.__bsOpen=open;
   $("bsOpen").addEventListener("click",e=>open(e.currentTarget));
   modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
   // pasting a whole line like "AR-57 Assault Rifle-Operations (Extraction Mode)-6LQ5I6C0DABM5PIOQSR5I" fills in the gun too
-  $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m)return;
+  $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m){gun="";return}
     const at=t.toUpperCase().indexOf(m[1]),before=t.slice(0,at).replace(/-?\s*(operations|warfare).*$/i,"").replace(/[\s\-|:,–]+$/,"").trim();
-    const w=before&&gunMatch(before);if(w)$("bsGun").value=w;if(t.trim()!==m[1])$("bsCode").value=m[1]});
+    if(t.trim()!==m[1]){gun=(before&&gunMatch(before))||"";$("bsCode").value=m[1]}});
   form.addEventListener("input",()=>{if($("bsMsg").classList.contains("err"))msg("")});
-  $("bsAgain").onclick=()=>{form.reset();form.hidden=false;$("bsDone").hidden=true;msg("");$("bsCode").focus()};
+  $("bsAgain").onclick=()=>{form.reset();gun="";form.hidden=false;$("bsDone").hidden=true;msg("");$("bsName").focus()};
   form.addEventListener("submit",async e=>{e.preventDefault();
-    const code=$("bsCode").value.trim().toUpperCase(),gun=$("bsGun").value,build=$("bsBuild").value.trim(),name=$("bsName").value.trim(),twitch=$("bsTwitch").checked;
-    if(!/^[0-9A-Z]{21}$/.test(code)){msg("Paste your build code (21 letters and numbers)","err");$("bsCode").focus();return}
-    if(!gun){msg("Pick the gun","err");$("bsGun").focus();return}
-    if(build&&!/^[A-Za-z0-9 '&()+.,\-]{1,30}$/.test(build)){msg("Build name: up to 30 letters, numbers and spaces","err");$("bsBuild").focus();return}
+    const code=$("bsCode").value.trim().toUpperCase(),name=$("bsName").value.trim();
     if(!/^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/.test(name)){msg("Put your Twitch or in-game name (2 to 25 letters or numbers)","err");$("bsName").focus();return}
-    if(twitch&&!/^[A-Za-z0-9_]{3,25}$/.test(name)){msg("Twitch names only use letters, numbers and _","err");$("bsName").focus();return}
+    if(!/^[0-9A-Z]{21}$/.test(code)){msg("Paste your build code (21 letters and numbers)","err");$("bsCode").focus();return}
     if(BUILD_CODES.some(b=>b[3]===code)){msg("That build code is already on the site","err");return}
     msg("Sending…");$("bsSend").disabled=true;
-    try{const r=await fetch("/api/submit-build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,gun,build,name,twitch,website:$("bsWeb").value})});
+    try{const r=await fetch("/api/submit-build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,gun,name,website:$("bsWeb").value})});
       let j={};try{j=await r.json()}catch(_){}
       if(!r.ok){msg(j.error||"Couldn't send it, please try again","err");return}
-      form.hidden=true;$("bsDone").hidden=false;$("bsAgain").focus();form.reset()}
+      form.hidden=true;$("bsDone").hidden=false;$("bsAgain").focus();form.reset();gun=""}
     catch(err){msg("Couldn't send it, please check your connection","err")}
     finally{$("bsSend").disabled=false}});
 })();
@@ -1680,7 +1673,9 @@ function makeBudWheel(){
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const msg=(t,c)=>{const m=$("brMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
   const api=async body=>{const r=await fetch("/api/review-builds",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,...cred})});let j={};try{j=await r.json()}catch(_){}return {...j,ok:r.ok,status:r.status}};
-  function draw(list){$("brList").innerHTML=list.length?list.map(s=>`<div class="br-item" data-code="${esc(s.code)}"><div class="br-info"><b>${esc(s.gun)}${s.build?` <small>· ${esc(s.build)}</small>`:""}</b><code>${esc(s.code)}</code><small>by ${s.twitch?`<a href="https://www.twitch.tv/${esc(s.name.toLowerCase())}" target="_blank" rel="noopener">${esc(s.name)}</a> (Twitch)`:esc(s.name)} · ${esc(new Date(s.at).toLocaleString())}</small></div><div class="br-btns"><button type="button" class="b" data-act="approve">Approve</button><button type="button" class="b no" data-act="reject">Reject</button></div></div>`).join(""):`<p class="bs-sub">No builds waiting. Nice and tidy.</p>`}
+  const GUNS=Object.values(WEAPONS).flat();
+  const pick=g=>`<select class="br-gun" aria-label="Gun"><option value="">Pick the gun…</option>${GUNS.map(w=>`<option${w===g?" selected":""}>${esc(w)}</option>`).join("")}</select>`;
+  function draw(list){$("brList").innerHTML=list.length?list.map(s=>`<div class="br-item" data-code="${esc(s.code)}"><div class="br-info">${pick(s.gun)}<code>${esc(s.code)}</code><small>by ${s.twitch?`<a href="https://www.twitch.tv/${esc(s.name.toLowerCase())}" target="_blank" rel="noopener">${esc(s.name)}</a> (Twitch)`:esc(s.name)} · ${esc(new Date(s.at).toLocaleString())}</small></div><div class="br-btns"><button type="button" class="b" data-act="approve">Approve</button><button type="button" class="b no" data-act="reject">Reject</button></div></div>`).join(""):`<p class="bs-sub">No builds waiting. Nice and tidy.</p>`}
   async function load(){msg("Loading…");try{const r=await api({action:"list"});if(!r.ok){msg(r.error||"Couldn't load","err");if(r.status===401){cred=null;show(false)}return}draw(r.list||[]);msg(r.ready?"":"The GitHub token isn't set up in Netlify, so approving won't work.",r.ready?"":"err")}catch(e){msg("Couldn't reach the site","err")}}
   const show=on=>{$("brLogin").hidden=on;$("brMain").hidden=!on};
   function open(){modal.hidden=false;show(!!cred);if(cred)load();else setTimeout(()=>$("brUser").focus(),30)}
@@ -1691,8 +1686,9 @@ function makeBudWheel(){
     cred={user,pass};msg("Checking…");try{const r=await api({action:"login"});if(!r.ok){cred=null;msg(r.error||"Couldn't log in","err");return}$("brPass").value="";show(true);draw(r.list||[]);msg("")}catch(err){cred=null;msg("Couldn't reach the site","err")}});
   $("brRefresh").onclick=load;
   $("brList").addEventListener("click",async e=>{const b=e.target.closest("button[data-act]");if(!b)return;const item=b.closest(".br-item"),code=item.dataset.code,act=b.dataset.act;
+    const gun=item.querySelector(".br-gun").value;if(act==="approve"&&!gun){msg("Pick which gun it's for first","err");item.querySelector(".br-gun").focus();return}
     item.querySelectorAll("button").forEach(x=>x.disabled=true);msg(act==="approve"?"Adding it to the site…":"Rejecting…");
-    try{const r=await api({action:act,code});if(!r.ok){msg(r.error||"Didn't work","err");item.querySelectorAll("button").forEach(x=>x.disabled=false);return}
+    try{const r=await api({action:act,code,gun});if(!r.ok){msg(r.error||"Didn't work","err");item.querySelectorAll("button").forEach(x=>x.disabled=false);return}
       item.remove();if(!$("brList").children.length)draw([]);msg(r.note||(act==="approve"?"Approved. It'll show on the site within about 5 minutes.":"Rejected."),"ok")}
     catch(err){msg("Couldn't reach the site","err");item.querySelectorAll("button").forEach(x=>x.disabled=false)}});
   const check=()=>{if(location.hash==="#review-builds")open()};window.addEventListener("hashchange",check);check();

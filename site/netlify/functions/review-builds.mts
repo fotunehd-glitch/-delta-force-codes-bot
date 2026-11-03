@@ -100,6 +100,9 @@ export default async (req: Request, context: Context) => {
     return json({ ok: true, rejected: true });
   }
   if (b.action !== "approve") return json({ error: "Unknown action" }, 400);
+  const gun = String(b.gun || s.gun || "").trim();
+  if (!/^[A-Za-z0-9 .\-]{2,40}$/.test(gun)) return json({ error: "Pick which gun it's for first" }, 400);
+  s.gun = gun;
   if (!TOKEN) return json({ error: "The GitHub token isn't set up in Netlify yet." }, 503);
 
   for (let attempt = 0; attempt < 2; attempt++) {

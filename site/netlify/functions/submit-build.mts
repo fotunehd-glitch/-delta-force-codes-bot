@@ -12,10 +12,8 @@ const MAX_PENDING = 200; // stop accepting new ones if this many are waiting
 const PER_HOUR = 5; // submissions per person per hour
 
 const NAME = /^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/;
-const TWITCH = /^[A-Za-z0-9_]{3,25}$/;
 const GUN = /^[A-Za-z0-9 .\-]{2,40}$/;
 const CODE = /^[0-9A-Z]{21}$/;
-const BUILD = /^[A-Za-z0-9 '&()+.,\-]{1,30}$/;
 const RESERVED = /^(players?|discord|community|poach|fortunehd)$/i;
 
 const json = (body: unknown, status = 200) =>
@@ -35,17 +33,13 @@ export default async (req: Request, context: Context) => {
   if (b?.website) return json({ ok: true });
 
   const name = String(b?.name || "").trim().replace(/\s+/g, " ");
-  const twitch = !!b?.twitch;
-  const gun = String(b?.gun || "").trim();
+  let gun = String(b?.gun || "").trim(); // only known if they pasted the whole line from the game
   const code = String(b?.code || "").trim().toUpperCase();
-  const build = String(b?.build || "").trim().replace(/\s+/g, " ");
 
   if (!NAME.test(name)) return json({ error: "Name: 2 to 25 letters, numbers, spaces, _ . or -" }, 400);
   if (RESERVED.test(name)) return json({ error: "Please use your own Twitch or in-game name" }, 400);
-  if (twitch && !TWITCH.test(name)) return json({ error: "That doesn't look like a Twitch name (letters, numbers and _ only)" }, 400);
-  if (!GUN.test(gun)) return json({ error: "Pick the gun" }, 400);
+  if (gun && !GUN.test(gun)) gun = "";
   if (!CODE.test(code)) return json({ error: "That doesn't look like a build code (21 letters and numbers)" }, 400);
-  if (build && !BUILD.test(build)) return json({ error: "Build name: up to 30 letters, numbers and spaces" }, 400);
 
   const subs = getStore({ name: "build-submissions", consistency: "strong" });
   const rates = getStore({ name: "build-submit-rate", consistency: "strong" });
@@ -68,7 +62,7 @@ export default async (req: Request, context: Context) => {
   if (blobs.length >= MAX_PENDING) return json({ error: "Lots of builds are waiting to be checked right now. Please try again later." }, 503);
 
   await rates.set(rk, String(used + 1));
-  await subs.setJSON(code, { name, twitch, gun, code, build, at: new Date().toISOString(), who });
+  await subs.setJSON(code, { name, twitch: false, gun, code, build: "", at: new Date().toISOString(), who });
 
   const hook = Netlify.env.get("BUILD_SUBMIT_WEBHOOK");
   if (hook && /^https:\/\/(discord\.com|discordapp\.com)\/api\/webhooks\//.test(hook)) {
@@ -78,7 +72,7 @@ export default async (req: Request, context: Context) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `New build sent in: **${clean(gun)}**${build ? ` (${clean(build)})` : ""} by ${clean(name)}${twitch ? " (Twitch)" : ""}\nCheck it: https://deltaforcerandomkit.com/#review-builds`,
+          content: `New build sent in by ${clean(name)}${gun ? `: **${clean(gun)}**` : ""}\nCheck it: https://deltaforcerandomkit.com/#review-builds`,
           allowed_mentions: { parse: [] },
         }),
       });
