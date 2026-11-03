@@ -1049,6 +1049,7 @@ html.nozoom .zoomer{display:none}
       <p class="bs-sub">Your build could come up for everyone in Build mode, with your name on it.</p>
       <label>Your name<input id="bsName" type="text" maxlength="25" autocomplete="nickname" placeholder="Twitch or in-game name"></label>
       <label>Build code<input id="bsCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste your build code from the game"></label>
+      <label>Gun <small>(picked for you if you paste the whole line from the game)</small><select id="bsGun"></select></label>
       <input class="bs-hp" id="bsWeb" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="bs-msg" id="bsMsg" role="status"></div>
       <button type="submit" class="big" id="bsSend">Submit build</button>
@@ -1631,7 +1632,8 @@ function makeBudWheel(){
 // ---- Submit your build: a pop-up form; builds wait for FortuneHD to approve them on #review-builds
 (function(){
   const $=id=>document.getElementById(id),modal=$("bsModal"),form=$("bsForm");if(!modal)return;
-  let gun=""; // worked out from the line they paste; if they only paste the code, FortuneHD picks the gun when approving
+  const GROUPS={rifle:"Assault rifles",smg:"SMGs",shotgun:"Shotguns",lmg:"Machine guns",mp:"Marksman rifles",sniper:"Sniper rifles",pistol:"Pistols",special:"Special"};
+  $("bsGun").innerHTML=`<option value="">Pick the gun</option>`+Object.entries(WEAPONS).map(([k,ws])=>`<optgroup label="${GROUPS[k]||k}">`+ws.map(w=>`<option>${w}</option>`).join("")+"</optgroup>").join("");
   const msg=(t,c)=>{const m=$("bsMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
   let opener=null;
   function open(btn){opener=btn||null;form.hidden=false;$("bsDone").hidden=true;msg("");
@@ -1642,21 +1644,22 @@ function makeBudWheel(){
   modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest("[data-close]"))close()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
   // pasting a whole line like "AR-57 Assault Rifle-Operations (Extraction Mode)-6LQ5I6C0DABM5PIOQSR5I" fills in the gun too
-  $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m){gun="";return}
+  $("bsCode").addEventListener("input",()=>{const t=$("bsCode").value,m=t.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/);if(!m)return;
     const at=t.toUpperCase().indexOf(m[1]),before=t.slice(0,at).replace(/-?\s*(operations|warfare).*$/i,"").replace(/[\s\-|:,–]+$/,"").trim();
-    if(t.trim()!==m[1]){gun=(before&&gunMatch(before))||"";$("bsCode").value=m[1]}});
+    if(t.trim()!==m[1]){const w=before&&gunMatch(before);if(w)$("bsGun").value=w;$("bsCode").value=m[1]}});
   form.addEventListener("input",()=>{if($("bsMsg").classList.contains("err"))msg("")});
-  $("bsAgain").onclick=()=>{form.reset();gun="";form.hidden=false;$("bsDone").hidden=true;msg("");$("bsName").focus()};
+  $("bsAgain").onclick=()=>{form.reset();form.hidden=false;$("bsDone").hidden=true;msg("");$("bsName").focus()};
   form.addEventListener("submit",async e=>{e.preventDefault();
     const code=$("bsCode").value.trim().toUpperCase(),name=$("bsName").value.trim();
     if(!/^[A-Za-z0-9_][A-Za-z0-9_ .\-]{1,24}$/.test(name)){msg("Put your Twitch or in-game name (2 to 25 letters or numbers)","err");$("bsName").focus();return}
     if(!/^[0-9A-Z]{21}$/.test(code)){msg("Paste your build code (21 letters and numbers)","err");$("bsCode").focus();return}
+    const gun=$("bsGun").value;if(!gun){msg("Pick which gun the build is for","err");$("bsGun").focus();return}
     if(BUILD_CODES.some(b=>b[3]===code)){msg("That build code is already on the site","err");return}
     msg("Sending…");$("bsSend").disabled=true;
     try{const r=await fetch("/api/submit-build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,gun,name,website:$("bsWeb").value})});
       let j={};try{j=await r.json()}catch(_){}
       if(!r.ok){msg(j.error||"Couldn't send it, please try again","err");return}
-      form.hidden=true;$("bsDone").hidden=false;$("bsAgain").focus();form.reset();gun=""}
+      form.hidden=true;$("bsDone").hidden=false;$("bsAgain").focus();form.reset()}
     catch(err){msg("Couldn't send it, please check your connection","err")}
     finally{$("bsSend").disabled=false}});
 })();
