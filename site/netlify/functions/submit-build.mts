@@ -65,9 +65,11 @@ export default async (req: Request, context: Context) => {
   if (used >= PER_HOUR) return json({ error: "That's a lot of builds! Try again in an hour." }, 429);
 
   if (owner) {
-    const KEY = (Netlify.env.get("BUILD_OWNER_KEY") || "").trim();
+    // forgiving: ignore capitals, spaces, quotes, and "FortuneHD#" if that was saved in Netlify too
+    const tidy = (t: string) => t.trim().replace(/^["']|["']$/g, "").replace(/^fortune\s*hd\s*#/i, "").replace(/\s+/g, "").toLowerCase();
+    const KEY = tidy(Netlify.env.get("BUILD_OWNER_KEY") || "");
     if (KEY.length < 4) return json({ error: "The FortuneHD secret word isn't set up in Netlify yet (BUILD_OWNER_KEY)." }, 503);
-    if (!same(owner[1].trim(), KEY)) {
+    if (!same(tidy(owner[1]), KEY)) {
       await rates.set(rk, String(used + 1)); // wrong guesses use up the hourly limit
       await new Promise((r) => setTimeout(r, 1200));
       return json({ error: "That secret word isn't right" }, 400);
