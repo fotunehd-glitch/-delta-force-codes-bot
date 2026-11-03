@@ -414,8 +414,10 @@ html.noribbon .ribnote{display:none}
 .vd-empty{text-align:center;color:var(--muted);padding:30px}
 @media (max-width:760px){.vd-feat{grid-template-columns:1fr}}
 /* ---- Submit your build pop-up + review page ---- */
-.bc-submit{display:none;margin-top:8px}
-.buildmode .bc-submit{display:inline-block}
+.bc-submit,.bc-subnote{display:none}
+.buildmode .bc-submit{display:inline-block;margin-top:6px;font-size:14px;padding:12px 20px}
+.buildmode .bc-subnote{display:block;margin:0;max-width:260px;text-align:center;font-size:12px;line-height:1.45;color:var(--muted)}
+.bc-subnote b{color:var(--fg);font-weight:600}
 .bs-back{position:fixed;inset:0;z-index:1000;background:rgba(3,5,8,.78);display:grid;place-items:center;padding:16px}
 .bs-back[hidden]{display:none}
 .bs-box{position:relative;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--reel);border:1px solid var(--green);border-radius:10px;box-shadow:0 0 30px rgba(15,247,150,.18);padding:18px 18px 16px;text-align:left}
@@ -751,7 +753,8 @@ html.nozoom .zoomer{display:none}
       <label class="modesw" title="Switch between a money budget and a build type"><span class="ml">Budget</span><input type="checkbox" id="budMode" aria-label="Use build types instead of a money budget"><i aria-hidden="true"></i><span class="mr">Build</span></label>
       <div class="bnote">Build mode is new and subject to change. Some guns don't have build codes yet, more will be added.</div>
       <div class="bc-wrap"><div class="bc-bulbs" id="bcBulbs" aria-hidden="true"></div><div class="bcode" id="buildCode" hidden aria-live="polite"></div></div>
-      <button class="b bc-submit" type="button" id="bsOpen">Submit your own build</button>
+      <button class="big bc-submit" type="button" id="bsOpen">Submit your own build</button>
+      <p class="bc-subnote">Got a build code? Send it in and it will come up on the site with <b>your name on it</b>. We want everything: <b>troll builds</b> and <b>fully kitted builds</b>!</p>
     </div>
     <div class="die">
       <h2>Ammo Type</h2>
