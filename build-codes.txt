@@ -457,3 +457,6 @@ SR-3M Compact Assault Rifle - 6LEJKBK02JH7C07GBVNF2
 
 [hehhe]
 PKM General Machine Gun - 6LQT050059JENPK6GP4J3
+
+[asda]
+VSS Marksman Rifle - 6LQT1QG059JENPK6GP4J3
