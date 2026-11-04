@@ -222,8 +222,9 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 /* speech bubble on hover (and when tapped on phones) */
 .qt::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 12px);width:250px;transform:translate(-50%,6px);padding:10px 12px;border:1px solid var(--green);border-radius:10px;background:#0f1317;color:var(--fg);font:500 12.5px/1.45 var(--body);letter-spacing:normal;text-transform:none;text-align:left;box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 12px rgba(15,247,150,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,transform .15s,visibility .15s;z-index:40}
 .qt::before{content:"";position:absolute;left:50%;bottom:calc(100% + 5px);width:12px;height:12px;background:#0f1317;border-right:1px solid var(--green);border-bottom:1px solid var(--green);transform:translate(-50%,6px) rotate(45deg);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,transform .15s,visibility .15s;z-index:41}
-.qt:hover::after,.qt:focus-within::after{opacity:1;visibility:visible;transform:translate(-50%,0)}
-.qt:hover::before,.qt:focus-within::before{opacity:1;visibility:visible;transform:translate(-50%,0) rotate(45deg)}
+@media (hover:hover){.qt:hover::after{opacity:1;visibility:visible;transform:translate(-50%,0)}.qt:hover::before{opacity:1;visibility:visible;transform:translate(-50%,0) rotate(45deg)}}
+.qt.tipon::after,.qt:has(input:focus-visible)::after{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.qt.tipon::before,.qt:has(input:focus-visible)::before{opacity:1;visibility:visible;transform:translate(-50%,0) rotate(45deg)}
 @media (max-width:600px){.qt::after{width:200px;font-size:12px}}
 @media (max-width:600px){.quicktog{gap:8px}.qt{font-size:11px;padding:7px 10px 7px 8px;gap:7px}.qt-sw{width:32px;height:18px}.qt-sw::after{width:12px;height:12px}.qt input:checked+.qt-sw::after{transform:translateX(14px)}}
 .foot-btns{display:flex;gap:12px;flex:none}
@@ -1822,6 +1823,10 @@ if(S.ammo.length&&!S.ammo.includes("Blue")){const f=S.ammo[0];$("#ammoRes").text
   // letting go of HOLD on the map reel by hand turns the switch off
   document.addEventListener("click",e=>{if(e.target.closest('[data-hold="map"]')&&S.zdOnly&&!state.map.held){S.zdOnly=false;zd.checked=false;save()}});
 }
+// on phones the speech bubble shows for 4 seconds after a tap (on PC it shows while hovering)
+document.querySelectorAll(".qt").forEach(l=>{let t=0;l.addEventListener("pointerup",e=>{if(e.pointerType==="mouse")return;
+  document.querySelectorAll(".qt.tipon").forEach(x=>{if(x!==l)x.classList.remove("tipon")});
+  l.classList.add("tipon");clearTimeout(t);t=setTimeout(()=>l.classList.remove("tipon"),4000)})});
 // "No repeats" switch: same setting as the one in Settings, kept in step both ways
 {const q=$("#qtUnique"),o=$("#optUnique");q.checked=!!S.unique;
   q.addEventListener("change",()=>{S.unique=q.checked;o.checked=q.checked;save();try{SFX.button()}catch(_){}});
