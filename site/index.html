@@ -219,6 +219,12 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 .qt-led{flex:none;width:8px;height:8px;border-radius:50%;background:#4a1a1d;box-shadow:inset 0 0 2px rgba(0,0,0,.8);transition:background .2s,box-shadow .2s}
 .qt:has(input:checked){color:var(--fg);border-color:rgba(15,247,150,.55);box-shadow:0 0 10px rgba(15,247,150,.15)}
 .qt:has(input:checked) .qt-led{background:var(--green);box-shadow:0 0 5px var(--green),0 0 11px rgba(15,247,150,.7)}
+/* speech bubble on hover (and when tapped on phones) */
+.qt::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 12px);width:250px;transform:translate(-50%,6px);padding:10px 12px;border:1px solid var(--green);border-radius:10px;background:#0f1317;color:var(--fg);font:500 12.5px/1.45 var(--body);letter-spacing:normal;text-transform:none;text-align:left;box-shadow:0 6px 18px rgba(0,0,0,.55),0 0 12px rgba(15,247,150,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,transform .15s,visibility .15s;z-index:40}
+.qt::before{content:"";position:absolute;left:50%;bottom:calc(100% + 5px);width:12px;height:12px;background:#0f1317;border-right:1px solid var(--green);border-bottom:1px solid var(--green);transform:translate(-50%,6px) rotate(45deg);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,transform .15s,visibility .15s;z-index:41}
+.qt:hover::after,.qt:focus-within::after{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.qt:hover::before,.qt:focus-within::before{opacity:1;visibility:visible;transform:translate(-50%,0) rotate(45deg)}
+@media (max-width:600px){.qt::after{width:200px;font-size:12px}}
 @media (max-width:600px){.quicktog{gap:8px}.qt{font-size:11px;padding:7px 10px 7px 8px;gap:7px}.qt-sw{width:32px;height:18px}.qt-sw::after{width:12px;height:12px}.qt input:checked+.qt-sw::after{transform:translateX(14px)}}
 .foot-btns{display:flex;gap:12px;flex:none}
 @media (max-width:600px){.cab{--pad:10px}.cab-foot{gap:10px}}
@@ -755,9 +761,9 @@ html.nozoom .zoomer{display:none}
     <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Mystery crate</button></span><span class="cab-line"></span></div>
   </div>
   <div class="quicktog" role="group" aria-label="Quick options">
-    <label class="qt" title="No red helmets, armour, rigs or bags"><input type="checkbox" id="noRed"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No <b>red</b> gear</span><span class="qt-led" aria-hidden="true"></span></label>
-    <label class="qt" title="Puts Zero Dam on the map reel and holds it there"><input type="checkbox" id="zdOnly"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">Zero Dam only</span><span class="qt-led" aria-hidden="true"></span></label>
-    <label class="qt" title="See every option once before anything repeats (maps stay fully random)"><input type="checkbox" id="qtUnique"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No repeats</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" data-tip="Removes all red gear from the reels, so you won't get any red helmets, armour, chest rigs or backpacks."><input type="checkbox" id="noRed"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No <b>red</b> gear</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" data-tip="Queue times on the other maps can be long, so I've added this to lock the map to Zero Dam. Spin as much as you like and the map stays on Zero Dam so you can queue straight in."><input type="checkbox" id="zdOnly"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">Zero Dam only</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" data-tip="You'll see every operator, weapon and piece of gear once before anything comes up again. Maps stay fully random."><input type="checkbox" id="qtUnique"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No repeats</span><span class="qt-led" aria-hidden="true"></span></label>
   </div>
 
   <section class="dice">
