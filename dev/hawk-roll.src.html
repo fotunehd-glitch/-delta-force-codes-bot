@@ -1570,14 +1570,24 @@ function parseBuildText(txt){
   }
   return {rows,skipped};
 }
-fetch(BUILD_URL+"?v="+Math.floor(Date.now()/3e5),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{
-  const {rows,skipped}=parseBuildText(t);
-  if(skipped.length)console.warn("build-codes.txt: lines not used (gun not recognised, no code, or a repeat):",skipped);
-  if(rows.length<10)return;              // something's wrong with the file: keep the backup list
-  BUILD_CODES.length=0;BUILD_CODES.push(...rows);
-  if(buildPick.row&&!BUILD_CODES.some(b=>b[3]===buildPick.row[3]))buildPick={gun:"",row:null};
-  window.__buildsLive=rows.length;refreshBuild();
-}).catch(e=>console.warn("build codes: using the built-in list",e));
+// load the codes now, then check again every few minutes so new ones show up without a refresh
+let buildText="";
+function loadBuildCodes(first){
+  return fetch(BUILD_URL+"?v="+Math.floor(Date.now()/6e4),{cache:"no-store"}).then(r=>r.ok?r.text():Promise.reject(r.status)).then(t=>{
+    if(t===buildText)return;               // nothing new
+    if(typeof budW!=="undefined"&&budW&&budW.busy)return; // mid-roll: try again next time
+    const {rows,skipped}=parseBuildText(t);
+    if(first&&skipped.length)console.warn("build-codes.txt: lines not used (gun not recognised, no code, or a repeat):",skipped);
+    if(rows.length<10)return;              // something's wrong with the file: keep the list we have
+    buildText=t;
+    BUILD_CODES.length=0;BUILD_CODES.push(...rows);
+    if(buildPick.row&&!BUILD_CODES.some(b=>b[3]===buildPick.row[3]))buildPick={gun:"",row:null};
+    window.__buildsLive=rows.length;refreshBuild();
+  }).catch(e=>{if(first)console.warn("build codes: using the built-in list",e)});
+}
+loadBuildCodes(true);
+setInterval(()=>{if(!document.hidden)loadBuildCodes(false)},3*60*1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadBuildCodes(false)});
 document.addEventListener("click",e=>{const b=e.target.closest(".bc-copy");if(!b)return;const done=()=>{const t=b.textContent;b.textContent="COPIED";setTimeout(()=>b.textContent=t,1200)};
   if(navigator.clipboard)navigator.clipboard.writeText(b.dataset.code).then(done,()=>{});else{const ta=document.createElement("textarea");ta.value=b.dataset.code;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(_){}ta.remove()}});
 const BUILD_COL=["#2f9e55","#2f6fc4","#7c4dd1","#d49a1c","#cf3a3a","#1fae9a","#c44d9a","#8fa31c","#5c8bd6","#b8742a"];
