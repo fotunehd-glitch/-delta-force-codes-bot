@@ -205,6 +205,21 @@ body.reels-spinning #spinAll{transform:scale(.97);filter:brightness(.85)}
 .cab-foot #spinAll{flex:none;margin:0}
 .nored{display:flex;justify-content:center;align-items:center;gap:6px;margin:-4px auto 22px;width:max-content;max-width:100%;justify-self:center;align-self:center;flex-wrap:wrap;font-size:13px;color:var(--muted);cursor:pointer}.nored b{color:var(--t6)}.nored small{font-size:11px;opacity:.8}
 @media (max-width:600px){.nored small{display:none}}
+/* quick toggle switches under the reels: No red gear, Zero Dam only, No repeats */
+.quicktog{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 14px;margin:-4px auto 22px;max-width:100%}
+.qt{position:relative;display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;font:700 12px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 12px 8px 10px;border:1px solid var(--line);border-radius:999px;background:var(--reel);transition:color .15s,border-color .15s,box-shadow .15s}
+.qt:hover{border-color:rgba(15,247,150,.45)}
+.qt input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.qt b{color:var(--t6)}
+.qt-sw{position:relative;flex:none;width:36px;height:20px;border-radius:999px;background:#1a1f25;border:1px solid #3a434c;transition:background .2s,border-color .2s}
+.qt-sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#6b757e;transition:transform .2s,background .2s,box-shadow .2s}
+.qt input:checked+.qt-sw{border-color:var(--green);background:rgba(15,247,150,.12)}
+.qt input:checked+.qt-sw::after{transform:translateX(16px);background:var(--green);box-shadow:0 0 6px var(--green)}
+.qt input:focus-visible+.qt-sw{outline:2px solid var(--fg);outline-offset:2px}
+.qt-led{flex:none;width:8px;height:8px;border-radius:50%;background:#4a1a1d;box-shadow:inset 0 0 2px rgba(0,0,0,.8);transition:background .2s,box-shadow .2s}
+.qt:has(input:checked){color:var(--fg);border-color:rgba(15,247,150,.55);box-shadow:0 0 10px rgba(15,247,150,.15)}
+.qt:has(input:checked) .qt-led{background:var(--green);box-shadow:0 0 5px var(--green),0 0 11px rgba(15,247,150,.7)}
+@media (max-width:600px){.quicktog{gap:8px}.qt{font-size:11px;padding:7px 10px 7px 8px;gap:7px}.qt-sw{width:32px;height:18px}.qt-sw::after{width:12px;height:12px}.qt input:checked+.qt-sw::after{transform:translateX(14px)}}
 .foot-btns{display:flex;gap:12px;flex:none}
 @media (max-width:600px){.cab{--pad:10px}.cab-foot{gap:10px}}
 
@@ -739,7 +754,11 @@ html.nozoom .zoomer{display:none}
     <section class="reels" id="reels" aria-live="polite"></section>
     <div class="cab-foot"><span class="cab-line"></span><span class="foot-btns"><button class="big" id="spinAll" type="button">Spin all!</button><button class="big dipbtn" id="dipBtn" type="button">Mystery crate</button></span><span class="cab-line"></span></div>
   </div>
-  <label class="ck nored"><input type="checkbox" id="noRed"> <span>No <b>red</b> gear</span> <small>(helmets, armour, rigs and bags)</small></label>
+  <div class="quicktog" role="group" aria-label="Quick options">
+    <label class="qt" title="No red helmets, armour, rigs or bags"><input type="checkbox" id="noRed"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No <b>red</b> gear</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" title="Puts Zero Dam on the map reel and holds it there"><input type="checkbox" id="zdOnly"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">Zero Dam only</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" title="See every option once before anything repeats (maps stay fully random)"><input type="checkbox" id="qtUnique"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No repeats</span><span class="qt-led" aria-hidden="true"></span></label>
+  </div>
 
   <section class="dice">
     <div class="die">
@@ -1787,6 +1806,21 @@ refreshAmmo();
 if(S.ammo.length&&!S.ammo.includes("Blue")){const f=S.ammo[0];$("#ammoRes").textContent=f;ammoW.showLabel(f);$("#ammoRes").style.setProperty("--ac",`var(--t${AMMO.indexOf(f)+1})`)}
 {const nr=$("#noRed");nr.checked=!!S.noRed;nr.addEventListener("change",()=>{S.noRed=nr.checked;save();try{SFX.button()}catch(_){}
   ["helmets","vests","rigs","backpacks"].forEach(k=>{const it=state[k].cur;if(S.noRed&&it&&it.tier===6)spin(k)})})}
+// "Zero Dam only" switch: puts Zero Dam on the map reel and holds it there (Spin all and the mystery crate leave it alone)
+{const zd=$("#zdOnly");
+  const holdMap=(on,quiet)=>{const st=state.map;if(!st||st.held===on)return;
+    if(quiet){st.held=on;$('[data-hold="map"]').setAttribute("aria-pressed",on);$("#f-map").classList.toggle("held",on)}else holdToggle("map")};
+  const apply=(on,quiet)=>{if(on){if(state.map)state.map.held=false;setStatic("map",{nm:"Zero Dam",sub:"Operations",tier:0});if(!quiet)landFx("map");else if(typeof applyRotation==="function")setTimeout(()=>applyRotation(true),0)}holdMap(on,quiet)};
+  zd.checked=!!S.zdOnly;if(S.zdOnly)setTimeout(()=>{if(state.map)apply(true,true)},0); // after the reels are built
+  zd.addEventListener("change",()=>{S.zdOnly=zd.checked;save();apply(zd.checked,false)});
+  // letting go of HOLD on the map reel by hand turns the switch off
+  document.addEventListener("click",e=>{if(e.target.closest('[data-hold="map"]')&&S.zdOnly&&!state.map.held){S.zdOnly=false;zd.checked=false;save()}});
+}
+// "No repeats" switch: same setting as the one in Settings, kept in step both ways
+{const q=$("#qtUnique"),o=$("#optUnique");q.checked=!!S.unique;
+  q.addEventListener("change",()=>{S.unique=q.checked;o.checked=q.checked;save();try{SFX.button()}catch(_){}});
+  o.addEventListener("change",()=>{q.checked=o.checked});
+}
 document.querySelectorAll("[data-a]").forEach(cb=>{cb.checked=S.ammo.includes(cb.dataset.a);cb.addEventListener("change",()=>{
   S.ammo=[...document.querySelectorAll("[data-a]")].filter(x=>x.checked).map(x=>x.dataset.a);$("#ammoMsg").hidden=S.ammo.length>0;save();refreshAmmo()})});
 $("#settings").addEventListener("change",e=>{
