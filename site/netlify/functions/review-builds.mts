@@ -3,6 +3,7 @@ import { getStore } from "@netlify/blobs";
 
 // FortuneHD's review page (#review-builds): list the builds players sent in, then approve or reject them.
 // Approving adds the code to build-codes.txt on GitHub under the player's name, so it shows on the site
+// (it also lists codes players reported as not working, with Remove / Keep)
 // within about 5 minutes with no Netlify deploy. Uses the same login and GitHub token as the map editor:
 //   MAP_EDIT_USER, MAP_EDIT_PASSWORD, MAP_GITHUB_TOKEN
 const REPO = "fotunehd-glitch/-delta-force-codes-bot";
@@ -41,6 +42,14 @@ async function gh(path: string, token: string, init: RequestInit = {}) {
 }
 
 type Sub = { name: string; twitch: boolean; gun: string; code: string; build: string; at: string };
+type Rep = { code: string; gun: string; by: string; count: number; first: string; last: string };
+
+// take every line with this code out of build-codes.txt (comments are left alone)
+function removeFromFile(text: string, code: string) {
+  const rows = text.split(/\r?\n/);
+  const kept = rows.filter((l) => { const t = l.trim(); return t.startsWith("#") || !t.toUpperCase().includes(code); });
+  return kept.length === rows.length ? text : kept.join("\n");
+}
 
 // put the code at the end of the player's section, or start a new section for them at the bottom
 function addToFile(text: string, s: Sub) {
@@ -104,16 +113,60 @@ export default async (req: Request, context: Context) => {
   }
 
   const subs = getStore({ name: "build-submissions", consistency: "strong" });
+  const reports = getStore({ name: "build-reports", consistency: "strong" });
 
   if (b.action === "login" || b.action === "list") {
     const { blobs } = await subs.list();
     const list = (await Promise.all(blobs.map((x) => subs.get(x.key, { type: "json" })))).filter(Boolean) as Sub[];
     list.sort((p, q) => (p.at < q.at ? -1 : 1));
-    return json({ ok: true, ready: !!TOKEN, list: list.map(({ name, twitch, gun, code, build, at }) => ({ name, twitch, gun, code, build, at })) });
+    const rb = (await reports.list()).blobs;
+    const reps = (await Promise.all(rb.map((x) => reports.get(x.key, { type: "json" })))).filter(Boolean) as Rep[];
+    reps.sort((p, q) => q.count - p.count || (p.first < q.first ? -1 : 1));
+    return json({
+      ok: true, ready: !!TOKEN,
+      list: list.map(({ name, twitch, gun, code, build, at }) => ({ name, twitch, gun, code, build, at })),
+      reports: reps.map(({ code, gun, by, count, first, last }) => ({ code, gun, by, count, first, last })),
+    });
   }
 
   const code = String(b.code || "").toUpperCase();
   if (!/^[0-9A-Z]{21}$/.test(code)) return json({ error: "Bad code" }, 400);
+
+  // reported as not working: "keep" just clears the report, "remove" takes the code off the site
+  if (b.action === "keep") {
+    await reports.delete(code);
+    return json({ ok: true, kept: true });
+  }
+  if (b.action === "remove") {
+    if (!TOKEN) return json({ error: "The GitHub token isn't set up in Netlify yet." }, 503);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const cur = await gh(`contents/${FILE}?ref=${BRANCH}`, TOKEN);
+      if (!cur.ok) return json({ error: `Couldn't read build-codes.txt from GitHub (${cur.status})` }, 502);
+      const meta = await cur.json();
+      const text = new TextDecoder().decode(Uint8Array.from(atob(String(meta.content).replace(/\n/g, "")), (c) => c.charCodeAt(0)));
+      const next = removeFromFile(text, code);
+      if (next === text) {
+        await reports.delete(code);
+        return json({ ok: true, note: "That code was already off the site" });
+      }
+      const put = await gh(`contents/${FILE}`, TOKEN, {
+        method: "PUT",
+        body: JSON.stringify({
+          message: `Build codes: remove ${code} (reported not working on the site) [skip netlify]`,
+          content: toB64(next),
+          sha: meta.sha,
+          branch: BRANCH,
+        }),
+      });
+      if (put.ok) {
+        await reports.delete(code);
+        return json({ ok: true, removed: true });
+      }
+      if (put.status !== 409 && put.status !== 422) return json({ error: `GitHub refused the save (${put.status})` }, 502);
+      await sleep(500);
+    }
+    return json({ error: "Someone else was saving at the same time, try again" }, 409);
+  }
   const s = (await subs.get(code, { type: "json" })) as Sub | null;
   if (!s) return json({ ok: true, note: "Already dealt with" });
 

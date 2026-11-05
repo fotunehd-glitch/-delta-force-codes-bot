@@ -455,6 +455,9 @@ html.noribbon .ribnote{display:none}
 .buildmode .bc-submit{display:inline-block;margin-top:6px;font-size:14px;padding:12px 20px}
 .buildmode .bc-subnote{display:block;margin:0;max-width:260px;text-align:center;font-size:12px;line-height:1.45;color:var(--muted)}
 .bc-subnote b{color:var(--fg);font-weight:600}
+.bcode .bc-bad{all:unset;justify-self:start;cursor:pointer;font-size:10.5px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}.bcode .bc-bad:hover,.bcode .bc-bad:focus-visible{color:#ffb070}
+.br-h{margin:16px 0 2px;font:700 15px var(--display);color:var(--fg)}.br-h:first-child{margin-top:4px}
+.br-item .br-n{display:inline-block;padding:0 6px;border-radius:9px;background:#ff8a3d;color:#111;font-weight:700;font-size:11px}
 .bs-back{position:fixed;inset:0;z-index:1000;background:rgba(3,5,8,.78);display:grid;place-items:center;padding:16px}
 .bs-back[hidden]{display:none}
 .bs-box{position:relative;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:var(--reel);border:1px solid var(--green);border-radius:10px;box-shadow:0 0 30px rgba(15,247,150,.18);padding:18px 18px 16px;text-align:left}
@@ -1102,13 +1105,28 @@ html.nozoom .zoomer{display:none}
     <div class="bs-done" id="bsDone" hidden><b>Thanks, build sent!</b><p>It'll show on the site once it's been checked.</p><button type="button" class="big" id="bsAgain">Send another</button></div>
   </div>
 </div>
+<!-- Report a build code that doesn't work: shows on FortuneHD's #review-builds page -->
+<div class="bs-back" id="rbModal" hidden>
+  <div class="bs-box" role="dialog" aria-modal="true" aria-labelledby="rbTitle">
+    <button type="button" class="bs-x" data-close aria-label="Close">&times;</button>
+    <h3 id="rbTitle">Build code not working?</h3>
+    <form id="rbForm" novalidate>
+      <p class="bs-sub">Paste the code that didn't work and press Send. FortuneHD will check it and take it off the site.</p>
+      <label>Build code<input id="rbCode" type="text" autocomplete="off" spellcheck="false" maxlength="200" placeholder="Paste the build code"></label>
+      <input class="bs-hp" id="rbWeb" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="bs-msg" id="rbMsg" role="status"></div>
+      <button type="submit" class="big" id="rbSend">Send</button>
+    </form>
+    <div class="bs-done" id="rbDone" hidden><b>Thanks for letting us know!</b><p>FortuneHD will check it and remove it if it's broken.</p><button type="button" class="big" data-close>Close</button></div>
+  </div>
+</div>
 <!-- Review sent-in builds (FortuneHD): deltaforcerandomkit.com/#review-builds -->
 <div class="bs-back" id="brModal" hidden>
   <div class="bs-box wide" role="dialog" aria-modal="true" aria-labelledby="brTitle">
     <button type="button" class="bs-x" data-close aria-label="Close">&times;</button>
     <h3 id="brTitle">Builds sent in</h3>
     <form id="brLogin" autocomplete="on"><p class="bs-sub">Log in with your map editor username and password.</p><input id="brUser" type="text" placeholder="Username" autocomplete="username" aria-label="Username"><input id="brPass" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"><button type="submit" class="big">Log in</button></form>
-    <div id="brMain" hidden><div class="br-top"><button type="button" class="b" id="brRefresh">Refresh</button><span class="bs-sub" style="margin:0">Approve adds the code to the site under their name (shows within about 5 minutes).</span></div><div class="br-list" id="brList"></div></div>
+    <div id="brMain" hidden><div class="br-top"><button type="button" class="b" id="brRefresh">Refresh</button><span class="bs-sub" style="margin:0">Approve adds the code to the site under their name (shows within about 5 minutes).</span></div><h4 class="br-h">New builds</h4><div class="br-list" id="brList"></div><h4 class="br-h">Reported as not working</h4><div class="br-list" id="brReps"></div></div>
     <div class="bs-msg" id="brMsg" role="status"></div>
   </div>
 </div>
@@ -1546,7 +1564,7 @@ function refreshBuild(){
   if(!r){box.classList.add("hint");box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${all.length} build${all.length>1?"s":""} to pick from</div><div class="bc-src">Press <b>Spin for a random build</b> to get a code for this gun</div>`;box.style.setProperty("--bc","");box.hidden=false;return}
   box.classList.remove("hint");
   const su=BUILD_SRC_URL[r[4]],src=r[4]==="Discord"?`Build code from the FortuneHD Discord`:`Build code by ${su?`<a href="${su}" target="_blank" rel="noopener">${r[4]}</a>`:`<b>${r[4]}</b>`}`;
-  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div>`;
+  box.innerHTML=`<div class="bc-top"><b>${shortGun(w)}</b> · ${r[1]} · build ${all.indexOf(r)+1} of ${all.length}</div><div class="bc-row"><code>${r[3]}</code><button class="b bc-copy" type="button" data-code="${r[3]}">COPY</button></div><div class="bc-src">${src} · paste it in the gun's modify screen</div><button type="button" class="bc-bad" data-code="${r[3]}">Code not working? Tell us</button>`;
   box.style.setProperty("--bc","");box.hidden=false;
 }
 // ---- live build codes: build-codes.txt in the GitHub repo (outside site/, so editing it never needs a Netlify deploy).
@@ -1727,6 +1745,30 @@ function makeBudWheel(){
     catch(err){msg("Couldn't send it, please check your connection","err")}
     finally{$("bsSend").disabled=false}});
 })();
+// ---- "Code not working?": players report a broken build code; FortuneHD removes it on #review-builds
+(function(){
+  const $=id=>document.getElementById(id),modal=$("rbModal"),form=$("rbForm");if(!modal)return;
+  const msg=(t,c)=>{const m=$("rbMsg");m.textContent=t||"";m.className="bs-msg"+(c?" "+c:"")};
+  let opener=null;
+  function open(btn,code){opener=btn||null;form.hidden=false;$("rbDone").hidden=true;msg("");$("rbCode").value=code||"";
+    modal.hidden=false;setTimeout(()=>{$(code?"rbSend":"rbCode").focus()},30)}
+  function close(){modal.hidden=true;if(opener&&document.contains(opener))opener.focus()}
+  document.addEventListener("click",e=>{const b=e.target.closest(".bc-bad");if(b)open(b,b.dataset.code)});
+  let downBg=false;modal.addEventListener("mousedown",e=>{downBg=e.target===modal});modal.addEventListener("click",e=>{if((e.target===modal&&downBg)||e.target.closest("[data-close]"))close();downBg=false});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
+  form.addEventListener("input",()=>{if($("rbMsg").classList.contains("err"))msg("")});
+  form.addEventListener("submit",async e=>{e.preventDefault();
+    const m=$("rbCode").value.toUpperCase().match(/(?:^|[^0-9A-Z])([0-9A-Z]{21})(?![0-9A-Z])/),code=m?m[1]:"";
+    if(!code){msg("Paste the build code (21 letters and numbers)","err");$("rbCode").focus();return}
+    if(BUILD_CODES.length&&!BUILD_CODES.some(b=>b[3]===code)){msg("That code isn't on the site (it may already have been removed)","err");return}
+    msg("Sending…");$("rbSend").disabled=true;
+    try{const r=await fetch("/api/report-build",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code,website:$("rbWeb").value})});
+      let j={};try{j=await r.json()}catch(_){}
+      if(!r.ok){msg(j.error||"Couldn't send it, please try again","err");return}
+      form.hidden=true;$("rbDone").hidden=false;$("rbDone").querySelector("button").focus()}
+    catch(err){msg("Couldn't send it, please check your connection","err")}
+    finally{$("rbSend").disabled=false}});
+})();
 // ---- review sent-in builds (FortuneHD only): open the site with #review-builds
 (function(){
   const $=id=>document.getElementById(id),modal=$("brModal");if(!modal)return;let cred=null;
@@ -1736,20 +1778,26 @@ function makeBudWheel(){
   const GUNS=Object.values(WEAPONS).flat();
   const pick=g=>`<select class="br-gun" aria-label="Gun"><option value="">Pick the gun…</option>${GUNS.map(w=>`<option${w===g?" selected":""}>${esc(w)}</option>`).join("")}</select>`;
   function draw(list){$("brList").innerHTML=list.length?list.map(s=>`<div class="br-item" data-code="${esc(s.code)}"><div class="br-info">${pick(s.gun)}<code>${esc(s.code)}</code><small>by ${s.twitch?`<a href="https://www.twitch.tv/${esc(s.name.toLowerCase())}" target="_blank" rel="noopener">${esc(s.name)}</a> (Twitch)`:esc(s.name)} · ${esc(new Date(s.at).toLocaleString())}</small></div><div class="br-btns"><button type="button" class="b" data-act="approve">Approve</button><button type="button" class="b no" data-act="reject">Reject</button></div></div>`).join(""):`<p class="bs-sub">No builds waiting. Nice and tidy.</p>`}
-  async function load(){msg("Loading…");try{const r=await api({action:"list"});if(!r.ok){msg(r.error||"Couldn't load","err");if(r.status===401){cred=null;show(false)}return}draw(r.list||[]);msg(r.ready?"":"The GitHub token isn't set up in Netlify, so approving won't work.",r.ready?"":"err")}catch(e){msg("Couldn't reach the site","err")}}
+  function drawReps(list){$("brReps").innerHTML=list.length?list.map(s=>`<div class="br-item" data-code="${esc(s.code)}"><div class="br-info"><b>${esc(s.gun||"Unknown gun")}</b><code>${esc(s.code)}</code><small>${s.by?`by ${esc(s.by)} · `:""}<span class="br-n">${s.count}</span> report${s.count>1?"s":""} · ${esc(new Date(s.last).toLocaleString())}</small></div><div class="br-btns"><button type="button" class="b no" data-act="remove">Remove</button><button type="button" class="b" data-act="keep">Keep</button></div></div>`).join(""):`<p class="bs-sub">No codes reported. All good.</p>`}
+  async function load(){msg("Loading…");try{const r=await api({action:"list"});if(!r.ok){msg(r.error||"Couldn't load","err");if(r.status===401){cred=null;show(false)}return}draw(r.list||[]);drawReps(r.reports||[]);msg(r.ready?"":"The GitHub token isn't set up in Netlify, so approving won't work.",r.ready?"":"err")}catch(e){msg("Couldn't reach the site","err")}}
   const show=on=>{$("brLogin").hidden=on;$("brMain").hidden=!on};
   function open(){modal.hidden=false;show(!!cred);if(cred)load();else setTimeout(()=>$("brUser").focus(),30)}
   function close(){modal.hidden=true;if(location.hash==="#review-builds")history.replaceState(null,"",location.pathname+location.search)}
   let downBg=false;modal.addEventListener("mousedown",e=>{downBg=e.target===modal});modal.addEventListener("click",e=>{if((e.target===modal&&downBg)||e.target.closest("[data-close]"))close();downBg=false});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
   $("brLogin").addEventListener("submit",async e=>{e.preventDefault();const user=$("brUser").value.trim(),pass=$("brPass").value;if(!user||!pass){msg("Enter your username and password","err");return}
-    cred={user,pass};msg("Checking…");try{const r=await api({action:"login"});if(!r.ok){cred=null;msg(r.error||"Couldn't log in","err");return}$("brPass").value="";show(true);draw(r.list||[]);msg("")}catch(err){cred=null;msg("Couldn't reach the site","err")}});
+    cred={user,pass};msg("Checking…");try{const r=await api({action:"login"});if(!r.ok){cred=null;msg(r.error||"Couldn't log in","err");return}$("brPass").value="";show(true);draw(r.list||[]);drawReps(r.reports||[]);msg("")}catch(err){cred=null;msg("Couldn't reach the site","err")}});
   $("brRefresh").onclick=load;
   $("brList").addEventListener("click",async e=>{const b=e.target.closest("button[data-act]");if(!b)return;const item=b.closest(".br-item"),code=item.dataset.code,act=b.dataset.act;
     const gun=item.querySelector(".br-gun").value;if(act==="approve"&&!gun){msg("Pick which gun it's for first","err");item.querySelector(".br-gun").focus();return}
     item.querySelectorAll("button").forEach(x=>x.disabled=true);msg(act==="approve"?"Adding it to the site…":"Rejecting…");
     try{const r=await api({action:act,code,gun});if(!r.ok){msg(r.error||"Didn't work","err");item.querySelectorAll("button").forEach(x=>x.disabled=false);return}
       item.remove();if(!$("brList").children.length)draw([]);msg(r.note||(act==="approve"?"Approved. It'll show on the site within about 5 minutes.":"Rejected."),"ok")}
+    catch(err){msg("Couldn't reach the site","err");item.querySelectorAll("button").forEach(x=>x.disabled=false)}});
+  $("brReps").addEventListener("click",async e=>{const b=e.target.closest("button[data-act]");if(!b)return;const item=b.closest(".br-item"),code=item.dataset.code,act=b.dataset.act;
+    item.querySelectorAll("button").forEach(x=>x.disabled=true);msg(act==="remove"?"Taking it off the site…":"Keeping it…");
+    try{const r=await api({action:act,code});if(!r.ok){msg(r.error||"Didn't work","err");item.querySelectorAll("button").forEach(x=>x.disabled=false);return}
+      item.remove();if(!$("brReps").children.length)drawReps([]);msg(r.note||(act==="remove"?"Removed. It'll be gone from the site within about 5 minutes.":"Kept. The report is cleared."),"ok")}
     catch(err){msg("Couldn't reach the site","err");item.querySelectorAll("button").forEach(x=>x.disabled=false)}});
   const check=()=>{if(location.hash==="#review-builds")open()};window.addEventListener("hashchange",check);check();
 })();
