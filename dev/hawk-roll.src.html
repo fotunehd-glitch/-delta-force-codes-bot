@@ -769,7 +769,7 @@ html.nozoom .zoomer{display:none}
   <div class="quicktog" role="group" aria-label="Quick options">
     <label class="qt" data-tip="Removes all red gear from the reels, so you won't get any red helmets, armour or backpacks."><input type="checkbox" id="noRed"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No <b>red</b> gear</span><span class="qt-led" aria-hidden="true"></span></label>
     <label class="qt" data-tip="Queue times on the other maps can be long, so I've added this to lock the map to Zero Dam. Spin as much as you like and the map stays on Zero Dam so you can queue straight in."><input type="checkbox" id="zdOnly"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">Zero Dam only</span><span class="qt-led" aria-hidden="true"></span></label>
-    <label class="qt" data-tip="You'll see every operator, weapon and piece of gear once before anything comes up again. Maps stay fully random."><input type="checkbox" id="qtUnique"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No repeats</span><span class="qt-led" aria-hidden="true"></span></label>
+    <label class="qt" data-tip="A cryptographically fair shuffle: you won't see the same operator, weapon or piece of gear again until you've rolled everything in the pool. Maps stay fully random."><input type="checkbox" id="qtUnique"><i class="qt-sw" aria-hidden="true"></i><span class="qt-t">No repeats</span><span class="qt-led" aria-hidden="true"></span></label>
   </div>
 
   <section class="dice">
@@ -849,7 +849,7 @@ html.nozoom .zoomer{display:none}
     <h2 id="aboutH">About the Delta Force Random Kit</h2>
     <p class="origin"><b>How it started:</b> this site exists because <a href="https://www.twitch.tv/terasite" target="_blank" rel="noopener">Terasite</a> asked FortuneHD to build an updated version of Shotski's Random Force. It has grown from there, with live door codes, build codes from the community and the Sens Lab. Catch Terasite live on <a href="https://www.twitch.tv/terasite" target="_blank" rel="noopener">Twitch</a>.</p>
     <p>Delta Force Random Kit is a free random loadout generator, or loadout randomizer, for Delta Force's Operations extraction mode. Hit <b>Spin all</b> to roll a full random kit: one of 17 operators, a map, a primary weapon or sidearm, and a helmet, armor vest, chest rig and backpack. Lock any slot with <b>Hold</b> and reroll the rest, set the tier range for each piece of gear, and turn off weapon classes, maps or operators you don't want.</p>
-    <p>Operators and weapons are shuffled so you see every option before anything repeats. Spin the wheels for a difficulty (Easy, Normal or Hard), a weapon mod budget and an ammo colour (grey, green, blue, purple, gold or red) to make each raid a challenge. The page also shows today's door codes for Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison and AZ3 Nuclear Plant, refreshed every few minutes.</p>
+    <p>Every roll is fair, and with <b>No repeats</b> on you see every option before anything comes up again. Spin the wheels for a difficulty (Easy, Normal or Hard), a weapon mod budget and an ammo colour (grey, green, blue, purple, gold or red) to make each raid a challenge. The page also shows today's door codes for Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison and AZ3 Nuclear Plant, refreshed every few minutes.</p>
 
     <h2>How the Delta Force loadout randomizer works</h2>
     <ul>
@@ -859,6 +859,10 @@ html.nozoom .zoomer{display:none}
       <li><b>Random map:</b> Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison or AZ3 Nuclear Plant.</li>
       <li><b>Spin the wheel:</b> three roulette wheels decide your difficulty, weapon mod budget and ammo colour. Untick any option to take it off the wheel.</li>
     </ul>
+
+    <h2>How does the randomness work?</h2>
+    <p>Every spin uses your browser's cryptographic random generator (<code>crypto.getRandomValues</code>), with rejection sampling to remove modulo bias, so every item has exactly equal odds on every roll. The result is picked first and the reels and wheels just animate to it, so the animation can never change the odds.</p>
+    <p>Turn on <b>No repeats</b> and it switches to a grab-bag shuffle, like dealing from a deck: nothing repeats until you've had everything in the pool, and the last few items from one round are pushed to the back of the next, so you never get the same thing back to back.</p>
 
     <h2>Random loadout challenge ideas</h2>
     <ul>
