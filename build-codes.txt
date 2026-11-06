@@ -391,3 +391,6 @@ PKM General Machine Gun - 6LQT050059JENPK6GP4J3
 
 [asda]
 VSS Marksman Rifle - 6LQT1QG059JENPK6GP4J3
+
+[Boggs]
+M250 General Machine Gun - 6LQTU080BFDUUP6SMSJVR
