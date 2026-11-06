@@ -84,6 +84,16 @@ async function handleChannelChosen(interaction, channel) {
 }
 
 client.on('interactionCreate', async (interaction) => {
+  // The welcome message's button and channel picker can be pressed by anyone who can see it,
+  // so only let people with Manage Server change where the codes go (the slash command already needs it).
+  if ((interaction.isButton() && interaction.customId === 'create_codes_channel') ||
+      (interaction.isChannelSelectMenu() && interaction.customId === 'pick_codes_channel')) {
+    if (!interaction.inGuild() || !interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
+      await interaction.reply({ content: 'Only people with **Manage Server** permission can choose the codes channel.', ephemeral: true });
+      return;
+    }
+  }
+
   // "Create a new channel for me" button from the welcome message
   if (interaction.isButton() && interaction.customId === 'create_codes_channel') {
     const me = interaction.guild.members.me;

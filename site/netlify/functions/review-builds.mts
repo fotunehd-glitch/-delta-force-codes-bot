@@ -10,6 +10,16 @@ const REPO = "fotunehd-glitch/-delta-force-codes-bot";
 const FILE = "build-codes.txt";
 const BRANCH = "main";
 
+// Login guessing limit: after 10 wrong passwords from one connection in an hour, logins from it are refused
+// until the hour is up. Shared by the map editor and the review page (same login).
+const MAX_FAILS = 10;
+async function ipKey(context: Context, req: Request) {
+  const ip = context.ip || req.headers.get("x-nf-client-connection-ip") || "unknown";
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("dfrk-login:" + ip));
+  const h = [...new Uint8Array(d)].slice(0, 12).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${h}-${Math.floor(Date.now() / 3.6e6)}`;
+}
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -107,7 +117,12 @@ export default async (req: Request, context: Context) => {
 
   let b: any;
   try { b = await req.json(); } catch { return json({ error: "Bad request" }, 400); }
+  const fails = getStore({ name: "login-fails", consistency: "strong" });
+  const fk = await ipKey(context, req);
+  const failed = Number((await fails.get(fk)) || 0);
+  if (failed >= MAX_FAILS) return json({ error: "Too many wrong passwords. Try again in an hour." }, 429);
   if (!(same(String(b?.user || ""), USER) && same(String(b?.pass || ""), PASS))) {
+    await fails.set(fk, String(failed + 1));
     await sleep(1200);
     return json({ error: "Wrong username or password" }, 401);
   }
