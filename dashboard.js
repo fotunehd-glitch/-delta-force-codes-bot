@@ -16,10 +16,9 @@ const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:3000';
 const SESSION_SECRET = process.env.SESSION_SECRET || '';
 const REDIRECT_URI = `${PUBLIC_URL}/callback`;
 
-// Without a real secret anyone could forge a login cookie, so refuse to start.
-if (SESSION_SECRET.length < 16 || /PASTE|change-this/i.test(SESSION_SECRET)) {
-  throw new Error('SESSION_SECRET must be set to a long random string before the dashboard can start.');
-}
+// Without a real secret anyone could forge a login cookie, so the dashboard won't start
+// (the bot itself keeps running and posting codes).
+const SECRET_OK = SESSION_SECRET.length >= 16 && !/PASTE|change-this/i.test(SESSION_SECRET);
 
 const app = express();
 app.set('trust proxy', 1);
@@ -241,4 +240,5 @@ app.post('/guild/:id', async (req, res) => {
 });
 
 const PORT = process.env.DASHBOARD_PORT || 3000;
-app.listen(PORT, () => console.log(`Dashboard running on port ${PORT}`));
+if (SECRET_OK) app.listen(PORT, () => console.log(`Dashboard running on port ${PORT}`));
+else console.error('Dashboard NOT started: set SESSION_SECRET to a long random string (the bot still runs).');
