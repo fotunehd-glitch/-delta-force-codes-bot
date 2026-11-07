@@ -7,8 +7,8 @@ const API_URL = "https://sg-act.playerinfinite.com/api/proxy_direct/logicial/DfT
 
 const MAPS = [
   { key: "zero_dam",       name: "Zero Dam" },
-  { key: "bakshe",         name: "Bakshe" },
-  { key: "longbow_valley", name: "Longbow Valley" },
+  { key: "bakshe",         name: "Brakkesh" },
+  { key: "longbow_valley", name: "Layali Grove" },
   { key: "spaceport",      name: "Space City" },
   { key: "tide_prison",    name: "Tide Prison" },
   { key: "az3",            name: "AZ3" },
