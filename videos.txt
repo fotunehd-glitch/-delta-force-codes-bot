@@ -5,4 +5,5 @@
 # The title is optional. Put the newest video at the TOP: the top one is the big featured video.
 # Lines starting with # are ignored.
 
+Leissik | https://www.youtube.com/watch?v=XGRpW06w3GA | RANDOM LOADOUT GENERATOR... IS HILARIOUS
 Nowhere | https://www.youtube.com/watch?v=HVbvofqo8dk | How We Made Delta Force Fun AGAIN!
