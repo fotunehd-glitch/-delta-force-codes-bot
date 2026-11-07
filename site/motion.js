@@ -72,18 +72,8 @@
     if (lenis) lenis.on("scroll", ScrollTrigger.update);
   }
 
-  // ---------- intro on page load ----------
+  // ---------- page load: no slide-in intro (page shows straight away); just the title "decrypt" below ----------
   const hl = $("header h1 .h");
-  const intro = gsap.timeline({ defaults: { ease: "power3.out" } }).timeScale(1.5); // quick, so people can spin straight away
-  intro
-    .from("header h1", { y: 24, opacity: 0, duration: 0.7 })
-    .from("header .tagline", { y: 10, opacity: 0, letterSpacing: ".6em", duration: 0.7 }, "-=0.45")
-    .from(["header .data", "header .rotbar", "header .intro"], { y: 10, opacity: 0, duration: 0.5, stagger: 0.08 }, "-=0.45")
-    .from(".sitetabs button", { y: 14, opacity: 0, duration: 0.45, stagger: 0.06 }, "-=0.35")
-    .from(".toplinks > a", { y: -12, opacity: 0, duration: 0.45, stagger: 0.08 }, "<")
-    .from(".cab", { y: 30, opacity: 0, scale: 0.97, duration: 0.8, clearProps: "transform,opacity" }, "-=0.3")
-    .from(".cab-line", { scaleX: 0, duration: 0.7, ease: "expo.out", clearProps: "transform" }, "-=0.45")
-    .from("#spinAll, #dipBtn", { scale: 0.8, opacity: 0, duration: 0.45, stagger: 0.08, ease: "back.out(2)", clearProps: "transform,opacity" }, "-=0.5");
 
   // "decrypt" effect on the green part of the title
   if (hl) {
