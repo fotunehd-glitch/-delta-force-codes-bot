@@ -14,6 +14,7 @@
   .lenis [data-lenis-prevent]{overscroll-behavior:contain}
   #fxBg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
   #fxBg .blob{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.10;will-change:transform}
+  #fxBg.still .blob{filter:blur(60px)}
   #fxBg .b1{background:#0ff796;left:-20vmax;top:-25vmax}
   #fxBg .b2{background:#2ee6ff;right:-25vmax;top:30vh;opacity:.07}
   #fxBg .b3{background:#ffe000;left:20vw;bottom:-40vmax;opacity:.04}
@@ -36,7 +37,10 @@
   bg.setAttribute("aria-hidden", "true");
   bg.innerHTML = '<div class="grid"></div><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>';
   document.body.prepend(bg);
-  if (!reduce) {
+  // phones and small screens: keep the glow but don't animate it (big blurred layers moving all the time make cheaper phones stutter)
+  const small = matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  if (small) bg.classList.add("still");
+  if (!reduce && !small) {
     gsap.to("#fxBg .b1", { x: "18vw", y: "12vh", duration: 22, ease: "sine.inOut", yoyo: true, repeat: -1 });
     gsap.to("#fxBg .b2", { x: "-22vw", y: "-14vh", duration: 26, ease: "sine.inOut", yoyo: true, repeat: -1 });
     gsap.to("#fxBg .b3", { x: "-10vw", y: "-8vh", duration: 30, ease: "sine.inOut", yoyo: true, repeat: -1 });
