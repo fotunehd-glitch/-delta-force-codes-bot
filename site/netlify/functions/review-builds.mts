@@ -20,6 +20,19 @@ async function ipKey(context: Context, req: Request) {
   return `${h}-${Math.floor(Date.now() / 3.6e6)}`;
 }
 
+// Every login attempt first drops its own "ticket" in the store, THEN counts the tickets for this
+// connection this hour. Because the ticket is written before the count, a burst of guesses sent all
+// at once can't all see a low count: only the first MAX_FAILS get as far as the password check.
+// A correct login removes its own ticket, so normal logins never lock you out.
+async function loginGate(context: Context, req: Request) {
+  const store = getStore({ name: "login-fails", consistency: "strong" });
+  const prefix = (await ipKey(context, req)) + "/";
+  const ticket = prefix + Date.now() + "-" + crypto.randomUUID();
+  await store.set(ticket, "1");
+  const { blobs } = await store.list({ prefix });
+  return { blocked: blobs.length > MAX_FAILS, passed: () => store.delete(ticket) };
+}
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const json = (body: unknown, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
@@ -117,15 +130,13 @@ export default async (req: Request, context: Context) => {
 
   let b: any;
   try { b = await req.json(); } catch { return json({ error: "Bad request" }, 400); }
-  const fails = getStore({ name: "login-fails", consistency: "strong" });
-  const fk = await ipKey(context, req);
-  const failed = Number((await fails.get(fk)) || 0);
-  if (failed >= MAX_FAILS) return json({ error: "Too many wrong passwords. Try again in an hour." }, 429);
+  const gate = await loginGate(context, req);
+  if (gate.blocked) return json({ error: "Too many wrong passwords. Try again in an hour." }, 429);
   if (!(same(String(b?.user || ""), USER) && same(String(b?.pass || ""), PASS))) {
-    await fails.set(fk, String(failed + 1));
     await sleep(1200);
     return json({ error: "Wrong username or password" }, 401);
   }
+  await gate.passed();
 
   const subs = getStore({ name: "build-submissions", consistency: "strong" });
   const reports = getStore({ name: "build-reports", consistency: "strong" });
