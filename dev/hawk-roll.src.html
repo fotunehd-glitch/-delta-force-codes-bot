@@ -1,4 +1,4 @@
-<title>Delta Force Random Loadout Generator &amp; Randomizer | Season 11</title>
+<title>Delta Force Random Loadout Generator &amp; Randomizer | Season 12</title>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Delta Force Random Kit","alternateName":["Delta Force Random Loadout Generator","Delta Force Loadout Randomizer","Delta Force Randomizer","Delta Force Gear Randomizer","Delta Force Spin Wheel"],"url":"https://deltaforcerandomkit.com/","applicationCategory":"GameApplication","operatingSystem":"Any","description":"Free Delta Force random loadout generator for Operations: random operator, map, weapon, gear, difficulty, weapon mod budget and ammo type, plus today's live door codes.","offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"},"author":{"@type":"Person","name":"FortuneHD"}}</script>
 <link rel="canonical" href="https://deltaforcerandomkit.com/">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://deltaforcerandomkit.com/og-banner.png">
 <meta name="theme-color" content="#0ff796">
-<meta property="og:title" content="Delta Force Random Loadout Generator &amp; Randomizer | Season 11">
+<meta property="og:title" content="Delta Force Random Loadout Generator &amp; Randomizer | Season 12">
 <meta property="og:url" content="https://deltaforcerandomkit.com/">
 <meta property="og:description" content="Free Delta Force random loadout generator for Operations: spin a random operator, map, weapon, gear, difficulty, mod budget and ammo, plus today's door codes.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -757,7 +757,7 @@ html.nozoom .zoomer{display:none}
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
     <span class="tagline">Roll it. Run it. Extract.</span>
-    <div class="data">Updated for Season 11 Reorientation · October 2026</div>
+    <div class="data">Updated for Season 12 Aurora · November 2026</div>
     <div class="rotbar" id="rotBar" aria-live="polite"></div>
     <p class="intro">Free Delta Force random loadout generator and randomizer for Operations. Spin a random operator, map, weapon, helmet, armour, chest rig and backpack, then roll difficulty, weapon mod budget and ammo type, with today's live door codes for every map.</p>
   </header>
@@ -860,7 +860,7 @@ html.nozoom .zoomer{display:none}
 
     <h2>How the Delta Force loadout randomizer works</h2>
     <ul>
-      <li><b>Random operator:</b> picks from every Operations operator, including the Season 11 additions. Untick any you don't own yet.</li>
+      <li><b>Random operator:</b> picks from every Operations operator, including the Season 12 additions. Untick any you don't own yet.</li>
       <li><b>Random weapon:</b> rolls a gun from the classes you choose: assault rifles, SMGs, marksman rifles, snipers, light machine guns, shotguns, special weapons and pistols.</li>
       <li><b>Random gear:</b> a gear randomizer for your helmet, armor, chest rig and backpack, with a tier range (grey to red) for each slot.</li>
       <li><b>Random map:</b> Zero Dam, Layali Grove, Brakkesh, Space City, Tide Prison or AZ3 Nuclear Plant.</li>
@@ -880,7 +880,7 @@ html.nozoom .zoomer{display:none}
       <li><b>Squad roulette:</b> everyone in your squad spins their own kit and nobody is allowed to swap.</li>
     </ul>
 
-    <p>Updated for Season 11 Reorientation, including N-Two, Rover, Vlinder and Morse, the AZ3 Nuclear Plant map, and new weapons such as the MDR, Thompson, RM277, AR-57, SVCH and M82.</p>
+    <p>Updated for Season 12 Aurora, with the new Assault operator Martelo and the AN-94 assault rifle, on top of everything from Season 11 Reorientation: N-Two, Rover, Vlinder and Morse, the AZ3 Nuclear Plant map, and weapons such as the MDR, Thompson, RM277, AR-57, SVCH and M82.</p>
   </section>
 
   </div>
@@ -1141,7 +1141,7 @@ const RI=n=>{if(n<=1)return 0;try{const lim=Math.floor(4294967296/n)*n,u=new Uin
 /*IMGDATA*/
 // ---------------- data ----------------
 const OPERATORS=[
- ["Vyron","Assault"],["D-Wolf","Assault"],["Nox","Assault"],["Tempest","Assault"],
+ ["Vyron","Assault"],["D-Wolf","Assault"],["Nox","Assault"],["Tempest","Assault"],["Martelo","Assault"],
  ["Stinger","Support"],["Toxik","Support"],["Vlinder","Support"],["Rover","Support"],
  ["Shepherd","Engineer"],["Uluru","Engineer"],["Sineva","Engineer"],["Gizmo","Engineer"],["N-Two","Engineer"],
  ["Luna","Recon"],["Hackclaw","Recon"],["Raptor","Recon"],["Morse","Recon"]
@@ -1149,7 +1149,7 @@ const OPERATORS=[
 const MAPS=["Zero Dam","Layali Grove","Brakkesh","Space City","Tide Prison","AZ3 Nuclear Plant"];
 const WTYPES={rifle:"Assault Rifle",smg:"SMG",mp:"Marksman Rifle",sniper:"Sniper",lmg:"Light Machinegun",shotgun:"Shotgun",special:"Special",pistol:"Pistol"};
 const WEAPONS={
- rifle:["M4A1 Assault Rifle","AKM Assault Rifle","QBZ95-1 Assault Rifle","AKS-74 Assault Rifle","ASh-12 Assault Rifle","K416 Assault Rifle","M16A4 Assault Rifle","AUG Assault Rifle","M7 Battle Rifle","SG552 Assault Rifle","AK-12 Assault Rifle","SCAR-H Battle Rifle","G3 Battle Rifle","PTR-32 Assault Rifle","CAR-15 Assault Rifle","AS Val Assault Rifle","CI-19 Assault Rifle","K437 Assault Rifle","KC17 Assault Rifle","MK47 Assault Rifle","MCX LT Assault Rifle","AR-57 Assault Rifle","RM277 Assault Rifle","MDR Assault Rifle"],
+ rifle:["M4A1 Assault Rifle","AKM Assault Rifle","AN-94 Assault Rifle","QBZ95-1 Assault Rifle","AKS-74 Assault Rifle","ASh-12 Assault Rifle","K416 Assault Rifle","M16A4 Assault Rifle","AUG Assault Rifle","M7 Battle Rifle","SG552 Assault Rifle","AK-12 Assault Rifle","SCAR-H Battle Rifle","G3 Battle Rifle","PTR-32 Assault Rifle","CAR-15 Assault Rifle","AS Val Assault Rifle","CI-19 Assault Rifle","K437 Assault Rifle","KC17 Assault Rifle","MK47 Assault Rifle","MCX LT Assault Rifle","AR-57 Assault Rifle","RM277 Assault Rifle","MDR Assault Rifle"],
  smg:["MP5 Submachine Gun","P90 Submachine Gun","Vector Submachine Gun","UZI Submachine Gun","Bizon Submachine Gun","SMG-45 Submachine Gun","SR-3M Compact Assault Rifle","Vityaz Submachine Gun","MP7","QCQ171 Submachine Gun","MK4 Submachine Gun","Thompson Submachine Gun"],
  shotgun:["M1014 Shotgun","S12K Shotgun","M870 Shotgun","725 Double-Barrel Shotgun","FS-12 Shotgun"],
  lmg:["PKM General Machine Gun","M249 Light Machine Gun","M250 General Machine Gun","QJB201 Light Machine Gun"],
@@ -1278,7 +1278,7 @@ const CAL_LEVELS={"9x19mm":[1,2,3,4],".45 ACP":[1,2,3,4,5],"4.6x30mm":[3,4,5],"5
 const WEAPON_CAL={
   "M4A1 Assault Rifle":"5.56x45mm","K416 Assault Rifle":"5.56x45mm","M16A4 Assault Rifle":"5.56x45mm","AUG Assault Rifle":"5.56x45mm","SG552 Assault Rifle":"5.56x45mm","CAR-15 Assault Rifle":"5.56x45mm","MDR Assault Rifle":"5.56x45mm",
   "AKM Assault Rifle":"7.62x39mm","PTR-32 Assault Rifle":"7.62x39mm","MK47 Assault Rifle":"7.62x39mm",
-  "AKS-74 Assault Rifle":"5.45x39mm","AK-12 Assault Rifle":"5.45x39mm",
+  "AKS-74 Assault Rifle":"5.45x39mm","AK-12 Assault Rifle":"5.45x39mm","AN-94 Assault Rifle":"5.45x39mm",
   "QBZ95-1 Assault Rifle":"5.8x42mm","QJB201 Light Machine Gun":"5.8x42mm",
   "ASh-12 Assault Rifle":"12.7x55mm",
   "M7 Battle Rifle":"6.8x51mm","RM277 Assault Rifle":"6.8x51mm","M250 General Machine Gun":"6.8x51mm",
