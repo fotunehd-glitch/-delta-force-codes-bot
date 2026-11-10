@@ -1975,6 +1975,15 @@ document.addEventListener("click",e=>{
 });
 loadCodes();setInterval(loadCodes,5*60*1000);
 // ---------------- map rotation on the page ----------------
+// Brakkesh Hard weekend chip: closed with a countdown to opening, open with a countdown to the end
+function leftTxt(ms){const m=Math.max(1,Math.ceil(ms/6e4)),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return d?`${d}d ${h}h`:h?`${h}h ${mi}m`:`${mi}m`}
+function brakChip(){
+  const el=$("#brakChip");if(!el)return;const now=Date.now();
+  if(now>=BRAK_HARD[1]){el.hidden=true;return}
+  el.hidden=false;
+  if(now>=BRAK_HARD[0]){el.className="rs on";el.innerHTML=`Brakkesh Hard <b>open</b> · ends in ${leftTxt(BRAK_HARD[1]-now)}`}
+  else{el.className="rs off";el.innerHTML=`Brakkesh Hard <b>closed</b> · opens in ${leftTxt(BRAK_HARD[0]-now)}`}
+}
 let lastRot=null;
 function applyRotation(force){
   const r=rotation(),key=r.prisonOpen+"|"+r.next.getTime(),t=hhmm(r.next);
@@ -1982,6 +1991,8 @@ function applyRotation(force){
   $("#rotBar").innerHTML=r.prisonOpen
     ?`<span class="rs on">Tide Prison Hard <b>open</b> until ${t}</span><span class="rs off">Space City Hard <b>closed</b> · opens ${t}</span>`
     :`<span class="rs on">Space City Hard <b>open</b> until ${t}</span><span class="rs off">Tide Prison <b>closed</b> · opens ${t}</span>`;
+  $("#rotBar").insertAdjacentHTML("beforeend",'<span class="rs off" id="brakChip" hidden></span>');
+  brakChip();
   const n=$("#hardNote"),nt=diffNote();n.hidden=!nt;n.textContent=nt;
   if(diffW&&!diffW.busy){
     diffW.setEnabled(effDiffs());
@@ -1997,7 +2008,7 @@ function applyRotation(force){
 (function(){const d=effDiffs(),r=$("#diffRes");if(d.length&&!d.includes(r.textContent)){const v=d[RI(d.length)];r.textContent=v;r.classList.remove("stale");r.classList.toggle("hard",v==="Hard");r.classList.toggle("normal",v==="Normal");diffW.setEnabled(d);diffW.showLabel(v)}})();
 // same for ammo: start on a level the starting gun can use
 (function(){const a=effAmmo(),r=$("#ammoRes");if(a.length&&!a.includes(r.textContent)){const v=a[RI(a.length)];r.textContent=v;r.classList.remove("stale");r.style.setProperty("--ac",`var(--t${AMMO.indexOf(v)+1})`);ammoW.setEnabled(a);ammoW.showLabel(v);const n=$("#ammoNote"),t=ammoNote();if(n){n.hidden=!t;n.textContent=t}}})();
-applyRotation(true);setInterval(()=>applyRotation(false),15000);
+applyRotation(true);setInterval(()=>{applyRotation(false);brakChip()},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)applyRotation(false)});
 
 // ---------------- lucky dip ----------------
