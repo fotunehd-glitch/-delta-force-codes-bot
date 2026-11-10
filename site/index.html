@@ -364,6 +364,8 @@ body.reels-spinning .cab::before,body.reels-spinning .cab-line{animation-duratio
 .rotbar .rs.off b{color:var(--t6)}
 .rotbar .rs::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;background:var(--t6)}
 .rotbar .rs.on::before{background:var(--green);box-shadow:0 0 6px var(--green)}
+.rotbar .rs .cd{font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.rotbar .rs.off #brakChip .cd,.rotbar #brakChip.off .cd{color:var(--yellow)}
 .rotnote{font-size:11.5px;color:var(--t6)}
 .closed-tag{color:var(--t6);font-size:11px}
 .code.closed,.frame.closed{position:relative}
@@ -1982,12 +1984,12 @@ document.addEventListener("click",e=>{
 loadCodes();setInterval(loadCodes,5*60*1000);
 // ---------------- map rotation on the page ----------------
 // Brakkesh Hard weekend chip: closed with a countdown to opening, open with a countdown to the end
-function leftTxt(ms){if(ms<36e5){const s=Math.max(1,Math.floor(ms/1e3)),mi=Math.floor(s/60),se=s%60;return mi?`${mi}m ${String(se).padStart(2,"0")}s`:`${se}s`}const m=Math.ceil(ms/6e4),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return d?`${d}d ${h}h`:`${h}h ${mi}m`}
+function leftTxt(ms){if(ms<36e5){const s=Math.max(1,Math.floor(ms/1e3)),mi=Math.floor(s/60),se=s%60;return mi?`${mi}m ${String(se).padStart(2,"0")}s`:`${se}s`}const m=Math.ceil(ms/6e4),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mi=m%60;return d?`${d}d ${h}h ${mi}m`:`${h}h ${mi}m`}
 function brakChip(){
   const el=$("#brakChip");if(!el)return;const now=Date.now();
   if(now>=BRAK_HARD[1]){el.hidden=true;return}
   el.hidden=false;
-  const on=now>=BRAK_HARD[0],cls=on?"rs on":"rs off",html=on?`Brakkesh Hard <b>open</b> · ends in ${leftTxt(BRAK_HARD[1]-now)}`:`Brakkesh Hard <b>closed</b> · opens in ${leftTxt(BRAK_HARD[0]-now)}`;
+  const on=now>=BRAK_HARD[0],cls=on?"rs on":"rs off",html=on?`Brakkesh Hard <b>open</b> · ends in <span class="cd">${leftTxt(BRAK_HARD[1]-now)}</span>`:`Brakkesh Hard <b>closed</b> · opens in <span class="cd">${leftTxt(BRAK_HARD[0]-now)}</span>`;
   if(el.dataset.h!==html){el.dataset.h=html;el.className=cls;el.innerHTML=html}
 }
 let lastRot=null;
