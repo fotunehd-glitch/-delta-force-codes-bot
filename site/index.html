@@ -72,7 +72,13 @@ footer .fk{color:#ffc439}
 h1{margin:0;font:700 clamp(22px,3.4vw,30px)/1.1 var(--display);letter-spacing:.01em}
 h1 .h{color:var(--green)}
 .tagline{display:block;margin-top:6px;font:700 13px var(--display);color:var(--green);letter-spacing:.18em;text-transform:uppercase}
-.data{font-size:11px;color:var(--muted);margin-top:6px}
+.data{font-size:11px;color:var(--muted);margin-top:8px}
+.s12{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;padding:5px 14px;border-radius:999px;font-size:12px;letter-spacing:.04em;color:var(--fg);border:1px solid transparent;background:linear-gradient(var(--reel),var(--reel)) padding-box,linear-gradient(110deg,#0ff796,#37c8ff,#a96bff,#0ff796) border-box;background-size:100% 100%,300% 100%;box-shadow:0 0 14px rgba(15,247,150,.28),0 0 28px rgba(120,110,255,.18);animation:s12glow 6s linear infinite}
+.s12 b{font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:linear-gradient(100deg,#0ff796,#37c8ff 55%,#c08bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.s12 .new{font-size:10px;font-weight:800;letter-spacing:.08em;padding:1px 7px;border-radius:999px;background:var(--green);color:#04170d}
+@media (max-width:520px){.s12 .x{display:none}.s12{flex-wrap:nowrap;padding:5px 12px}}
+@keyframes s12glow{to{background-position:0 0,300% 0}}
+@media (prefers-reduced-motion:reduce){.s12{animation:none}}
 
 .reels{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-columns:1fr 1fr 2fr 1fr 1fr 1fr 1fr;gap:12px;width:100%}
 .slot{display:grid;gap:6px;justify-items:center;min-width:0}
@@ -767,7 +773,7 @@ html.nozoom .zoomer{display:none}
   <header>
     <h1>FortuneHD's Delta Force <span class="h">Random Loadouts</span></h1>
     <span class="tagline">Roll it. Run it. Extract.</span>
-    <div class="data">Updated for Season 12 Aurora · November 2026</div>
+    <div class="data"><span class="s12"><span class="new">NEW</span><span><b>Season 12 · Aurora</b><span class="x"> &nbsp;Martelo + AN-94 added</span></span></span></div>
     <div class="rotbar" id="rotBar" aria-live="polite"></div>
     <p class="intro">Free Delta Force random loadout generator and randomizer for Operations. Spin a random operator, map, weapon, helmet, armour, chest rig and backpack, then roll difficulty, weapon mod budget and ammo type, with today's live door codes for every map.</p>
   </header>
