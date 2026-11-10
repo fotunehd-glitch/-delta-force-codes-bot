@@ -13,14 +13,14 @@
   .lenis.lenis-stopped{overflow:clip}
   .lenis [data-lenis-prevent]{overscroll-behavior:contain}
   #fxBg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-  #fxBg .blob{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.10;will-change:transform}
+  #fxBg .blob{position:absolute;width:60vmax;height:60vmax;border-radius:50%;filter:blur(90px);opacity:.055;will-change:transform}
   #fxBg.still .blob{filter:blur(60px)}
   #fxBg .b1{background:#0ff796;left:-20vmax;top:-25vmax}
-  #fxBg .b2{background:#2ee6ff;right:-25vmax;top:30vh;opacity:.07}
-  #fxBg .b3{background:#ffe000;left:20vw;bottom:-40vmax;opacity:.04}
+  #fxBg .b2{background:#2ee6ff;right:-25vmax;top:30vh;opacity:.04}
+  #fxBg .b3{background:#ffe000;left:20vw;bottom:-40vmax;opacity:.025}
   #fxBg .grid{position:absolute;inset:-40px;background:
-     linear-gradient(rgba(15,247,150,.045) 1px,transparent 1px) 0 0/44px 44px,
-     linear-gradient(90deg,rgba(15,247,150,.045) 1px,transparent 1px) 0 0/44px 44px;
+     linear-gradient(rgba(15,247,150,.03) 1px,transparent 1px) 0 0/44px 44px,
+     linear-gradient(90deg,rgba(15,247,150,.03) 1px,transparent 1px) 0 0/44px 44px;
      -webkit-mask-image:radial-gradient(ellipse 70% 55% at 50% 20%,#000 20%,transparent 75%);
              mask-image:radial-gradient(ellipse 70% 55% at 50% 20%,#000 20%,transparent 75%)}
   #fxFlash{position:fixed;inset:0;z-index:45;pointer-events:none;opacity:0;
