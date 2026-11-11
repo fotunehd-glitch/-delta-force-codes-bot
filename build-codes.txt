@@ -14,6 +14,7 @@
 # Lines starting with # are ignored. To remove a code, delete its line.
 
 [POACH]
+AN-94 Assault Rifle - 6LSK9K806F3769TRGAG41 - AN-94
 M7 Battle Rifle - 6LND5UO06F3769TRGAG41 - M7
 MDR Assault Rifle - 6LND5NC06F3769TRGAG41 - MDR
 M14 Marksman Rifle - 6LND5RK06F3769TRGAG41 - M14
